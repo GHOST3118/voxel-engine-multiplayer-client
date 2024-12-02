@@ -1,0 +1,6 @@
+{
+    "id": "multiplayer",
+    "title": "Voxel Engine Multiplayer Client",
+    "version": "0.1",
+    "description": "base VE mp package"
+}
