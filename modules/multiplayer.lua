@@ -19,7 +19,17 @@ function Multiplayer.new(host, port)
 end
 
 function Multiplayer:connect(cb)
-    self.network:connect( self.host, self.port, cb )
+    self.network:connect( self.host, self.port, function (status)
+        if status then
+            local connect_message = {
+                Connect = { username = "TestUname", version = "0.25.2" },
+            }
+
+            self.network:send( json.tostring( connect_message ) )
+            cb(status)
+        end
+    end )
+    
 end
 
 function Multiplayer:disconnect()
@@ -32,11 +42,13 @@ function Multiplayer:world_tick()
     if data then
         pcall(function ()
             local server_event = json.parse( data )
-            
-            self.client_sync:server_time( server_event.time )
-
-            for index, event in ipairs(server_event.events) do
-                self.client_sync:world_tick( event )
+            print(data)
+            if server_event then
+                if server_event.ConnectionAccepted then
+                    console.log( "Успешное подключение к миру. ClientId: "..server_event.ConnectionAccepted.client_id )
+                elseif server_event.ConnectionRejected then
+                    console.log( "Не удалось подключиться к миру. Причина: "..server_event.ConnectionRejected.reason )
+                end
             end
         end)
     end

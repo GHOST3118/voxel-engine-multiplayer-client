@@ -8,22 +8,7 @@ console.add_command(
         session.server = Multiplayer.new( unpack(args) )
         session.server:connect(function (status)
             if status then
-                console.log('Успешное подключение')
-            else
-                console.log('Не удалось подключиться к миру')
-            end
-        end)
-    end
-)
-
-console.add_command(
-    "c",
-    "Connect to Server",
-    function (args, kwargs)
-        session.server = Multiplayer.new( "localhost", 3000 )
-        session.server:connect(function (status)
-            if status then
-                console.log('Успешное подключение')
+                console.log('Идет подключение...')
             else
                 console.log('Не удалось подключиться к миру')
             end
