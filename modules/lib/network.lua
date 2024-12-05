@@ -14,9 +14,6 @@ function Network.new()
 end
 
 function Network:connect(host, port, cb)
-    if self.socket then
-        self:disconnect()
-    end
 
     socketlib.connect(host, port, function(sock)
         self.socket = sock
@@ -31,17 +28,19 @@ end
 function Network:disconnect()
     if self.socket then
         socketlib.close_socket( self.socket )
+        self.socket = nil
     end
 end
 
 function Network:send(data)
-    if self.socket then
+    if self.socket and self.socket:is_alive() then
         socketlib.send_text( self.socket, data )
     end
 end
 
 function Network:recieve()
-    if self.socket then
+
+    if self.socket and self.socket:is_alive() then
         return socketlib.receive_text( self.socket, P_LENGTH)
     end
 end

@@ -17,9 +17,14 @@ function Pipeline:add_middleware(func)
 end
 
 function Pipeline:process( data )
-    local result = data
+    local result = data or true
     for index, callback in ipairs(self._middlewares) do
-        result = callback( result )
+        if result then
+            result = callback( result )
+        else
+            break
+        end
+
     end
 
     return result

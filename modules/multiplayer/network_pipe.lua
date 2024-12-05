@@ -27,10 +27,10 @@ NetworkPipe:add_middleware(function(data)
         elseif server_event.ConnectionRejected then
             console.log("Не удалось подключиться к миру. Причина: " ..
                             server_event.ConnectionRejected.reason)
-            
-            session.server.disconnect()
-            session.server = nil
+            session.server.network:send( json.tostring({ Close = true }) )
         end
+
+        return server_event
     end
 end)
 
