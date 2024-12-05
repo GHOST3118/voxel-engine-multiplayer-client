@@ -1,48 +1,27 @@
-local SocketFramework = require "socketlib"
-
-history = session.get_entry("commands_history")
-
-local client = nil
-local socket = nil
-
-console.add_command(
-    "socket-test message:str",
-    "Socket Send Test Message",
-    function (args, kwargs)
-        if socket ~= nil then
-            socket:send( player.get_name().."<%>"..unpack(args) )
-        end
-    end
-)
-
-function on_world_open()
-    client = SocketFramework.Socket.new("localhost", 3000)
-    client:connect(function(sock)
-        print("Connected to server.")
-        socket = sock
-    end)
-end
+local socketlib = require "lib/socketlib"
+local session = require "global"
+local command = require "multiplayer/console"
 
 function on_world_tick()
-    SocketFramework.update()
-    socket:receive(1024, function(data)
-        print("Received from server:", data)
-
-        local e = json.parse( data )
-        if e and e.ev_type == "BLOCK_PLACE" then
-            block.set( e.x, e.y, e.z, e.blockid, 0 )
-        end
-    end)
+    if session.server then
+        session.server:world_tick()
+    end
 end
 
 function on_block_placed(blockid, x, y, z, playerid)
-    local data = {}
-        data.ev_type = "BLOCK_PLACE"
-        data.blockid = blockid
-        data.x = x
-        data.y = y
-        data.z = z
-        data.playerid = playerid
+    if session.server then
+        session.server.client_sync:on_block_placed_handler(blockid, x, y, z, playerid)
+    end
+end
 
-    socket:send( json.tostring(data) )
+function on_block_replaced(blockid, x, y, z, playerid)
+    if session.server then
+        session.server.client_sync:on_block_replaced_handler(blockid, x, y, z, playerid)
+    end
+end
+
+function on_block_broken(blockid, x, y, z, playerid)
+    if session.server then
+        session.server.client_sync:on_block_broken_handler(blockid, x, y, z, playerid)
+    end
 end
