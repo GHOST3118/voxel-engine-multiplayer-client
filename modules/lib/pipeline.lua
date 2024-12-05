@@ -24,3 +24,5 @@ function Pipeline:process( data )
 
     return result
 end
+
+return Pipeline

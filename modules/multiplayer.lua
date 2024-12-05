@@ -1,5 +1,6 @@
 local Network = require "lib/network"
 local ClientSynchronizer = require "multiplayer/client_synchronizer"
+local NetworkPipe = require "multiplayer/network_pipe"
 
 local Multiplayer = {}
 Multiplayer.__index = Multiplayer
@@ -37,21 +38,7 @@ function Multiplayer:disconnect()
 end
 
 function Multiplayer:world_tick()
-    local data = self.network:recieve()
-
-    if data then
-        pcall(function ()
-            local server_event = json.parse( data )
-            print(data)
-            if server_event then
-                if server_event.ConnectionAccepted then
-                    console.log( "Успешное подключение к миру. ClientId: "..server_event.ConnectionAccepted.client_id )
-                elseif server_event.ConnectionRejected then
-                    console.log( "Не удалось подключиться к миру. Причина: "..server_event.ConnectionRejected.reason )
-                end
-            end
-        end)
-    end
+    NetworkPipe:process()
 end
 
 function Multiplayer:player_tick(playerid)
