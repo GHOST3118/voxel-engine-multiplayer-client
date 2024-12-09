@@ -1,10 +1,26 @@
 local socketlib = require "lib/socketlib"
-local session = require "global"
+local session = require "multiplayer/global"
 local command = require "multiplayer/console"
 
 function on_world_tick()
+    if session.client then
+        session.client:world_tick()
+    end
+
     if session.server then
-        session.server:world_tick()
+        session.server:tick()
+    end
+end
+
+function on_player_tick(playerid)
+    if session.client then
+        session.client:player_tick(playerid)
+    end
+end
+
+function on_world_quit()
+    if session.client then
+        session.client:disconnect()
     end
 end
 

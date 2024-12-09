@@ -3,12 +3,10 @@ local socketlib = require "lib/socketlib"
 local Network = {}
 Network.__index = Network
 
-local P_LENGTH = 1024
-
-function Network.new()
+function Network.new(socket)
     local self = setmetatable({}, Network)
 
-    self.socket = nil
+    self.socket = socket or nil
 
     return self
 end
@@ -38,10 +36,23 @@ function Network:send(data)
     end
 end
 
-function Network:recieve()
+function Network:send_bytes(data)
+    if self.socket and self.socket:is_alive() then
+        socketlib.send( self.socket, data )
+    end
+end
+
+function Network:recieve(length)
 
     if self.socket and self.socket:is_alive() then
-        return socketlib.receive_text( self.socket, P_LENGTH)
+        return socketlib.receive_text( self.socket, length or 1024)
+    end
+end
+
+function Network:recieve_bytes(length)
+
+    if self.socket and self.socket:is_alive() then
+        return socketlib.receive( self.socket, length or 1024)
     end
 end
 

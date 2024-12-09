@@ -1,0 +1,10 @@
+{
+    "Lua.diagnostics.globals": [
+        "network"
+    ],
+    "Lua.diagnostics.disable": [
+        "undefined-global",
+        "undefined-field",
+        "deprecated"
+    ]
+}
