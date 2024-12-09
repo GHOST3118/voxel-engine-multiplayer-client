@@ -4,7 +4,6 @@ local session = require "multiplayer/global"
 local ConnectionMessage = require "multiplayer/messages/connection"
 
 local AuthPipe = Pipeline.new()
-local network = nil
 
 local function unique_username(username)
     for index, client in ipairs(session.server.clients) do
@@ -18,14 +17,16 @@ local function unique_username(username)
     return true
 end
 
-AuthPipe:add_middleware(function(args)
-    local __network, message = unpack(args)
-    network = __network
+AuthPipe:add_middleware(function(message)
+    local client = message.__client
+    local network = message.__network
 
     return message
 end)
 
 AuthPipe:add_middleware(function(message)
+    local client = message.__client
+    local network = message.__network
 
     if message.Connect then
         local hasUsername = message.Connect.username ~= nil

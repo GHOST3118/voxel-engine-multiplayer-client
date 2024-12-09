@@ -7,20 +7,21 @@ local Network = require "lib/network"
 local AuthPipe = require "multiplayer/server/auth_pipe"
 
 local ServerPipe = Pipeline.new()
-local network = nil
-local client = nil
 
 ServerPipe:add_middleware(function(_client)
-    client = _client
-    network = Network.new(_client.socket)
+    local client = _client
+    local network = Network.new(_client.socket)
     local data = Proto.recv_text(network)
     if data then
+        print(data)
         if pcall(function()
             json.parse(data)
         end) then
 
             local message = json.parse(data)
             if message then
+                message.__client = client
+                message.__network = network
                 return message
             end
         end
@@ -30,6 +31,9 @@ ServerPipe:add_middleware(function(_client)
 end)
 
 ServerPipe:add_middleware(function(message)
+    local client = message.__client
+    local network = message.__network
+
     if message.Close then
         if network then
             network:disconnect()
@@ -42,8 +46,10 @@ ServerPipe:add_middleware(function(message)
 end)
 
 ServerPipe:add_middleware(function(message)
+    local client = message.__client
+    local network = message.__network
 
-    local status, client_id, username = unpack(AuthPipe:process({network, message}) or {false})
+    local status, client_id, username = unpack(AuthPipe:process(message) or {false})
 
     if status then
         client.active = true
@@ -56,6 +62,8 @@ end)
 
 
 ServerPipe:add_middleware(function(message)
+    local client = message.__client
+    local network = message.__network
 
     if client.active then
         return message
@@ -65,6 +73,9 @@ ServerPipe:add_middleware(function(message)
 end)
 
 ServerPipe:add_middleware(function(message)
+    local client = message.__client
+    local network = message.__network
+
     if message.Status then
         Proto.send_text(network, CommandMessage.StatusResponse.new())
     elseif message.Players then
@@ -75,6 +86,9 @@ ServerPipe:add_middleware(function(message)
 end)
 
 ServerPipe:add_middleware(function(message)
+    local client = message.__client
+    local network = message.__network
+
     if message.PlayerPosition then
         Proto.send_text(network, json.tostring({
             EventPool = {

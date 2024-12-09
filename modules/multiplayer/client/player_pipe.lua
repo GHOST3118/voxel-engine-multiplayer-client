@@ -32,7 +32,7 @@ PlayerPipe:add_middleware(function (playerid)
         }
     }
 
-    Proto.send_text(session.client.network, json.tostring( message ) )
+    --Proto.send_text(session.client.network, json.tostring( message ) )
     return playerid
 end)
 
