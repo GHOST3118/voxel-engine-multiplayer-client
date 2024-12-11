@@ -1,4 +1,5 @@
 local data_buffer = require "core:data_buffer"
+local utils   = require "lib/utils"
 
 local Proto = {}
 
@@ -6,12 +7,10 @@ function Proto.send_text(network, data)
     local buffer = data_buffer()
     local payload = data_buffer()
 
-    payload:put_string( data )
-
+    payload:set_bytes( utf8.tobytes(data) )
     buffer:put_uint16( payload:size() )
-    buffer:put_string( data )
-
     network:send_bytes(buffer:get_bytes())
+    network:send(data)
 end
 
 function Proto.recv_text(network)
@@ -21,6 +20,7 @@ function Proto.recv_text(network)
         local header = data_buffer(byte_length)
         local length = header:get_uint16()
         local payload = network:recieve(length)
+        print(length, payload)
 
         if payload then
             return payload

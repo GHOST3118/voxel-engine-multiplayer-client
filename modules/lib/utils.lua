@@ -5,7 +5,7 @@ function utils.dump(o)
        local s = '{ '
        for k,v in pairs(o) do
           if type(k) ~= 'number' then k = '"'..k..'"' end
-          s = s .. '['..k..'] = ' .. utils.dump(v) .. ','
+          s = s .. utils.dump(v) .. ','
        end
        return s .. '} '
     else
