@@ -6,14 +6,14 @@ function Proto.send_text(network, data)
     local buffer = data_buffer()
     local length = data_buffer()
     buffer:put_string( data )
-    length:put_uint32( buffer:size() )
+    length:put_uint16( buffer:size() )
 
     network:send_bytes(length:get_bytes())
     network:send(data)
 end
 
 function Proto.recv_text(network)
-    local byte_length = network:recieve_bytes(4)
+    local byte_length = network:recieve_bytes(2)
 
     if byte_length then
         local header = data_buffer(byte_length)
