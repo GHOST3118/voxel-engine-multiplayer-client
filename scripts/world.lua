@@ -11,8 +11,6 @@ function on_world_tick()
     if session.server then
         session.server:tick()
     end
-
-    print( uuid.getUUID() )
 end
 
 function on_player_tick(playerid)
