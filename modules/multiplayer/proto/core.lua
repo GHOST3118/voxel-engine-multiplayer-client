@@ -19,7 +19,7 @@ function Proto.recv_text(network)
 
     if byte_length then
         local header = data_buffer(byte_length)
-        local length = header:get_uint32()
+        local length = header:get_uint16()
         local payload = network:recieve(length)
 
         if payload then
