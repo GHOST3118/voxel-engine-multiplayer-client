@@ -8,6 +8,9 @@ console.add_command(
     "connect host:str port:int",
     "Connect to Server",
     function (args, kwargs)
+        if not session.uname then
+            return console.log('Имя пользователя не задано.')
+        end
         if session.client then
             session.client:disconnect()
             console.log('Закрытие подключения...')
@@ -24,25 +27,25 @@ console.add_command(
     end
 )
 
-console.add_command(
-    "c",
-    "Connect to Server",
-    function (args, kwargs)
-        if session.client then
-            session.client:disconnect()
-            console.log('Закрытие подключения...')
-        end
+-- console.add_command(
+--     "c",
+--     "Connect to Server",
+--     function (args, kwargs)
+--         if session.client then
+--             session.client:disconnect()
+--             console.log('Закрытие подключения...')
+--         end
 
-        session.client = Multiplayer.new( "localhost", 3000 )
-        session.client:connect(function (status)
-            if status then
-                console.log('Идет подключение...')
-            else
-                console.log('Не удалось подключиться к миру')
-            end
-        end)
-    end
-)
+--         session.client = Multiplayer.new( "localhost", 3000 )
+--         session.client:connect(function (status)
+--             if status then
+--                 console.log('Идет подключение...')
+--             else
+--                 console.log('Не удалось подключиться к миру')
+--             end
+--         end)
+--     end
+-- )
 
 NetworkPipe:add_middleware(function (server_event)
     if server_event.Status then
