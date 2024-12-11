@@ -1,7 +1,8 @@
 local socketlib = require "lib/socketlib"
 local session = require "multiplayer/global"
 local command = require "multiplayer/console"
-local uuid    = require "lib/uuid"
+local utils   = require "lib/utils"
+local data_buffer = require "core:data_buffer"
 
 function on_world_tick()
     if session.client then

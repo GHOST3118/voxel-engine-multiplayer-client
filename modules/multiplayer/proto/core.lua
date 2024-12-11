@@ -4,12 +4,14 @@ local Proto = {}
 
 function Proto.send_text(network, data)
     local buffer = data_buffer()
-    local length = data_buffer()
-    buffer:put_string( data )
-    length:put_uint16( buffer:size() )
+    local payload = data_buffer()
 
-    network:send_bytes(length:get_bytes())
-    network:send(data)
+    payload:put_string( data )
+
+    buffer:put_uint16( payload:size() )
+    buffer:put_string( data )
+
+    network:send_bytes(buffer:get_bytes())
 end
 
 function Proto.recv_text(network)
