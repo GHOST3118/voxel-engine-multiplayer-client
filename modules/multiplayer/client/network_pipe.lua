@@ -2,7 +2,25 @@ local Pipeline = require "lib/pipeline"
 local session = require "multiplayer/global"
 local Proto = require "multiplayer/proto/core"
 
+local List = require "lib/common/list"
+
+local ClientQueue = require "multiplayer/client/client_queue"
+
 local NetworkPipe = Pipeline.new()
+
+NetworkPipe:add_middleware(function()
+    local request = {
+        events = {}
+    }
+
+    while not List.is_empty(ClientQueue) do
+        table.insert( request.events, List.popleft( ClientQueue ) )
+    end
+
+    Proto.send_text( session.client.network, json.tostring(request) )
+
+    return true
+end)
 
 NetworkPipe:add_middleware(function()
     if not session.client then
@@ -19,22 +37,24 @@ NetworkPipe:add_middleware(function()
     return nil
 end)
 
+
 NetworkPipe:add_middleware(function(data)
-    local server_event = data
+    local events = data.events
+    if events then
+        for index, event in ipairs(events) do
 
-    if server_event then
-        if server_event.ConnectionAccepted then
-            console.log("Успешное подключение к миру. ClientId: " ..
-                            server_event.ConnectionAccepted.client_id)
-            session.client_id = server_event.ConnectionAccepted.client_id
-        elseif server_event.ConnectionRejected then
-            console.log("Не удалось подключиться к миру. Причина: " ..
-                            server_event.ConnectionRejected.reason)
-            Proto.send_text( session.client.network, json.tostring({ Close = true }) )
+            if event and event.payload then
+                local request_uuid = event.request_uuid
+                if session.client.handlers[request_uuid] then
+                    session.client.handlers[request_uuid](event.payload)
+                end
+            end
         end
-
-        return server_event
     end
+
+    return data
 end)
+
+
 
 return NetworkPipe

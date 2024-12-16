@@ -33,16 +33,6 @@ function socketlib.create_server(port, on_client_connect)
     return server
 end
 
--- Отправка строки через сокет
-function socketlib.send_text(socket, text)
-    if socket and socket:is_alive() then
-        local bytes = utf8.tobytes(text)
-        socket:send(bytes)
-    else
-        error("Сокет закрыт или не существует.")
-    end
-end
-
 -- Получение строки через сокет
 function socketlib.receive_text(socket, max_length)
     if socket and socket:is_alive() then

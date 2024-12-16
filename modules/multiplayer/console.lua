@@ -1,101 +1,59 @@
 local session = require "multiplayer/global"
-local Multiplayer = require "multiplayer/client/client"
+local Client = require "multiplayer/client/client"
 local Server = require "multiplayer/server/server"
-local NetworkPipe = require "multiplayer/client/network_pipe"
 local Proto = require "multiplayer/proto/core"
 
 console.add_command(
     "connect host:str port:int",
     "Connect to Server",
     function (args, kwargs)
-        if not session.uname then
+        if not session.username then
             return console.log('Имя пользователя не задано.')
         end
+
         if session.client then
             session.client:disconnect()
             console.log('Закрытие подключения...')
         end
 
-        session.client = Multiplayer.new( unpack(args) )
-        session.client:connect(function (status)
-            if status then
-                console.log('Идет подключение...')
-            else
-                console.log('Не удалось подключиться к миру')
-            end
-        end)
+        session.client = Client.new( unpack(args) )
+        session.client:connect()
     end
 )
 
-
-
-
-
-
--- { "Connect": { "username" } }
-
-
-
-
-
-
--- console.add_command(
---     "c",
---     "Connect to Server",
---     function (args, kwargs)
---         if session.client then
---             session.client:disconnect()
---             console.log('Закрытие подключения...')
---         end
-
---         session.client = Multiplayer.new( "localhost", 3000 )
---         session.client:connect(function (status)
---             if status then
---                 console.log('Идет подключение...')
---             else
---                 console.log('Не удалось подключиться к миру')
---             end
---         end)
---     end
--- )
-
-NetworkPipe:add_middleware(function (server_event)
-    if server_event.Status then
-        console.log( server_event.Status )
+console.add_command(
+    "c",
+    "fast conn",
+    function (args, kwargs)
+        console.execute("connect localhost 3000")
     end
-
-    return server_event
-end)
+)
 
 console.add_command(
     "server_info",
     "Server Info",
     function (args, kwargs)
         if session.client then
-            Proto.send_text(session.client.network, json.tostring({ Status = true }))
+            session.client:queue_request({ Status = true }, function (event)
+                console.log(event.Status)
+            end)
         end
-        
     end
 )
 
-NetworkPipe:add_middleware(function (server_event)
-    if server_event.Players then
-        for index, player in ipairs(server_event.Players) do
-            console.log( "["..index.."] "..player.username )
-        end
-    end
-
-    return server_event
-end)
-
 console.add_command(
-    "players",
+    "list",
     "Server Players",
     function (args, kwargs)
         if session.client then
-            Proto.send_text(session.client.network, json.tostring({ Players = true }))
+            session.client:queue_request({ Players = true }, function (event)
+                if event.Players then
+                    for index, player in ipairs(event.Players) do
+                        console.log( "["..(index).."] "..player.username )
+                    end
+                end
+            end)
         end
-        
     end
 )
 
@@ -103,8 +61,8 @@ console.add_command(
     "cu username:str",
     "Change Username",
     function (args, kwargs)
-        session.uname = args[1]
-        console.log('Имя изменнено на '..session.uname)
+        session.username = args[1]
+        console.log('Имя изменнено на '..session.username)
     end
 )
 

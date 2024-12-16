@@ -6,5 +6,11 @@
         "undefined-global",
         "undefined-field",
         "deprecated"
+    ],
+    "Lua.completion.requireSeparator": "/",
+    "Lua.runtime.pathStrict": true,
+    "Lua.runtime.version": "Lua 5.1",
+    "Lua.runtime.path": [
+        "modules/?.lua"
     ]
 }

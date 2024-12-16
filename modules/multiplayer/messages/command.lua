@@ -1,3 +1,6 @@
+local build_message = require "multiplayer/messages/build_message"
+local session = require "multiplayer/global"
+
 local CommandMessage = {}
 
 CommandMessage.StatusRequest = {}
@@ -6,40 +9,31 @@ function CommandMessage.StatusRequest.new()
         Status = true
     }
 
-    return json.tostring( schema )
+    return schema
 end
 
 CommandMessage.StatusResponse = {}
-function CommandMessage.StatusResponse.new()
+function CommandMessage.StatusResponse.new( request_uuid )
     local schema = {
         Status = "[server] connected"
     }
 
-    return json.tostring( schema )
-end
-
-CommandMessage.PlayersRequest = {}
-function CommandMessage.PlayersRequest.new()
-    local schema = {
-        Players = true
-    }
-
-    return json.tostring( schema )
+    return build_message(request_uuid, schema)
 end
 
 CommandMessage.PlayersResponse = {}
-function CommandMessage.PlayersResponse.new( clients )
-    local players = {}
-
-    for index, client in ipairs(clients) do
-        table.insert( players, { username = client.username, client_id = client.client_id } )
-    end
-
+function CommandMessage.PlayersResponse.new( request_uuid )
     local schema = {
-        Players = players
+        Players = {}
     }
 
-    return json.tostring( schema )
+    for index, player in ipairs(session.server.clients) do
+        if player.active then
+            table.insert(schema.Players, {username = player.username})
+        end
+    end
+
+    return build_message(request_uuid, schema)
 end
 
 return CommandMessage

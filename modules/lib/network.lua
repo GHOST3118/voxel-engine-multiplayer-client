@@ -32,12 +32,6 @@ end
 
 function Network:send(data)
     if self.socket and self.socket:is_alive() then
-        socketlib.send_text( self.socket, data )
-    end
-end
-
-function Network:send_bytes(data)
-    if self.socket and self.socket:is_alive() then
         socketlib.send( self.socket, data )
     end
 end

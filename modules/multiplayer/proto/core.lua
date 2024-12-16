@@ -9,7 +9,8 @@ function Proto.send_text(network, data)
 
     payload:set_bytes( utf8.tobytes(data) )
     buffer:put_uint16( payload:size() )
-    network:send_bytes(buffer:get_bytes())
+
+    network:send(buffer:get_bytes())
     network:send(data)
 end
 
@@ -20,7 +21,6 @@ function Proto.recv_text(network)
         local header = data_buffer(byte_length)
         local length = header:get_uint16()
         local payload = network:recieve(length)
-        print(length, payload)
 
         if payload then
             return payload

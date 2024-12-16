@@ -1,3 +1,5 @@
+local build_message = require "multiplayer/messages/build_message"
+
 local ConnectionMessage = {}
 
 ConnectionMessage.Connect = {}
@@ -6,25 +8,25 @@ function ConnectionMessage.Connect.new(username, version)
         Connect = { username = username, version = version or "0.25.2" },
     }
 
-    return json.tostring( schema )
+    return schema
 end
 
 ConnectionMessage.ConnectionAccepted = {}
-function ConnectionMessage.ConnectionAccepted.new(client_id)
+function ConnectionMessage.ConnectionAccepted.new(request_uuid)
     local schema = {
-        ConnectionAccepted = { client_id = client_id },
+        ConnectionAccepted = {},
     }
 
-    return json.tostring( schema )
+    return build_message(request_uuid, schema)
 end
 
 ConnectionMessage.ConnectionRejected = {}
-function ConnectionMessage.ConnectionRejected.new(reason)
+function ConnectionMessage.ConnectionRejected.new(request_uuid, reason)
     local schema = {
         ConnectionRejected = { reason = reason },
     }
 
-    return json.tostring( schema )
+    return build_message(request_uuid, schema)
 end
 
 return ConnectionMessage

@@ -27,27 +27,31 @@ end)
 AuthPipe:add_middleware(function(message)
     local client = message.__client
     local network = message.__network
+    local event = message.event
+    local payload = event.payload
 
-    if message.Connect then
-        local hasUsername = message.Connect.username ~= nil
-        local uniqueUsername = unique_username(message.Connect.username)
-        local checkVersion = message.Connect.version == "0.25.3"
+    if payload.Connect then
+        local hasUsername = payload.Connect.username ~= nil
+        local uniqueUsername = unique_username(payload.Connect.username)
+        local checkVersion = payload.Connect.version == "0.25.3"
         local accept = hasUsername and uniqueUsername and checkVersion
 
         if accept then
-            local client_id = math.random(1, 1000)
-            local Accept = ConnectionMessage.ConnectionAccepted.new(client_id)
-            Proto.send_text(network, Accept)
-            return {true, client_id, message.Connect.username}
+            local Accept = ConnectionMessage.ConnectionAccepted.new(event.request_uuid)
+
+            session.server:queue_response(Accept)
+
+            return {true, payload.Connect.username}
         else
-            local Reject = ConnectionMessage.ConnectionRejected.new("unknown error")
+            local Reject = ConnectionMessage.ConnectionRejected.new(event.request_uuid, "unknown error")
 
             if not hasUsername then Reject = ConnectionMessage.ConnectionRejected.new("username has'nt be empty")
             elseif not uniqueUsername then Reject = ConnectionMessage.ConnectionRejected.new("username is exists")
             elseif not checkVersion then Reject = ConnectionMessage.ConnectionRejected.new("version not appreoved")
             end
 
-            Proto.send_text(network, Reject)
+            session.server:queue_response(Reject)
+
             return {false}
         end
     end

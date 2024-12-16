@@ -1,8 +1,7 @@
 local Session = {}
 
 Session.client = nil
-Session.uname = nil
-Session.client_id = nil
+Session.username = nil
 
 Session.server = nil
 
