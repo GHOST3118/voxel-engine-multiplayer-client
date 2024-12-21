@@ -8,7 +8,7 @@ console.add_command(
     "Connect to Server",
     function (args, kwargs)
         if not session.username then
-            return console.log('Имя пользователя не задано.')
+            return console.log('Имя пользователя не задано, задайте с помощью команды "cu никнейм"!')
         end
 
         if session.client then
@@ -16,6 +16,7 @@ console.add_command(
             console.log('Закрытие подключения...')
         end
 
+        console.log('Подключение...')
         session.client = Client.new( unpack(args) )
         session.client:connect()
     end
@@ -23,7 +24,7 @@ console.add_command(
 
 console.add_command(
     "c",
-    "fast conn",
+    "Connect to localhost:3000",
     function (args, kwargs)
         console.execute("connect localhost 3000")
     end
@@ -43,7 +44,7 @@ console.add_command(
 
 console.add_command(
     "list",
-    "Server Players",
+    "Print player list",
     function (args, kwargs)
         if session.client then
             session.client:queue_request({ Players = true }, function (event)
@@ -62,7 +63,7 @@ console.add_command(
     "Change Username",
     function (args, kwargs)
         session.username = args[1]
-        console.log('Имя изменнено на '..session.username)
+        console.log('Имя изменнено на "'..session.username..'"')
     end
 )
 
@@ -72,34 +73,38 @@ console.add_command(
     function (args, kwargs)
         if session.client then
             session.client:disconnect()
+            console.log('Закрытие подключения...')
         end
     end
 )
 
 console.add_command(
     "serve",
-    "Server open",
+    "Open server",
     function (args, kwargs)
         if session.server then
-            console.log('Сервер уже запущен')
+            console.log('Сервер уже запущен!')
         elseif session.client then
-            console.log('Невозможно запустить сервер пока вы подключены к другому серверу')
+            console.log('Невозможно запустить сервер, пока вы подключены к другому серверу')
         else
-            session.server = Server.new(3000)
+            local port = 3000
+            session.server = Server.new(port)
             session.server:serve()
+            console.log('Сервер открыт, слушаем порт '..port)
         end
     end
 )
 
 console.add_command(
     "stop",
-    "Server stop",
+    "Close server",
     function (args, kwargs)
         if session.server then
-            console.log('Сервер не запущен')
+            console.log('Сервер ещё не запущен!')
         else
             session.server:stop()
             session.server = nil
+            console.log('Сервер был остановлен')
         end
     end
 )

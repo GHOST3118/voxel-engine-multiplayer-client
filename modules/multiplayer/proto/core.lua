@@ -12,6 +12,7 @@ function Proto.send_text(network, data)
 
     network:send(buffer:get_bytes())
     network:send(data)
+    print("Отправили:",data)
 end
 
 function Proto.recv_text(network)
@@ -23,6 +24,7 @@ function Proto.recv_text(network)
         local payload = network:recieve(length)
 
         if payload then
+            print("Получили:",payload)
             return payload
         else
             return nil

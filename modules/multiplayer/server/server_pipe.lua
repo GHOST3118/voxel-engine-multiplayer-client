@@ -9,10 +9,14 @@ local ServerPipe = Pipeline.new()
 
 ServerPipe:add_middleware(function(client)
     local response = { events = {} }
+    local empty_response = true
 
     while not List.is_empty(client.response_queue) do
         table.insert( response.events, List.popleft( client.response_queue ) )
+        empty_response = false
     end
+
+    if empty_response then return client end
 
     Proto.send_text( client.network, json.tostring(response) )
 

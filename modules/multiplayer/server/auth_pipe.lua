@@ -5,15 +5,15 @@ local ConnectionMessage = require "multiplayer/messages/connection"
 
 local AuthPipe = Pipeline.new()
 
+---Проверка никнейма на уникальность
+---@param username string Никнейм
+---@return boolean 
 local function unique_username(username)
     for index, client in ipairs(session.server.clients) do
         if client.username == username then
             return false
-        else
-            return true
         end
     end
-
     return true
 end
 
@@ -38,7 +38,7 @@ AuthPipe:add_middleware(function(message)
 
         if accept then
             local Accept = ConnectionMessage.ConnectionAccepted.new(event.request_uuid)
-
+            console.log(payload.Connect.username.." присоединился к игре")
             session.server:queue_response(Accept)
 
             return {true, payload.Connect.username}
@@ -46,10 +46,11 @@ AuthPipe:add_middleware(function(message)
             local Reject = ConnectionMessage.ConnectionRejected.new(event.request_uuid, "unknown error")
 
             if not hasUsername then Reject = ConnectionMessage.ConnectionRejected.new("username has'nt be empty")
-            elseif not uniqueUsername then Reject = ConnectionMessage.ConnectionRejected.new("username is exists")
-            elseif not checkVersion then Reject = ConnectionMessage.ConnectionRejected.new("version not appreoved")
+            elseif not uniqueUsername then Reject = ConnectionMessage.ConnectionRejected.new("player with this username already logged in")
+            elseif not checkVersion then Reject = ConnectionMessage.ConnectionRejected.new("game version not approved")
             end
 
+            console.log("Подключение отвергнуто: ",Reject.payload.ConnectionRejected)
             session.server:queue_response(Reject)
 
             return {false}

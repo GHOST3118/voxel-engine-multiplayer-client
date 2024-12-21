@@ -33,12 +33,11 @@ function Client:connect()
 
             self:queue_request( connect_message, function (event)
                 if event.ConnectionAccepted then
-                    console.log( "Успешное подключение к миру" )
+                    console.log( "Успешное подключение к миру!" )
                 end
             end)
         end
     end )
-    
 end
 
 function Client:queue_request( payload, cb )
