@@ -1,5 +1,4 @@
 local socketlib = require "lib/socketlib"
-local Proto = require "multiplayer/proto/core"
 local Network = require "lib/network"
 local List = require "lib/common/list"
 local Player = require "multiplayer/server/classes/player"
