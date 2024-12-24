@@ -39,7 +39,8 @@ end
 function Network:recieve(length)
 
     if self.socket and self.socket:is_alive() then
-        return socketlib.receive_text( self.socket, length or 1024)
+        local data = socketlib.receive_text( self.socket, length or 1024)
+        return data
     end
 end
 

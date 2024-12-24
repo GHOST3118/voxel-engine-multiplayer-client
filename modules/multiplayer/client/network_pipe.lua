@@ -9,13 +9,15 @@ local ClientQueue = require "multiplayer/client/client_queue"
 local NetworkPipe = Pipeline.new()
 
 NetworkPipe:add_middleware(function()
-    local request = {
-        events = {}
-    }
+    local request = { events = {} }
+    local empty_request = true
 
     while not List.is_empty(ClientQueue) do
         table.insert( request.events, List.popleft( ClientQueue ) )
+        empty_request = false
     end
+
+    if empty_request then return true end
 
     Proto.send_text( session.client.network, json.tostring(request) )
 

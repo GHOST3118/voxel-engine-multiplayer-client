@@ -43,7 +43,6 @@ function Server:tick()
     for index, client in ipairs(self.clients) do
         local socket = client.network.socket
         if socket and socket:is_alive() then
-
             ServerPipe:process(client)
         else
             table.remove_value(self.clients, client)
