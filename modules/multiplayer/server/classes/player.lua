@@ -23,4 +23,8 @@ function Player:set_active(new_value)
     self.active = new_value
 end
 
+function Player:queue_response(event)
+    List.pushright(self.response_queue, event)
+end
+
 return Player

@@ -30,6 +30,7 @@ NetworkPipe:add_middleware(function()
     local data = Proto.recv_text( session.client.network )
 
     if data and pcall(function()
+        
         json.parse(data)
     end) then
         return json.parse(data)

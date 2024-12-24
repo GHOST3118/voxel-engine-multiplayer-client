@@ -8,18 +8,6 @@ local List = require "lib/common/list"
 local ServerPipe = Pipeline.new()
 
 ServerPipe:add_middleware(function(client)
-    local response = { events = {} }
-
-    while not List.is_empty(client.response_queue) do
-        table.insert( response.events, List.popleft( client.response_queue ) )
-    end
-
-    Proto.send_text( client.network, json.tostring(response) )
-
-    return client
-end)
-
-ServerPipe:add_middleware(function(client)
     local data = Proto.recv_text(client.network)
 
     if data then
@@ -66,6 +54,19 @@ ServerPipe:add_middleware(function(message)
     end
 
     return message
+end)
+
+ServerPipe:add_middleware(function(message)
+    local client = message.client
+    local response = { events = {} }
+
+    while not List.is_empty(client.response_queue) do
+        table.insert( response.events, List.popleft( client.response_queue ) )
+    end
+
+    Proto.send_text( client.network, json.tostring(response) )
+
+    return client
 end)
 
 return ServerPipe

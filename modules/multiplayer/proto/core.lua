@@ -11,7 +11,7 @@ function Proto.send_text(network, data)
     buffer:put_uint16( payload:size() )
 
     network:send(buffer:get_bytes())
-    network:send(data)
+    network:send(payload:get_bytes())
 end
 
 function Proto.recv_text(network)

@@ -1,47 +1,53 @@
 local List = {}
+
+-- Создает новый список
 function List.new()
     return {
-        first = 0,
-        last = -1
+        first = 0, -- Индекс первого элемента
+        last = -1  -- Индекс последнего элемента
     }
 end
 
+-- Проверяет, пуст ли список
 function List.is_empty(list)
     return list.first > list.last
 end
 
+-- Добавляет элемент в начало списка
 function List.pushleft(list, value)
-    local first = list.first - 1
-    list.first = first
-    list[first] = value
+    list.first = list.first - 1
+    list[list.first] = value
 end
 
+-- Добавляет элемент в конец списка
 function List.pushright(list, value)
-    local last = list.last + 1
-    list.last = last
-    list[last] = value
+    list.last = list.last + 1
+    list[list.last] = value
 end
 
+-- Удаляет и возвращает элемент из начала списка
 function List.popleft(list)
-    local first = list.first
-    if first > list.last then
-        error("list is empty")
+    if List.is_empty(list) then
+        error("List is empty")
     end
+    local first = list.first
     local value = list[first]
-    list[first] = nil
+    list[first] = nil -- Очищаем ссылку для предотвращения утечки памяти
     list.first = first + 1
     return value
 end
 
+-- Удаляет и возвращает элемент из конца списка
 function List.popright(list)
-    local last = list.last
-    if list.first > last then
-        error("list is empty")
+    if List.is_empty(list) then
+        error("List is empty")
     end
+    local last = list.last
     local value = list[last]
-    list[last] = nil
+    list[last] = nil -- Очищаем ссылку для предотвращения утечки памяти
     list.last = last - 1
     return value
 end
 
 return List
+

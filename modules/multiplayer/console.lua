@@ -30,34 +30,6 @@ console.add_command(
 )
 
 console.add_command(
-    "server_info",
-    "Server Info",
-    function (args, kwargs)
-        if session.client then
-            session.client:queue_request({ Status = true }, function (event)
-                console.log(event.Status)
-            end)
-        end
-    end
-)
-
-console.add_command(
-    "list",
-    "Server Players",
-    function (args, kwargs)
-        if session.client then
-            session.client:queue_request({ Players = true }, function (event)
-                if event.Players then
-                    for index, player in ipairs(event.Players) do
-                        console.log( "["..(index).."] "..player.username )
-                    end
-                end
-            end)
-        end
-    end
-)
-
-console.add_command(
     "cu username:str",
     "Change Username",
     function (args, kwargs)

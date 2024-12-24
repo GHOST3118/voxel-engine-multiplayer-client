@@ -13,4 +13,16 @@ function utils.dump(o)
     end
  end
 
+ function utils.createNthCallFunction(n, func)
+   local counter = 0 -- счётчик вызовов
+   
+   return function(...)
+       counter = counter + 1
+       if counter == n then
+           counter = 0 -- сбрасываем счётчик
+           return func(...) -- вызываем переданную функцию
+       end
+   end
+end
+
  return utils
