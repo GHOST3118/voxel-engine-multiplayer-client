@@ -1,0 +1,22 @@
+{
+    "version": 1,
+    "order": "BE",
+    "client": [
+        ["Connect", "nickname:string", "version:string"],
+        ["KeepAlive", "challenge:uint32"],
+        ["PlayerPosition", "x:float", "y:float", "z:float", "yaw:float", "pitch:float"],
+        ["RequestChunk", "x:int32", "y:int32"],
+        ["Disconnect"]
+    ],
+    "server": [
+        ["ConnectionAccepted"],
+        ["ConnectionRejected", "reason:string"],
+        ["KeepAlive", "challenge:uint32"],
+        ["PlayerJoined", "client_id:uint32", "username:string", "x:float", "y:float", "z:float"],
+        ["PlayerMoved", "client_id:uint32", "x:float", "y:float", "z:float", "yaw:float", "pitch:float"],
+        ["PlayerLeft", "client_id:uint32"],
+        ["ChunkData", "x:int32", "z:int32", "data:byteArray"],
+        ["ChatMessage", "client_id:uint32", "message:string", "timestamp:uint32"],
+        ["Disconnect", "reason:string"]
+    ]
+}
