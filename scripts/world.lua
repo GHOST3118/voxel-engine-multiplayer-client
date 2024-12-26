@@ -1,4 +1,5 @@
 local session = require "multiplayer/global"
+local console = require "multiplayer/console"
 
 function on_world_tick()
     if session.client then
