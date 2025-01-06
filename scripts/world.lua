@@ -1,5 +1,6 @@
 local session = require "multiplayer/global"
 local console = require "multiplayer/console"
+local protocol = require "lib/protocol"
 
 function on_world_tick()
     if session.client then
@@ -20,5 +21,9 @@ end
 function on_world_quit()
     if session.client then
         session.client:disconnect()
+    end
+
+    if session.server then
+        session.server:stop()
     end
 end

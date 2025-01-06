@@ -2,6 +2,7 @@ local socketlib = require "lib/socketlib"
 local Network = require "lib/network"
 local List = require "lib/common/list"
 local Player = require "multiplayer/server/classes/player"
+local protocol = require "lib/protocol"
 
 local ServerPipe = require "multiplayer/server/server_pipe"
 
@@ -30,7 +31,7 @@ end
 
 function Server:queue_response(event)
     for index, client in ipairs(self.clients) do
-        List.pushright(client.response_queue, event)
+        client:queue_response(event)
     end
 end
 
@@ -44,6 +45,18 @@ function Server:tick()
         if socket and socket:is_alive() then
             ServerPipe:process(client)
         else
+            if client.active then
+                client.active = false
+                local msg = client.username.." вышел из игры."
+                console.log("| "..msg)
+                for _, cl in ipairs(self.clients) do
+                    if cl.active then
+                        local buffer = protocol.create_databuffer()
+                        buffer:put_packet(protocol.build_packet("server", protocol.ServerMsg.ChatMessage, 0, msg, 0))
+                        List.pushright(cl.response_queue, buffer.bytes)
+                    end
+                end
+            end
             table.remove_value(self.clients, client)
         end
     end

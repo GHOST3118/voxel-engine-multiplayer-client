@@ -2,10 +2,12 @@
     "version": 1,
     "order": "BE",
     "client": [
-        ["Connect", "nickname:string", "version:string"],
+        ["Connect", "username:string", "version:string"],
         ["KeepAlive", "challenge:uint32"],
         ["PlayerPosition", "x:float", "y:float", "z:float", "yaw:float", "pitch:float"],
-        ["RequestChunk", "x:int32", "y:int32"],
+        ["RequestChunk", "x:int32", "z:int32"],
+        ["ChatMessage", "message:string"],
+        ["SetBlock", "x:int32", "y:int32", "z:int32", "id:string"],
         ["Disconnect"]
     ],
     "server": [
@@ -17,6 +19,7 @@
         ["PlayerLeft", "client_id:uint32"],
         ["ChunkData", "x:int32", "z:int32", "data:byteArray"],
         ["ChatMessage", "client_id:uint32", "message:string", "timestamp:uint32"],
+        ["SetBlock", "x:int32", "y:int32", "z:int32", "id:string"],
         ["Disconnect", "reason:string"]
     ]
 }

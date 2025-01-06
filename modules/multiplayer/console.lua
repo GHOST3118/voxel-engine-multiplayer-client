@@ -2,6 +2,7 @@ local session = require "multiplayer/global"
 local Client = require "multiplayer/client/client"
 local Server = require "multiplayer/server/server"
 local Proto = require "multiplayer/proto/core"
+local protocol = require "lib/protocol"
 
 console.add_command(
     "connect host:str port:int",
@@ -77,6 +78,30 @@ console.add_command(
             session.server:stop()
             session.server = nil
             console.log('Сервер был остановлен')
+        end
+    end
+)
+
+console.add_command(
+    "chat message:str",
+    "Send message",
+    function (args, kwargs)
+        if session.client then
+            local buffer = protocol.create_databuffer()
+            buffer:put_packet(protocol.build_packet("client", protocol.ClientMsg.ChatMessage, args[1]))
+            session.client.network:send(buffer.bytes)
+        elseif session.server then
+            local msg = "[HOST] "..args[1]
+            console.log("| "..msg)
+            for _, client in ipairs(session.server.clients) do
+                if client.network.socket and client.network.socket:is_alive() and client.active then
+                    local buffer = protocol.create_databuffer()
+                    buffer:put_packet(protocol.build_packet("server", protocol.ServerMsg.ChatMessage, 0, msg, 0))
+                    client.network.socket:send(buffer.bytes)
+                end
+            end
+        else
+            console.log('Невозможно отправить сообщение, пока вы не являетесь клиентом или хостом.')
         end
     end
 )

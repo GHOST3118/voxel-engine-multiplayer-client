@@ -11,15 +11,15 @@ function Network.new(socket)
     return self
 end
 
-function Network:connect(host, port, cb)
+function Network:connect(host, port, callback)
 
     socketlib.connect(host, port, function(sock)
         self.socket = sock
-        cb(true)
+        callback(true)
     end,
-    function (e)
-        print(e)
-        cb(false)
+    function (err)
+        print(err)
+        callback(false)
     end)
 end
 

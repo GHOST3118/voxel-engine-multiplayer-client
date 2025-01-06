@@ -9,8 +9,10 @@ function Player.new(active, network, username)
     self.active = false or active
     self.network = network
     self.username = username
+    self.client_id = -1
 
     self.response_queue = List.new()
+    self.received_packets = List.new()
 
     return self
 end
