@@ -25,7 +25,6 @@ NetworkPipe:add_middleware(function ()
         if length_bytes then
             local length_buffer = protocol.create_databuffer( length_bytes )
             local length = length_buffer:get_uint16()
-            -- debug.print("length", length, "\nlength_bytes", length_bytes)
             if length then
                 local data_bytes = session.client.network:recieve_bytes( length )
                 if data_bytes then
@@ -98,6 +97,7 @@ end)
 
 -- Проверим, не отключились ли мы вдруг случаем
 NetworkPipe:add_middleware(function ()
+    if not session.client then return false end
     if session.client.network.socket and not session.client.network.socket:is_alive() then
         console.log("Соединение прервано.")
         -- самоуничтожаемся!

@@ -1,54 +1,18 @@
+
+local bincode = require "lib/common/bincode"
+
 local protocol = {}
 local data_buffer = require "core:data_buffer"
 protocol.data = json.parse(file.read("multiplayer:modules/lib/protocol.json"))
 
--- нейронка вампала много помогла с кодированием в leb128
 
----Кодирование числа в формат LEB128
----@param n number Число для кодирования
----@return string encoded Закодированное число в строке
-local function leb128_encode(n)
-    local bytes = {}
-    repeat
-        local byte = n % 128
-        n = math.floor(n / 128)
-        if n ~= 0 then
-            byte = byte + 128  -- Устанавливаем бит продолжения
-        end
-        table.insert(bytes, string.char(byte))
-    until n == 0
-    return table.concat(bytes)
-end
-
----Декодирование числа из формата LEB128
----@param data string Строка для декодирования
----@param pos integer Позиция начала закодированной длины в данной таблице
----@return number result Декодированное число
----@return number bytesRead Количество прочитанных байт
-local function leb128_decode(data, pos)
-    if not pos then pos = 1 end
-    local result = 0
-    local shift = 0
-    local bytesRead = 0
-    for i = pos, #data do
-        local byte = string.byte(data, i)
-        local value = byte % 128
-        result = result + value * (128 ^ shift)
-        bytesRead = bytesRead + 1
-        if byte < 128 then
-            break
-        end
-        shift = shift + 1
-    end
-    return result, bytesRead+pos
-end
 
 ---Кодирование строки
 ---@param str string Строка, которая будет закодирована
 ---@return table bytes Таблица с закодированной длиной строки
 local function pack_string(str)
     local len = #str
-    return utf8.tobytes(leb128_encode(len) .. str, true)
+    return utf8.tobytes(bincode.bincode_varint_encode(len) .. str, true)
 end
 
 ---Декодирование строки
@@ -58,7 +22,7 @@ end
 ---@return number new_pos Новая позиция счётчика за концом строки
 local function unpack_string(data, pos)
     data = utf8.tostring(data)
-    local len, new_pos = leb128_decode(data, pos)
+    local len, new_pos = bincode.bincode_varint_decode(data, pos)
     return string.sub(data, new_pos, new_pos + len - 1), new_pos + len
 end
 
@@ -197,7 +161,6 @@ end
 ---@return table bytes Пакет
 function protocol.build_packet(client_or_server, packet_type, ...)
     local args = {...}
-    debug.print(args)
     local buffer = protocol.create_databuffer()
     buffer:put_byte(packet_type-1)
     for key, value in pairs(protocol.data[client_or_server][packet_type]) do
