@@ -46,15 +46,15 @@ NetworkPipe:add_middleware(function()
         local packet = List.popleft(ReceivedPackets)
 
 
-        -- STATE: LOGIN
-        if session.client.state == "LOGIN" then
-            --
-            if packet.packet_type == protocol.ServerMsg.ConnectionAccepted then
-                console.log("Подключение успешно!")
-                session.client.state = "ACTIVE"
+        -- STATE: Login
+        if session.client.state == protocol.States.Login then
+
+            if packet.packet_type == protocol.ServerMsg.JoinSuccess then
+                console.log("Подключение успешно! Сид сервера: "..packet.seed..", время: "..packet.game_time)
+                session.client.state = protocol.States.Active
             else
                 local str = ""
-                if packet.packet_type == protocol.ServerMsg.ConnectionRejected or packet.packet_type == protocol.ServerMsg.Disconnect then
+                if packet.packet_type == protocol.ServerMsg.Disconnect then
                     str = "Сервер отказал в подключении."
                     if packet.reason then str = str .. " Причина: " .. packet.reason end
                 else
@@ -67,8 +67,8 @@ NetworkPipe:add_middleware(function()
             end
 
 
-        -- STATE: ACTIVE
-        elseif session.client.state == "ACTIVE" then
+        -- STATE: Active
+        elseif session.client.state == protocol.States.Active then
             if packet.packet_type == protocol.ServerMsg.ChunkData then
                 world.set_chunk_data(packet.x, packet.z, Bytearray(packet.data), true)
             elseif packet.packet_type == protocol.ServerMsg.ChatMessage then

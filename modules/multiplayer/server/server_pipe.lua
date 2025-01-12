@@ -49,6 +49,7 @@ ServerPipe:add_middleware(function(client)
     return client
 end)
 
+-- TODO: перевести на новый протокол
 -- Обрабатываем пакеты
 ServerPipe:add_middleware(function(client)
     while not List.is_empty(client.received_packets) do

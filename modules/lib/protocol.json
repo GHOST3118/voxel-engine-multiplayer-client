@@ -2,24 +2,28 @@
     "version": 1,
     "order": "BE",
     "client": [
-        ["Connect", "username:string", "version:string"],
+        ["HandShake", "version:string", "protocol_version:uint8", "next_state:uint8"],
+        ["StatusRequest"],
+        ["PingRequest", "payload:uint32"],
+        ["JoinGame", "username:string"],
         ["KeepAlive", "challenge:uint32"],
         ["PlayerPosition", "x:float", "y:float", "z:float", "yaw:float", "pitch:float"],
         ["RequestChunk", "x:int32", "z:int32"],
         ["ChatMessage", "message:string"],
-        ["SetBlock", "x:int32", "y:int32", "z:int32", "id:string"],
         ["Disconnect"]
     ],
     "server": [
-        ["ConnectionAccepted"],
-        ["ConnectionRejected", "reason:string"],
+        ["JoinSuccess", "seed:string", "game_time:double"],
+        ["TimeUpdate", "game_time:double"],
+        ["StatusResponse", "name:string", "favicon:string", "version:string", "protocol:uint16", "players:stringArray", "max:uint16", "online:uint16"],
+        ["PongResponse", "payload:uint32"],
         ["KeepAlive", "challenge:uint32"],
-        ["PlayerJoined", "client_id:uint32", "username:string", "x:float", "y:float", "z:float"],
-        ["PlayerMoved", "client_id:uint32", "x:float", "y:float", "z:float", "yaw:float", "pitch:float"],
-        ["PlayerLeft", "client_id:uint32"],
+        ["PlayerJoined", "entity_id:uint32", "username:string", "x:float", "y:float", "z:float"],
+        ["PlayerMoved", "entity_id:uint32", "x:float", "y:float", "z:float", "yaw:float", "pitch:float"],
+        ["PlayerLeft", "entity_id:uint32", "reason:string"],
         ["ChunkData", "x:int32", "z:int32", "data:byteArray"],
-        ["ChatMessage", "client_id:uint32", "message:string", "timestamp:uint32"],
-        ["SetBlock", "x:int32", "y:int32", "z:int32", "id:string"],
+        ["ChatMessage", "message:string"],
         ["Disconnect", "reason:string"]
-    ]
+    ],
+    "states": ["Status", "Login"]
 }

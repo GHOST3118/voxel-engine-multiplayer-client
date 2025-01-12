@@ -44,8 +44,13 @@ function Client:connect()
     self.network:connect( self.host, self.port, function (status)
         if not status then error("Произошла какая-то ошибка, смотрите строки выше!") end
         local packet = protocol.create_databuffer()
-        self.state = "LOGIN"
-        packet:put_packet(protocol.build_packet("client", protocol.ClientMsg.Connect, session.username, pack.get_info("base").version))
+        self.state = protocol.data.states.Login
+        packet:put_packet(protocol.build_packet("client", protocol.ClientMsg.HandShake, pack.get_info("base").version, protocol.data.version, protocol.States.Login))
+        self.network:send(packet.bytes)
+
+        packet = protocol.create_databuffer()
+        self.state = protocol.data.states.Login
+        packet:put_packet(protocol.build_packet("client", protocol.ClientMsg.JoinGame, session.username))
         self.network:send(packet.bytes)
     end)
 end

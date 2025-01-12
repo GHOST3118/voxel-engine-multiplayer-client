@@ -81,12 +81,15 @@ local DATA_ENCODE = {
     ["uint16"] = function (buffer, value) buffer:put_uint16(value) end,
     ["int32"] = function (buffer, value) buffer:put_sint32(value) end,
     ["uint32"] = function (buffer, value) buffer:put_uint32(value) end,
-    ["int64"] = function (buffer, value) buffer:put_int64(value) end, -- есть проблемы с 64-битными числами
-    ["uint64"] = function (buffer, value) buffer:put_int64(value) end,-- здесь тоже
+    ["int64"] = function (buffer, value) buffer:put_int64(value) end, -- TODO: сделать как на строке ниже
+    ["uint64"] = function (buffer, value) buffer:put_bytes(byteutil.tpack('>L', value)) end, -- TODO: зависимость от текущего порядка байтов в буфере
     ["float"] = function (buffer, value) buffer:put_float32(value) end,
+    ["f32"] = function (buffer, value) buffer:put_float32(value) end, -- алиас для float
     ["double"] = function (buffer, value) buffer:put_float64(value) end,
+    ["f64"] = function (buffer, value) buffer:put_float64(value) end, -- алиас для double
     ["string"] = function (buffer, value) buffer:put_bytes(pack_string(value)) end,
-    ["byteArray"] = function (buffer, value) buffer:put_bytes(utf8.tobytes(leb128_encode(#value), true)) buffer:put_bytes(value) end
+    ["byteArray"] = function (buffer, value) buffer:put_leb128(#value) buffer:put_bytes(value) end,
+    ["stringArray"] = function (buffer, value) buffer:gut_leb128(#value) for i = 1, #value, 1 do buffer:pack_string(value[i]) end end -- сначала кодируем количество строк, потом сами строки
 }
 
 local DATA_DECODE = {
@@ -97,16 +100,23 @@ local DATA_DECODE = {
     ["uint16"] = function (buffer) return buffer:get_uint16() end,
     ["int32"] = function (buffer) return buffer:get_sint32() end,
     ["uint32"] = function (buffer) return buffer:get_uint32() end,
-    ["int64"] = function (buffer) return buffer:get_int64() end, -- есть проблемы с 64-битными числами
+    ["int64"] = function (buffer) return buffer:get_int64() end, -- TODO: byteutil.unpack как выше
     ["uint64"] = function (buffer) return buffer:get_int64() end,-- здесь тоже
     ["float"] = function (buffer) return buffer:get_float32() end,
+    ["f32"] = function (buffer) return buffer:get_float32() end, -- алиас для float
     ["double"] = function (buffer) return buffer:get_float64() end,
+    ["f64"] = function (buffer) return buffer:get_float64() end, -- алиас для double
     ["string"] = function (buffer)  local pos = buffer.pos
                                     local string, new_pos = unpack_string(buffer.bytes, pos)
                                     buffer:set_position(new_pos) return string end,
     ["byteArray"] = function (buffer)   local pos = buffer.pos
                                         local string, new_pos = unpack_string(buffer.bytes, pos)
-                                        buffer:set_position(new_pos) return utf8.tobytes(string, true) end
+                                        buffer:set_position(new_pos) return utf8.tobytes(string, true) end,
+    ["stringArray"] = function (buffer) local element_count = buffer:get_leb128()
+                                        local strings = {}
+                                        for i = 1, element_count, 1 do
+                                            strings[i] = buffer:unpack_string()
+                                        end return strings end
 }
 
 ---Создаёт датабуфер с порядком Big Endian
@@ -114,20 +124,29 @@ local DATA_DECODE = {
 ---@return table data_buffer Датабуфер
 function protocol.create_databuffer(bytes)
     local buf = data_buffer:new(bytes, protocol.data.order)
+    ---Записать LEB128
+    ---@param number number
+    function buf:put_leb128(number)
+        local bytes = protocol.leb128_encode(number)
+        self:put_bytes(bytes)
+    end
+    ---Прочитать LEB128
+    ---@return number
     function buf:get_leb128()
         local n, bytesRead = protocol.leb128_decode(self.bytes, self.pos)
         self.pos = self.pos + bytesRead
         return n
     end
-    function buf:put_leb128(number)
-        local bytes = protocol.leb128_encode(number)
-        self:put_bytes(bytes)
-    end
+    ---Записать пакет
+    ---@param packet table Таблица байт
     function buf:put_packet(packet)
         -- local packet = protocol.build_packet(client_or_server, packet_type, ...)
         self:put_uint16(#packet) -- длина пакета, фиксировано 2 байта
         self:put_bytes(packet)
     end
+    ---Прочитать пакет
+    ---@return table table Таблица байт (пакет)
+    ---@return number length Длина пакета
     function buf:get_packet()
         local length = self:get_uint16()
         local sliced = protocol.slice_table(self.bytes, self.pos, self.pos+length-1)
@@ -136,21 +155,28 @@ function protocol.create_databuffer(bytes)
         return sliced, length
     end
 
+    ---Записать строку
+    ---@param str string строка
     function buf:pack_string(str)
         DATA_ENCODE.string(self, str)
     end
+    ---Прочитать строку
+    ---@return string string строка
     function buf:unpack_string()
         return DATA_DECODE.string(self)
     end
 
+    ---Установить порядок байт на Big-Endian (применяется только для последующих операций)
     function buf:set_be()
         self:set_order("BE")
     end
+    ---Установить порядок байт на Little-Endian (применяется только для последующих операций)
     function buf:set_le()
         self:set_order("LE")
     end
 
-    -- распутываем порядок байт если вдруг в движке перепутан
+    -- распутываем порядок байт если вдруг в движке перепутан (для работоспособности в 0.25)
+    -- TODO: вырезать распутыватель LE/BE, если 0.25 не поддерживается
     local testbuf = data_buffer:new() testbuf:set_order("LE") testbuf:put_uint16(1)
     if testbuf.bytes[2] == 1 then
         buf.wrong_set_order = buf.set_order
@@ -160,20 +186,22 @@ function protocol.create_databuffer(bytes)
         end
         buf:set_order(protocol.data.order)
     end
+
     return buf
 end
 
 ---Создатель пакетов
----@param client_or_server string "client" или "server" - сторона, на которой генерируется пакет
+---@param client_or_server string "client" или "server" - сторона, на которой создаётся пакет
 ---@param packet_type integer Тип пакета
 ---@param ... any Дополнительные параметры пакета
 ---@return table bytes Пакет
 function protocol.build_packet(client_or_server, packet_type, ...)
     local args = {...}
+    debug.print(args)
     local buffer = protocol.create_databuffer()
     buffer:put_byte(packet_type-1)
     for key, value in pairs(protocol.data[client_or_server][packet_type]) do
-        if key ~= 1 then DATA_ENCODE[string.explode(":", value)[2]](buffer, args[key-1]) end
+        if key > 1 then DATA_ENCODE[string.explode(":", value)[2]](buffer, args[key-1]) end
     end
     return buffer.bytes
 end
@@ -191,7 +219,8 @@ function protocol.parse_packet(client_or_server, data)
     result.packet_type = packet_type
     for key, value in pairs(protocol.data[client_or_server][packet_type]) do
         if key ~= 1 then result[string.explode(":", value)[1]] = DATA_DECODE[string.explode(":", value)[2]](buffer) end
-    end return result
+    end
+    return result
 end
 
 -- TODO: чекер Protocol Packet
@@ -202,10 +231,10 @@ end
 function protocol.check_packet(client_or_server, packet)
     -- вопрос: на что чекать пакет?
     -- 1. было бы классно проверять, не наебал ли нас клиент/сервер с длиной пакета
-    -- 2. теперь можно спарсить весь пакет, и если вдруг пакета не хватило или осталось с избытком, выкидываем нахрен из функции
+    -- 2. теперь можно спарсить весь пакет, и если вдруг пакета не хватило или осталось с избытком, считаем, что пакет повреждён
     -- 3. если при парсинге пакета вдруг резко оказалось что тип пакета неизвестен, выкидываем
     -- проверки по типу соответствии никнейма со стандартом, длины никнейма и так далее будут за пределами этой функции
-    -- только после успешной проверки функция вернёт true, а если нет - false или вообще nil, тогда сервер может кикнуть за malformed packet
+    -- только после успешной проверки функция вернёт true, а если нет - false, тогда сервер может кикнуть за malformed packet
 
     -- пока что будем считать, что все пакеты ровненькие и красивенькие
     return true
@@ -215,6 +244,8 @@ end
 protocol.ClientMsg = {}
 -- Перечисление сообщений сервера
 protocol.ServerMsg = {}
+-- Перечисление статусов
+protocol.States = {}
 
 -- Парсим из json типы пакетов клиента и сервера
 for index, value in ipairs(protocol.data.client) do
@@ -225,8 +256,14 @@ for index, value in ipairs(protocol.data.server) do
     protocol.ServerMsg[index] = value[1]
     protocol.ServerMsg[value[1]] = index
 end
+-- Парсим из json статусы
+for index, value in ipairs(protocol.data.states) do
+    protocol.States[index] = value
+    protocol.States[value] = index
+end
 
--- выставляем в свет функцию leb128_чего-то-там, но теперь функция возвращает таблицу с байтами и принимает тоже таблицу с байтами там, где были строки
+-- выставляем в свет функцию leb128_чего-то-там, но теперь функция возвращает таблицу с байтами и принимает
+-- тоже таблицу с байтами для удобства работы вне библиотеки
 
 ---Кодирование числа в формат LEB128
 ---@param n number Число для кодирования
@@ -240,51 +277,13 @@ protocol.leb128_encode = function (n) return utf8.tobytes(leb128_encode(n), true
 ---@return number bytesRead Количество прочитанных байт
 protocol.leb128_decode = function (bytes, pos) return leb128_decode(utf8.tostring(bytes), pos) end
 
--- !Это для тестов!
--- *тест leb128
--- local test_packet = protocol.build_packet("server", protocol.ServerMsg.PlayerJoined, 53, "это очень длинный юзернейм, а учитывая, что кириллические символы кодируются двумя байтами, это вообще разрывная для проверки этого вашего leb128!", 2.34, 78.0, 7687.6145)
--- debug.print(protocol.parse_packet("server", test_packet))
-
--- *тест билдера и парсера пакетов
--- test_packet = protocol.build_packet("server", protocol.ServerMsg.ChunkData, 63, 63, {124, 125, 126, 127, 128})
--- debug.print(protocol.parse_packet("server", test_packet))
-
--- *ещё один тест leb128
--- debug.print(9871798, protocol.leb128_encode(9871798))
--- print(protocol.leb128_decode({182, 195, 218, 4}, 1))
-
--- *тест парсера пакета на данных, отправленные вампалом
--- local test_packet = protocol.create_databuffer({1, 18, 98, 101, 99, 97, 117, 115, 101, 46, 32, 46, 32, 73, 32, 119, 97, 110, 116, 46})
--- debug.print(protocol.parse_packet("server", test_packet.bytes))
-
--- *тест LE BE порядка байтов (перепутанное)
+-- local bignum = 1234567890123
+-- debug.print(bignum.."")
 -- local buf = protocol.create_databuffer()
--- print("алё! мы сгенерировали этот ебучий буфер сразу после подключения этой ебаной библиотеки! приятного пользования!")
--- -- вставь любое число
--- -- хоть 15
--- local packet = 15
--- -- выведи мне в консоли отдельно
--- buf:put_uint16(packet)
--- buf:put_uint16(packet)
--- buf:set_order("LE")
---         buf:put_uint16(packet)
---         buf:put_uint16(packet)
---         buf:set_order("BE")
---         buf:put_uint16(packet)
---         buf:put_uint16(packet)
--- -- я хочу видеть как оно выглядит
--- debug.print(buf.bytes)
+-- buf:put_bytes(byteutil.tpack('>l', bignum))
+-- debug.print(buf)
+-- buf.pos = 1
+-- debug.print(byteutil.unpack('>l', buf.bytes).."")
 
--- *тест put_packet и get_packet
--- local testpacket = protocol.build_packet("client", protocol.ClientMsg.Connect, "ampula", "0.26")
--- local testbuf = protocol.create_databuffer()
--- testbuf:put_packet(testpacket)
--- testbuf:pack_string("meow!")
--- debug.print(testbuf.bytes)
--- testbuf.pos = 1
--- local gotpacket, length = testbuf:get_packet()
--- local meowstring = testbuf:unpack_string()
--- local parsedpacket = protocol.parse_packet("client", gotpacket)
--- debug.print(gotpacket, length, meowstring, testbuf, parsedpacket)
 
 return protocol
