@@ -44,12 +44,12 @@ NetworkPipe:add_middleware(function()
     while not List.is_empty(ReceivedPackets) do
         local packet = List.popleft(ReceivedPackets)
 
-
         -- STATE: Login
         if session.client.state == protocol.States.Login then
 
             if packet.packet_type == protocol.ServerMsg.JoinSuccess then
                 console.log("Подключение успешно! Сид сервера: "..packet.seed..", время: "..packet.game_time)
+                world.set_day_time_speed(0)
                 session.client.state = protocol.States.Active
             else
                 local str = ""
@@ -72,6 +72,8 @@ NetworkPipe:add_middleware(function()
                 world.set_chunk_data(packet.x, packet.z, Bytearray(packet.data), true)
             elseif packet.packet_type == protocol.ServerMsg.ChatMessage then
                 console.log("| "..packet.message)
+            elseif packet.packet_type == protocol.ServerMsg.TimeUpdate then
+                world.set_day_time( packet.game_time )
             elseif packet.packet_type == protocol.ServerMsg.PlayerJoined then
                 session.client.players[packet.client_id] = Player.new(packet.x, packet.y, packet.z, packet.client_id, packet.username)
             elseif packet.packet_type == protocol.ServerMsg.PlayerMoved then
