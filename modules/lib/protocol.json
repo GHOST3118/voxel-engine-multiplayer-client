@@ -19,7 +19,7 @@
         ["PongResponse", "payload:uint32"],
         ["KeepAlive", "challenge:uint32"],
         ["PlayerJoined", "entity_id:uint32", "username:string", "x:float", "y:float", "z:float"],
-        ["PlayerMoved", "entity_id:uint32", "x:float", "y:float", "z:float", "yaw:float", "pitch:float"],
+        ["PlayerMoved", "entity_id:uint8", "x:float", "y:float", "z:float", "yaw:float", "pitch:float"],
         ["PlayerLeft", "entity_id:uint32", "reason:string"],
         ["ChunkData", "x:int32", "z:int32", "data:byteArray"],
         ["ChatMessage", "message:string"],

@@ -141,15 +141,15 @@ function protocol.create_databuffer(bytes)
 
     -- распутываем порядок байт если вдруг в движке перепутан (для работоспособности в 0.25)
     -- TODO: вырезать распутыватель LE/BE, если 0.25 не поддерживается
-    local testbuf = data_buffer:new() testbuf:set_order("LE") testbuf:put_uint16(1)
-    if testbuf.bytes[2] == 1 then
-        buf.wrong_set_order = buf.set_order
-        function buf:set_order(str)
-            str = utf8.upper(str)
-            if str == "BE" then self:wrong_set_order("LE") else self:wrong_set_order("BE") end
-        end
-        buf:set_order(protocol.data.order)
-    end
+    -- local testbuf = data_buffer:new() testbuf:set_order("LE") testbuf:put_uint16(1)
+    -- if testbuf.bytes[2] == 1 then
+    --     buf.wrong_set_order = buf.set_order
+    --     function buf:set_order(str)
+    --         str = utf8.upper(str)
+    --         if str == "BE" then self:wrong_set_order("LE") else self:wrong_set_order("BE") end
+    --     end
+    --     buf:set_order(protocol.data.order)
+    -- end
 
     return buf
 end
@@ -181,6 +181,8 @@ function protocol.parse_packet(client_or_server, data)
     local packet_type = buffer:get_byte()+1
     result.packet_type = packet_type
     for key, value in pairs(protocol.data[client_or_server][packet_type]) do
+        debug.print( result )
+        debug.print( value )
         if key ~= 1 then result[string.explode(":", value)[1]] = DATA_DECODE[string.explode(":", value)[2]](buffer) end
     end
     return result

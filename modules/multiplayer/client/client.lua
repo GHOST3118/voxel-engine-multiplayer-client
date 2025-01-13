@@ -65,13 +65,18 @@ end
 
 function Client:world_tick()
 
-    
+    NetworkPipe:process()
+end
+
+function Client:player_tick(playerid, tps)
+    -- pass
+    -- player_tick почему-то вызывается только если игрок ниже 256 уровня высоты.
 
     -- проверим двигался/поворачивался ли игрок
-    local x, y, z = player.get_pos()
-    local yaw, pitch = player.get_rot()
+    local x, y, z = player.get_pos(playerid)
+    local yaw, pitch = player.get_rot(playerid)
     if x ~= self.x or y ~= self.y or z ~= self.z or yaw ~= self.yaw or pitch ~= self.pitch then
-        -- print(x, y, z, yaw, pitch)
+        print(x, y, z, yaw, pitch)
         self.x = x self.y = y self.z = z self.yaw = yaw self.pitch = pitch
         self.moved = true
         local chunk_x, chunk_z = math.floor(session.client.x/16), math.floor(session.client.z/16)
@@ -81,12 +86,6 @@ function Client:world_tick()
         end
     end
 
-    NetworkPipe:process()
-end
-
-function Client:player_tick(playerid, tps)
-    -- pass
-    -- player_tick почему-то вызывается только если игрок ниже 256 уровня высоты.
 end
 
 return Client

@@ -29,6 +29,9 @@ NetworkPipe:add_middleware(function ()
                 local data_bytes = session.client.network:recieve_bytes( length )
                 if data_bytes then
                     if not protocol.check_packet("server", data_bytes) then print("сервер нам отправил какую-то хуйню! казнить!!!") end
+
+                    debug.print(data_bytes)
+
                     local packet = protocol.parse_packet("server", data_bytes)
                     List.pushright(ReceivedPackets, packet)
                     packet_count = packet_count + 1
@@ -43,6 +46,8 @@ end)
 NetworkPipe:add_middleware(function()
     while not List.is_empty(ReceivedPackets) do
         local packet = List.popleft(ReceivedPackets)
+
+        debug.print( packet )
 
         -- STATE: Login
         if session.client.state == protocol.States.Login then
@@ -75,12 +80,16 @@ NetworkPipe:add_middleware(function()
             elseif packet.packet_type == protocol.ServerMsg.TimeUpdate then
                 world.set_day_time( packet.game_time )
             elseif packet.packet_type == protocol.ServerMsg.PlayerJoined then
-                session.client.players[packet.client_id] = Player.new(packet.x, packet.y, packet.z, packet.client_id, packet.username)
+                session.client.players[packet.entity_id] = Player.new(packet.x, packet.y, packet.z, packet.entity_id)
             elseif packet.packet_type == protocol.ServerMsg.PlayerMoved then
-                session.client.players[packet.client_id]:move(packet.x, packet.y, packet.z)
-                session.client.players[packet.client_id]:rotate(packet.yaw, packet.pitch)
+                if not session.client.players[packet.entity_id] then
+                    session.client.players[packet.entity_id] = Player.new(packet.x, packet.y, packet.z, packet.entity_id)
+                end
+
+                session.client.players[packet.entity_id]:move(packet.x, packet.y, packet.z)
+                session.client.players[packet.entity_id]:rotate(packet.yaw, packet.pitch)
             elseif packet.packet_type == protocol.ServerMsg.PlayerLeft then
-                session.client.players[packet.client_id]:despawn()
+                session.client.players[packet.entity_id]:despawn()
             elseif packet.packet_type == protocol.ServerMsg.KeepAlive then
                 push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.KeepAlive, packet.challenge))
             elseif packet.packet_type == protocol.ServerMsg.Disconnect then
@@ -112,7 +121,8 @@ end)
 -- Отправляем на очередь всё, что хотим отправить на сервер
 NetworkPipe:add_middleware(function ()
     -- Убедимся, что мы не отсылаем пакеты движения во время логина.
-    if session.client.state == "ACTIVE" then
+    if session.client.state == protocol.States.Active then
+        
         if session.client.moved then
             push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.PlayerPosition, session.client.x, session.client.y, session.client.z, session.client.yaw, session.client.pitch))
             session.client.moved = false
