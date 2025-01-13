@@ -30,8 +30,6 @@ NetworkPipe:add_middleware(function ()
                 if data_bytes then
                     if not protocol.check_packet("server", data_bytes) then print("сервер нам отправил какую-то хуйню! казнить!!!") end
 
-                    debug.print(data_bytes)
-
                     local packet = protocol.parse_packet("server", data_bytes)
                     List.pushright(ReceivedPackets, packet)
                     packet_count = packet_count + 1
@@ -47,7 +45,7 @@ NetworkPipe:add_middleware(function()
     while not List.is_empty(ReceivedPackets) do
         local packet = List.popleft(ReceivedPackets)
 
-        debug.print( packet )
+        -- debug.print( packet )
 
         -- STATE: Login
         if session.client.state == protocol.States.Login then
@@ -77,6 +75,8 @@ NetworkPipe:add_middleware(function()
                 world.set_chunk_data(packet.x, packet.z, Bytearray(packet.data), true)
             elseif packet.packet_type == protocol.ServerMsg.ChatMessage then
                 console.log("| "..packet.message)
+            elseif packet.packet_type == protocol.ServerMsg.StatusResponse then
+                console.log("| [SERVER] "..packet.name)
             elseif packet.packet_type == protocol.ServerMsg.TimeUpdate then
                 world.set_day_time( packet.game_time )
             elseif packet.packet_type == protocol.ServerMsg.PlayerJoined then
@@ -88,6 +88,7 @@ NetworkPipe:add_middleware(function()
 
                 session.client.players[packet.entity_id]:move(packet.x, packet.y, packet.z)
                 session.client.players[packet.entity_id]:rotate(packet.yaw, packet.pitch)
+
             elseif packet.packet_type == protocol.ServerMsg.PlayerLeft then
                 session.client.players[packet.entity_id]:despawn()
             elseif packet.packet_type == protocol.ServerMsg.KeepAlive then
@@ -146,6 +147,7 @@ end)
 NetworkPipe:add_middleware(function ()
     while not List.is_empty(ClientQueue) do
         local packet = List.popleft(ClientQueue)
+        -- debug.print(packet)
         session.client.network:send(packet)
     end
     return true

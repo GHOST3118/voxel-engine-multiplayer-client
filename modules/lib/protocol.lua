@@ -180,9 +180,8 @@ function protocol.parse_packet(client_or_server, data)
     buffer:set_position(1) -- движок поставит позицию в конец буфера, возвращаем обратно в начало
     local packet_type = buffer:get_byte()+1
     result.packet_type = packet_type
-    for key, value in pairs(protocol.data[client_or_server][packet_type]) do
-        debug.print( result )
-        debug.print( value )
+    local __table = protocol.data[client_or_server][packet_type] or {}
+    for key, value in pairs(__table) do
         if key ~= 1 then result[string.explode(":", value)[1]] = DATA_DECODE[string.explode(":", value)[2]](buffer) end
     end
     return result

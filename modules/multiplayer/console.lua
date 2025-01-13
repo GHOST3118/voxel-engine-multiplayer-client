@@ -3,6 +3,14 @@ local Client = require "multiplayer/client/client"
 local Server = require "multiplayer/server/server"
 local Proto = require "multiplayer/proto/core"
 local protocol = require "lib/protocol"
+local client_queue = require "multiplayer/client/client_queue"
+local List = require "lib/common/list"
+
+local function push_packet(list, packet)
+    local buffer = protocol.create_databuffer()
+    buffer:put_packet(packet)
+    List.pushright(list, buffer.bytes)
+end
 
 console.add_command(
     "connect host:str port:int",
@@ -25,9 +33,9 @@ console.add_command(
 
 console.add_command(
     "c",
-    "Connect to localhost:3000",
+    "Connect to dev server",
     function (args, kwargs)
-        console.execute("connect localhost 3000")
+        console.execute("connect localhost 25565")
     end
 )
 
