@@ -1,7 +1,9 @@
+local session = require "multiplayer/global"
+
 local Player = {}
 Player.__index = Player
 
-local MOVEMENT_SPEED = 10
+local MOVEMENT_SPEED = 8
 local ROTATION_SPEED_FACTOR = 0.2
 
 function Player.new(x, y, z, entity_id)
@@ -23,6 +25,16 @@ end
 function Player:move(x, y, z)
     local current_position = self.tsf:get_pos()
     local target_position = {x, y, z}
+
+    if  session.client and 
+        session.client.x == x and
+        session.client.y == y and
+        session.client.z == z
+    then
+
+        self.entity.skeleton:set_visible(false)
+    end
+    
     self.rb:set_vel({
         (target_position[1] - current_position[1]) * MOVEMENT_SPEED,
         (target_position[2] - current_position[2]) * MOVEMENT_SPEED,

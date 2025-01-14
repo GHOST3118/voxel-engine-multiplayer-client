@@ -2,7 +2,10 @@ local Network = require "lib/network"
 local session = require "multiplayer/global"
 local protocol = require "lib/protocol"
 local List = require "lib/common/list"
+local state_machine = require "lib/common/fsm"
 local Player = require "multiplayer/client/classes/player"
+local login_handlers = require "multiplayer/client/dev/login_handlers"
+local active_handlers= require "multiplayer/client/dev/active_handlers"
 
 local ClientQueue = require "multiplayer/client/client_queue"
 local NetworkPipe = require "multiplayer/client/network_pipe"
@@ -22,6 +25,15 @@ function Client.new(host, port)
     self.handlers = {}
     self.state = nil
 
+    self.fsm = state_machine.new()
+    self.fsm:add_state(protocol.States.Login, {
+        on_enter = login_handlers.on_enter( self ),
+        on_event = login_handlers.on_event( self )
+    })
+    self.fsm:add_state(protocol.States.Active, {
+        on_event = active_handlers.on_event( self )
+    })
+
     -- приколы связанные с игроком
     self.x = 0
     self.y = 0
@@ -40,34 +52,17 @@ function Client.new(host, port)
     return self
 end
 
+function Client:push_packet(packet)
+    local buffer = protocol.create_databuffer()
+    buffer:put_packet(packet)
+    List.pushright(ClientQueue, buffer.bytes)
+end
+
 function Client:connect()
     self.network:connect( self.host, self.port, function (status)
         if not status then error("Произошла какая-то ошибка, смотрите строки выше!") end
 
-        local packet
-        
-        -- Запрос Статуса
-        -- packet = protocol.create_databuffer()
-        -- self.state = protocol.States.Login
-        -- packet:put_packet(protocol.build_packet("client", protocol.ClientMsg.HandShake, "0.26.0", protocol.data.version, protocol.States.Status))
-        -- self.network:send(packet.bytes)
-
-        -- packet = protocol.create_databuffer()
-        -- self.state = protocol.States.Login
-        -- packet:put_packet( protocol.build_packet("client", protocol.ClientMsg.StatusRequest) )
-        -- self.network:send(packet.bytes)
-        
-        
-        -- Коннект к миру
-        packet = protocol.create_databuffer()
-        self.state = protocol.States.Login
-        packet:put_packet(protocol.build_packet("client", protocol.ClientMsg.HandShake, "0.26.0", protocol.data.version, protocol.States.Login))
-        self.network:send(packet.bytes)
-
-        packet = protocol.create_databuffer()
-        self.state = protocol.States.Login
-        packet:put_packet(protocol.build_packet("client", protocol.ClientMsg.JoinGame, session.username))
-        self.network:send(packet.bytes)
+        self.fsm:transition_to( protocol.States.Login )
     end)
 end
 
@@ -92,7 +87,7 @@ function Client:player_tick(playerid, tps)
     local x, y, z = player.get_pos(playerid)
     local yaw, pitch = player.get_rot(playerid)
     if x ~= self.x or y ~= self.y or z ~= self.z or yaw ~= self.yaw or pitch ~= self.pitch then
-        print(x, y, z, yaw, pitch)
+        -- print(x, y, z, yaw, pitch)
         self.x = x self.y = y self.z = z self.yaw = yaw self.pitch = pitch
         self.moved = true
         local chunk_x, chunk_z = math.floor(session.client.x/16), math.floor(session.client.z/16)

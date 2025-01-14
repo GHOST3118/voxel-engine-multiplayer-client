@@ -47,62 +47,7 @@ NetworkPipe:add_middleware(function()
 
         -- debug.print( packet )
 
-        -- STATE: Login
-        if session.client.state == protocol.States.Login then
-
-            if packet.packet_type == protocol.ServerMsg.JoinSuccess then
-                console.log("Подключение успешно! Сид сервера: "..packet.seed..", время: "..packet.game_time)
-                world.set_day_time_speed(0)
-                session.client.state = protocol.States.Active
-            else
-                local str = ""
-                if packet.packet_type == protocol.ServerMsg.Disconnect then
-                    str = "Сервер отказал в подключении."
-                    if packet.reason then str = str .. " Причина: " .. packet.reason end
-                else
-                    str = "Сервер отправил какую-то ерунду вместо ожидаемых данных. Соединение разорвано."
-                end
-                console.log(str)
-                -- самоуничтожаемся!
-                session.client:disconnect()
-                return false
-            end
-
-
-        -- STATE: Active
-        elseif session.client.state == protocol.States.Active then
-            if packet.packet_type == protocol.ServerMsg.ChunkData then
-                world.set_chunk_data(packet.x, packet.z, Bytearray(packet.data), true)
-            elseif packet.packet_type == protocol.ServerMsg.ChatMessage then
-                console.log("| "..packet.message)
-            elseif packet.packet_type == protocol.ServerMsg.StatusResponse then
-                console.log("| [SERVER] "..packet.name)
-            elseif packet.packet_type == protocol.ServerMsg.TimeUpdate then
-                world.set_day_time( packet.game_time )
-            elseif packet.packet_type == protocol.ServerMsg.PlayerJoined then
-                session.client.players[packet.entity_id] = Player.new(packet.x, packet.y, packet.z, packet.entity_id)
-            elseif packet.packet_type == protocol.ServerMsg.PlayerMoved then
-                if not session.client.players[packet.entity_id] then
-                    session.client.players[packet.entity_id] = Player.new(packet.x, packet.y, packet.z, packet.entity_id)
-                end
-
-                session.client.players[packet.entity_id]:move(packet.x, packet.y, packet.z)
-                session.client.players[packet.entity_id]:rotate(packet.yaw, packet.pitch)
-
-            elseif packet.packet_type == protocol.ServerMsg.PlayerLeft then
-                session.client.players[packet.entity_id]:despawn()
-            elseif packet.packet_type == protocol.ServerMsg.KeepAlive then
-                push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.KeepAlive, packet.challenge))
-            elseif packet.packet_type == protocol.ServerMsg.Disconnect then
-                local str = "Сервер кикнул вас"
-                if packet.reason ~= "" then
-                    str = str.." по причине: "..packet.reason
-                else str = str.."." end
-                console.log(str)
-                -- самоуничтожение
-                session.client:disconnect()
-            end
-        end
+        session.client.fsm:handle_event( packet )
     end
     return true
 end)
@@ -122,7 +67,7 @@ end)
 -- Отправляем на очередь всё, что хотим отправить на сервер
 NetworkPipe:add_middleware(function ()
     -- Убедимся, что мы не отсылаем пакеты движения во время логина.
-    if session.client.state == protocol.States.Active then
+    if session.client.fsm.current_state == protocol.States.Active then
         
         if session.client.moved then
             push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.PlayerPosition, session.client.x, session.client.y, session.client.z, session.client.yaw, session.client.pitch))

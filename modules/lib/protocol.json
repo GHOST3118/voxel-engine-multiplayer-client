@@ -25,5 +25,5 @@
         ["ChatMessage", "message:string"],
         ["Disconnect", "reason:string"]
     ],
-    "states": ["Status", "Login"]
+    "states": ["Status", "Login", "Active"]
 }
