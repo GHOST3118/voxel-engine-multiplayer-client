@@ -40,6 +40,14 @@ console.add_command(
 )
 
 console.add_command(
+    "execute script:str",
+    "Connect to dev server",
+    function (args, kwargs)
+        console.execute(unpack(args))
+    end
+)
+
+console.add_command(
     "cu username:str",
     "Change Username",
     function (args, kwargs)

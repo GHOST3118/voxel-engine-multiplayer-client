@@ -31,6 +31,7 @@ NetworkPipe:add_middleware(function ()
                     if not protocol.check_packet("server", data_bytes) then print("сервер нам отправил какую-то хуйню! казнить!!!") end
 
                     local packet = protocol.parse_packet("server", data_bytes)
+
                     List.pushright(ReceivedPackets, packet)
                     packet_count = packet_count + 1
                 else break end
@@ -44,8 +45,6 @@ end)
 NetworkPipe:add_middleware(function()
     while not List.is_empty(ReceivedPackets) do
         local packet = List.popleft(ReceivedPackets)
-
-        -- debug.print( packet )
 
         session.client.fsm:handle_event( packet )
     end
@@ -92,7 +91,6 @@ end)
 NetworkPipe:add_middleware(function ()
     while not List.is_empty(ClientQueue) do
         local packet = List.popleft(ClientQueue)
-        -- debug.print(packet)
         session.client.network:send(packet)
     end
     return true

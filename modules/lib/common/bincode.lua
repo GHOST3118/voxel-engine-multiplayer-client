@@ -1,3 +1,4 @@
+local data_buffer = require "core:data_buffer"
 local bincode = {}
 
 -- нейронка вампала много помогла с кодированием в leb128
@@ -68,6 +69,62 @@ function bincode.bincode_varint_decode(data, pos)
     else
         error("Bincode Varint decoding: Invalid marker byte")
     end
+end
+
+local function to_uint32(value)
+    return value < 0 and value + 2^32 or value
+end
+
+
+--- Декодирование числа из формата Bincode Varint
+--- @param buffer data буффер для декодирования
+--- @return number result Декодированное число
+function bincode.decode_varint(buffer)
+    local first_byte = buffer:get_byte()
+    -- If the first byte is less than 251, it's a single byte encoding
+    if first_byte < 251 then
+        return first_byte
+    -- If the first byte is 251, we expect a 16-bit value
+    elseif first_byte == 251 then
+        return buffer:get_uint16()
+    -- If the first byte is 252, we expect a 32-bit value
+    elseif first_byte == 252 then return byteutil.unpack(">I", buffer:get_bytes( 4 ))
+    -- If the first byte is 253, we expect a 64-bit value
+    elseif first_byte == 253 then return byteutil.unpack(">L", buffer:get_bytes( 8 ))
+    -- If the first byte is 254, we expect a 128-bit value
+    elseif first_byte == 254 then
+        -- Since Lua doesn't have built-in support for 128-bit integers,
+        -- you might need to handle this case differently (perhaps with a string representation).
+        -- This is a placeholder for future implementation if needed.
+        error("128-bit integers not supported in this Lua environment.")
+    else
+        error("Invalid varint encoding.")
+    end
+end
+
+--- Декодирование числа из формата Bincode Varint
+--- @param value number буффер для декодирования
+--- @return bytes result Декодированное число
+function bincode.encode_varint(value)
+    local buffer = data_buffer()
+    -- If the first byte is less than 251, it's a single byte encoding
+    if value < 251 then
+        buffer:put_byte( value )
+    -- If the first byte is 251, we expect a 16-bit value
+    elseif value <= 65535 then
+        buffer:put_byte( 251 )
+        buffer:put_uint16( value )
+    -- If the first byte is 252, we expect a 32-bit value
+    elseif value <= 4294967295 then
+        buffer:put_byte( 252 )
+        buffer:put_bytes( byteutil.tpack(">I", value ) )
+    -- If the first byte is 253, we expect a 64-bit value
+    elseif value > 4294967295 then
+        buffer:put_byte( 253 )
+        buffer:put_bytes( byteutil.tpack(">L", value ) )
+    end
+
+    return buffer:get_bytes()
 end
 
 ---Кодирование числа в формат LEB128
