@@ -53,7 +53,7 @@ local DATA_ENCODE = {
     ["f64"] = function (buffer, value) buffer:put_float64(value) end, -- алиас для double
     ["string"] = function (buffer, value) buffer:put_bytes(pack_string(value)) end,
     ["byteArray"] = function (buffer, value) buffer:put_leb128(#value) buffer:put_bytes(value) end,
-    ["stringArray"] = function (buffer, value) buffer:gut_leb128(#value) for i = 1, #value, 1 do buffer:pack_string(value[i]) end end -- сначала кодируем количество строк, потом сами строки
+    ["stringArray"] = function (buffer, value) buffer:put_leb128(#value) for i = 1, #value, 1 do buffer:pack_string(value[i]) end end -- сначала кодируем количество строк, потом сами строки
 }
 
 local DATA_DECODE = {
