@@ -6,6 +6,10 @@ local ActiveHandlers = {}
 
 ActiveHandlers.on_event = function ( client )
     return function ( packet )
+
+        if packet.packet_type ~= protocol.ServerMsg.TimeUpdate then
+            debug.print( packet )
+        end 
         
         if packet.packet_type == protocol.ServerMsg.ChunkData then
             world.set_chunk_data(packet.x, packet.z, Bytearray(packet.data), true)

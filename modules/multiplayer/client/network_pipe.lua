@@ -18,17 +18,23 @@ end
 
 -- Принимаем все пакеты
 NetworkPipe:add_middleware(function ()
+
     local packet_count = 0
-    local max_packet_count = 10
+    local max_packet_count = 2
     while packet_count < max_packet_count do
         local length_bytes = session.client.network:recieve_bytes(2)
         if length_bytes then
             local length_buffer = protocol.create_databuffer( length_bytes )
             local length = length_buffer:get_uint16()
+            print(length)
             if length then
                 local data_bytes = session.client.network:recieve_bytes( length )
                 if data_bytes then
                     if not protocol.check_packet("server", data_bytes) then print("сервер нам отправил какую-то хуйню! казнить!!!") end
+                    if length ~= 9 then
+                        debug.print(data_bytes)
+                    end
+                    
 
                     local packet = protocol.parse_packet("server", data_bytes)
 

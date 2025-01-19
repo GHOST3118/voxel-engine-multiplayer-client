@@ -5,7 +5,8 @@
     "Lua.diagnostics.disable": [
         "undefined-global",
         "undefined-field",
-        "deprecated"
+        "deprecated",
+        "undefined-doc-name"
     ],
     "Lua.completion.requireSeparator": "/",
     "Lua.runtime.pathStrict": true,

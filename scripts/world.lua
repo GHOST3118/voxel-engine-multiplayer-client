@@ -2,6 +2,10 @@ local session = require "multiplayer/global"
 local console = require "multiplayer/console"
 local protocol = require "lib/protocol"
 
+local websocket = require "lib/common/websocket"
+
+local timer = 0
+local socket
 function on_world_tick()
     if session.client then
         session.client:world_tick()

@@ -104,7 +104,7 @@ end
 
 --- Декодирование числа из формата Bincode Varint
 --- @param value number буффер для декодирования
---- @return bytes result Декодированное число
+--- @return byteArray result Декодированное число
 function bincode.encode_varint(value)
     local buffer = data_buffer()
     -- If the first byte is less than 251, it's a single byte encoding
