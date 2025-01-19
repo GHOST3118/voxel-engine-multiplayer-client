@@ -2,7 +2,6 @@ local session = require "multiplayer/global"
 local console = require "multiplayer/console"
 local protocol = require "lib/protocol"
 
-local websocket = require "lib/common/websocket"
 
 local timer = 0
 local socket

@@ -2,6 +2,7 @@ local Pipeline = require "lib/pipeline"
 local session = require "multiplayer/global"
 local protocol = require "lib/protocol"
 local Player = require "multiplayer/client/classes/player"
+local data_buffer = require "core:data_buffer"
 
 local List = require "lib/common/list"
 
@@ -10,32 +11,44 @@ local ReceivedPackets = List.new()
 
 local NetworkPipe = Pipeline.new()
 
+
 local function push_packet(list, packet)
     local buffer = protocol.create_databuffer()
     buffer:put_packet(packet)
     List.pushright(list, buffer.bytes)
 end
 
+
 -- Принимаем все пакеты
 NetworkPipe:add_middleware(function ()
 
     local packet_count = 0
-    local max_packet_count = 2
+    local max_packet_count = 10
     while packet_count < max_packet_count do
+
         local length_bytes = session.client.network:recieve_bytes(2)
+
         if length_bytes then
             local length_buffer = protocol.create_databuffer( length_bytes )
             local length = length_buffer:get_uint16()
-            print(length)
             if length then
+                local data_bytes_buffer = data_buffer()
+
                 local data_bytes = session.client.network:recieve_bytes( length )
+                while not data_bytes do
+                    data_bytes = session.client.network:recieve_bytes( length )
+                end
+                data_bytes_buffer:put_bytes( data_bytes )
+                while data_bytes_buffer:size() < length do
+                    local data_bytes = session.client.network:recieve_bytes( length - data_bytes_buffer:size() )
+                    data_bytes_buffer:put_bytes( data_bytes )
+                end
+
+                data_bytes = data_bytes_buffer:get_bytes()
+
                 if data_bytes then
                     if not protocol.check_packet("server", data_bytes) then print("сервер нам отправил какую-то хуйню! казнить!!!") end
-                    if length ~= 9 then
-                        debug.print(data_bytes)
-                    end
                     
-
                     local packet = protocol.parse_packet("server", data_bytes)
 
                     List.pushright(ReceivedPackets, packet)

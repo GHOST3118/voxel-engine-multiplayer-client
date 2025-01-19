@@ -35,11 +35,14 @@ function Player:move(x, y, z)
         self.entity.skeleton:set_visible(false)
     end
     
-    self.rb:set_vel({
-        (target_position[1] - current_position[1]) * MOVEMENT_SPEED,
-        (target_position[2] - current_position[2]) * MOVEMENT_SPEED,
-        (target_position[3] - current_position[3]) * MOVEMENT_SPEED
-    })
+    if current_position then
+        self.rb:set_vel({
+            (target_position[1] - current_position[1]) * MOVEMENT_SPEED,
+            (target_position[2] - current_position[2]) * MOVEMENT_SPEED,
+            (target_position[3] - current_position[3]) * MOVEMENT_SPEED
+        })
+    end
+    
 end
 
 function Player:rotate(yaw, pitch)
