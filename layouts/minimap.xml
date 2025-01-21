@@ -1,0 +1,3 @@
+<container id="minimap" size="200,200" z-index="-1">
+    <canvas id="minimap_canvas"></canvas>
+</container>

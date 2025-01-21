@@ -1,11 +1,8 @@
-
 local bincode = require "lib/common/bincode"
 
 local protocol = {}
 local data_buffer = require "core:data_buffer"
 protocol.data = json.parse(file.read("multiplayer:modules/lib/protocol.json"))
-
-
 
 ---Кодирование строки
 ---@param str string Строка, которая будет закодирована
@@ -38,49 +35,157 @@ end
 
 -- Функции для кодирования и декодирования разных типов значений
 local DATA_ENCODE = {
-    ["boolean"] = function (buffer, value) buffer:put_bool(value) end,
-    ["int8"] = function (buffer, value) buffer:put_byte(value < 0 and value + 256 or value) end,
-    ["uint8"] = function (buffer, value) buffer:put_bytes( bincode.encode_varint( value ) ) end,
-    ["int16"] = function (buffer, value) buffer:put_sint16(value) end,
-    ["uint16"] = function (buffer, value) buffer:put_bytes( bincode.encode_varint( value ) ) end,
-    ["int32"] = function (buffer, value) buffer:put_sint32(value) end,
-    ["uint32"] = function (buffer, value) buffer:put_bytes( bincode.encode_varint( value ) ) end,
-    ["int64"] = function (buffer, value) buffer:put_int64(value) end, -- TODO: сделать как на строке ниже
-    ["uint64"] = function (buffer, value) buffer:put_bytes( bincode.encode_varint( value ) ) end, -- TODO: зависимость от текущего порядка байтов в буфере
-    ["float"] = function (buffer, value) buffer:put_float32( value ) end,
-    ["f32"] = function (buffer, value) buffer:put_float32(value) end, -- алиас для float
-    ["double"] = function (buffer, value) buffer:put_float64(value) end,
-    ["f64"] = function (buffer, value) buffer:put_float64(value) end, -- алиас для double
-    ["string"] = function (buffer, value) buffer:put_bytes(pack_string(value)) end,
-    ["byteArray"] = function (buffer, value) buffer:put_leb128(#value) buffer:put_bytes(value) end,
-    ["stringArray"] = function (buffer, value) buffer:put_leb128(#value) for i = 1, #value, 1 do buffer:pack_string(value[i]) end end -- сначала кодируем количество строк, потом сами строки
+    ["boolean"] = function(buffer, value)
+        buffer:put_bool(value)
+    end,
+    ["int8"] = function(buffer, value)
+        buffer:put_byte(value < 0 and value + 256 or value)
+    end,
+    ["uint8"] = function(buffer, value)
+        buffer:put_bytes(bincode.encode_varint(value))
+    end,
+    ["int16"] = function(buffer, value)
+        buffer:put_sint16(value)
+    end,
+    ["uint16"] = function(buffer, value)
+        buffer:put_bytes(bincode.encode_varint(value))
+    end,
+    ["int32"] = function(buffer, value)
+        local result = bincode.zigzag_encode(value)
+        buffer:put_bytes(bincode.encode_varint(result))
+    end,
+    ["uint32"] = function(buffer, value)
+        buffer:put_bytes(bincode.encode_varint(value))
+    end,
+    ["int64"] = function(buffer, value)
+        local result = bincode.zigzag_encode(value)
+        buffer:put_bytes(bincode.encode_varint(result))
+    end, -- TODO: сделать как на строке ниже
+    ["uint64"] = function(buffer, value)
+        buffer:put_bytes(bincode.encode_varint(value))
+    end, -- TODO: зависимость от текущего порядка байтов в буфере
+    ["float"] = function(buffer, value)
+        buffer:put_float32(value)
+    end,
+    ["f32"] = function(buffer, value)
+        buffer:put_float32(value)
+    end, -- алиас для float
+    ["double"] = function(buffer, value)
+        buffer:put_float64(value)
+    end,
+    ["f64"] = function(buffer, value)
+        buffer:put_float64(value)
+    end, -- алиас для double
+    ["string"] = function(buffer, value)
+        buffer:put_bytes(pack_string(value))
+    end,
+    ["byteArray"] = function(buffer, value)
+        buffer:put_leb128(#value)
+        buffer:put_bytes(value)
+    end,
+    ["stringArray"] = function(buffer, value)
+        buffer:put_leb128(#value)
+        for i = 1, #value, 1 do
+            buffer:pack_string(value[i])
+        end
+    end -- сначала кодируем количество строк, потом сами строки
 }
 
 local DATA_DECODE = {
-    ["boolean"] = function (buffer) return buffer:get_bool() end,
-    ["int8"] = function (buffer) return buffer:get_byte() end,
-    ["uint8"] = function (buffer) return bincode.decode_varint(buffer) end,
-    ["int16"] = function (buffer) return buffer:get_sint16() end,
-    ["uint16"] = function (buffer) return bincode.decode_varint(buffer) end,
-    ["int32"] = function (buffer) return buffer:get_sint32() end,
-    ["uint32"] = function (buffer) return bincode.decode_varint(buffer) end,
-    ["int64"] = function (buffer) return bincode.decode_varint(buffer) end, -- TODO: byteutil.unpack как выше
-    ["uint64"] = function (buffer) return bincode.decode_varint(buffer) end,-- здесь тоже
-    ["float"] = function (buffer) return buffer:get_float32() end,
-    ["f32"] = function (buffer) return buffer:get_float32() end, -- алиас для float
-    ["double"] = function (buffer) return buffer:get_float64() end,
-    ["f64"] = function (buffer) return buffer:get_float64() end, -- алиас для double
-    ["string"] = function (buffer)  local pos = buffer.pos
-                                    local string, new_pos = unpack_string(buffer.bytes, pos)
-                                    buffer:set_position(new_pos) return string end,
-    ["byteArray"] = function (buffer)   local pos = buffer.pos
-                                        local string, new_pos = unpack_string(buffer.bytes, pos)
-                                        buffer:set_position(new_pos) return utf8.tobytes(string, true) end,
-    ["stringArray"] = function (buffer) local element_count = buffer:get_leb128()
-                                        local strings = {}
-                                        for i = 1, element_count, 1 do
-                                            strings[i] = buffer:unpack_string()
-                                        end return strings end
+    ["boolean"] = function(buffer)
+        return buffer:get_bool()
+    end,
+    ["int8"] = function(buffer)
+        return buffer:get_byte()
+    end,
+    ["uint8"] = function(buffer)
+        return bincode.decode_varint(buffer)
+    end,
+    ["int16"] = function(buffer)
+        return buffer:get_sint16()
+    end,
+    ["uint16"] = function(buffer)
+        return bincode.decode_varint(buffer)
+    end,
+    ["int32"] = function(buffer)
+        local result = bincode.decode_varint(buffer)
+        return bincode.zigzag_decode(result)
+    end,
+    ["uint32"] = function(buffer)
+        return bincode.decode_varint(buffer)
+    end,
+    ["int64"] = function(buffer)
+        local result = bincode.decode_varint(buffer)
+        return bincode.zigzag_decode(result)
+    end, -- TODO: byteutil.unpack как выше
+    ["uint64"] = function(buffer)
+        return bincode.decode_varint(buffer)
+    end, -- здесь тоже
+    ["float"] = function(buffer)
+        return buffer:get_float32()
+    end,
+    ["f32"] = function(buffer)
+        return buffer:get_float32()
+    end, -- алиас для float
+    ["double"] = function(buffer)
+        return buffer:get_float64()
+    end,
+    ["f64"] = function(buffer)
+        return buffer:get_float64()
+    end, -- алиас для double
+    ["string"] = function(buffer)
+        local pos = buffer.pos
+        local string, new_pos = unpack_string(buffer.bytes, pos)
+        buffer:set_position(new_pos)
+        return string
+    end,
+    ["byteArray"] = function(buffer)
+        local length = bincode.decode_varint(buffer)
+        local bytes = buffer:get_bytes(buffer:size() + 1 - buffer.pos)
+        return bytes
+    end,
+    ["block_vec"] = function(buffer)
+        local DATA_DECODE = {
+            ["int32"] = function(buffer)
+                local result = bincode.decode_varint(buffer)
+                return bincode.zigzag_decode(result)
+            end,
+            ["uint8"] = function(buffer)
+                return bincode.decode_varint(buffer)
+            end,
+            ["uint16"] = function(buffer)
+                return bincode.decode_varint(buffer)
+            end
+        }
+
+        buffer:set_position(2)
+        local element_count = bincode.decode_varint(buffer)
+        if element_count == 0 then return {} end
+        local elements = {}
+        for i = 1, element_count, 1 do
+            local element = {}
+            local __table = protocol.data.structures[protocol.Structures.Block] or {}
+            for key, value in pairs(__table) do
+                if key ~= 1 then
+                    element[string.explode(":", value)[1]] = DATA_DECODE[string.explode(":", value)[2]](buffer)
+                end
+            end
+
+            table.insert(elements, element)
+        end
+
+        return elements
+    end,
+    ["stringArray"] = function(buffer)
+        local element_count = bincode.decode_varint(buffer)
+        print(element_count)
+        local strings = {}
+        for i = 1, element_count, 1 do
+            strings[i] = buffer:unpack_string()
+        end
+        return strings
+
+    end
 }
 
 ---Создаёт датабуфер с порядком Big Endian
@@ -113,8 +218,8 @@ function protocol.create_databuffer(bytes)
     ---@return number length Длина пакета
     function buf:get_packet()
         local length = self:get_uint16()
-        local sliced = protocol.slice_table(self.bytes, self.pos, self.pos+length-1)
-        self:set_position(self.pos+length)
+        local sliced = protocol.slice_table(self.bytes, self.pos, self.pos + length - 1)
+        self:set_position(self.pos + length)
         -- local parsed = protocol.parse_packet(client_or_server, sliced)
         return sliced, length
     end
@@ -141,12 +246,18 @@ function protocol.create_databuffer(bytes)
 
     -- распутываем порядок байт если вдруг в движке перепутан (для работоспособности в 0.25)
     -- TODO: вырезать распутыватель LE/BE, если 0.25 не поддерживается
-    -- local testbuf = data_buffer:new() testbuf:set_order("LE") testbuf:put_uint16(1)
+    -- local testbuf = data_buffer:new()
+    -- testbuf:set_order("LE")
+    -- testbuf:put_uint16(1)
     -- if testbuf.bytes[2] == 1 then
     --     buf.wrong_set_order = buf.set_order
     --     function buf:set_order(str)
     --         str = utf8.upper(str)
-    --         if str == "BE" then self:wrong_set_order("LE") else self:wrong_set_order("BE") end
+    --         if str == "BE" then
+    --             self:wrong_set_order("LE")
+    --         else
+    --             self:wrong_set_order("BE")
+    --         end
     --     end
     --     buf:set_order(protocol.data.order)
     -- end
@@ -162,9 +273,11 @@ end
 function protocol.build_packet(client_or_server, packet_type, ...)
     local args = {...}
     local buffer = protocol.create_databuffer()
-    buffer:put_byte(packet_type-1)
+    buffer:put_byte(packet_type - 1)
     for key, value in pairs(protocol.data[client_or_server][packet_type]) do
-        if key > 1 then DATA_ENCODE[string.explode(":", value)[2]](buffer, args[key-1]) end
+        if key > 1 then
+            DATA_ENCODE[string.explode(":", value)[2]](buffer, args[key - 1])
+        end
     end
     return buffer.bytes
 end
@@ -178,11 +291,13 @@ function protocol.parse_packet(client_or_server, data)
     local buffer = protocol.create_databuffer() -- для удобства создадим буфер
     buffer:put_bytes(data) -- запихаем в буфер все байты полученного пакета
     buffer:set_position(1) -- движок поставит позицию в конец буфера, возвращаем обратно в начало
-    local packet_type = buffer:get_byte()+1
+    local packet_type = buffer:get_byte() + 1
     result.packet_type = packet_type
     local __table = protocol.data[client_or_server][packet_type] or {}
     for key, value in pairs(__table) do
-        if key ~= 1 then result[string.explode(":", value)[1]] = DATA_DECODE[string.explode(":", value)[2]](buffer) end
+        if key ~= 1 then
+            result[string.explode(":", value)[1]] = DATA_DECODE[string.explode(":", value)[2]](buffer)
+        end
     end
     return result
 end
@@ -204,17 +319,41 @@ function protocol.check_packet(client_or_server, packet)
     return true
 end
 
+function protocol.parse_array_of(structure, data)
+    local elements = {}
+    local buffer = data_buffer()
+
+    buffer:put_bytes(data)
+    buffer:set_position(1)
+
+    while buffer.pos < buffer:size() do
+        local element = {}
+        print(buffer.pos)
+        local __table = protocol.data.structures[structure] or {}
+        for key, value in pairs(__table) do
+            if key ~= 1 then
+                element[string.explode(":", value)[1]] = DATA_DECODE[string.explode(":", value)[2]](buffer)
+            end
+        end
+        debug.print(elements)
+    end
+
+    return elements
+end
+
 -- Перечисление сообщений клиента
 protocol.ClientMsg = {}
 -- Перечисление сообщений сервера
 protocol.ServerMsg = {}
 -- Перечисление статусов
 protocol.States = {}
+-- Перечисление Структур
+protocol.Structures = {}
 
 -- Парсим из json типы пакетов клиента и сервера
 for index, value in ipairs(protocol.data.client) do
-    protocol.ClientMsg[index] = value[1] --Имя типа пакета по индексу
-    protocol.ClientMsg[value[1]] = index --Индекс по имени типа пакета
+    protocol.ClientMsg[index] = value[1] -- Имя типа пакета по индексу
+    protocol.ClientMsg[value[1]] = index -- Индекс по имени типа пакета
 end
 for index, value in ipairs(protocol.data.server) do
     protocol.ServerMsg[index] = value[1]
@@ -226,20 +365,30 @@ for index, value in ipairs(protocol.data.states) do
     protocol.States[value] = index
 end
 
+-- Парсим из json Структуры
+for index, value in ipairs(protocol.data.structures) do
+    protocol.Structures[index] = value[1]
+    protocol.Structures[value[1]] = index
+end
+
 -- выставляем в свет функцию leb128_чего-то-там, но теперь функция возвращает таблицу с байтами и принимает
 -- тоже таблицу с байтами для удобства работы вне библиотеки
 
 ---Кодирование числа в формат LEB128
 ---@param n number Число для кодирования
 ---@return table encoded Закодированное число в таблице байтов
-protocol.leb128_encode = function (n) return utf8.tobytes(leb128_encode(n), true) end
+protocol.leb128_encode = function(n)
+    return utf8.tobytes(bincode.leb128_encode(n), true)
+end
 
 ---Декодирование числа из формата LEB128
 ---@param bytes table Таблица байт для декодирования
 ---@param pos integer Позиция начала закодированной длины в данной таблице
 ---@return number result Декодированное число
 ---@return number bytesRead Количество прочитанных байт
-protocol.leb128_decode = function (bytes, pos) return leb128_decode(utf8.tostring(bytes), pos) end
+protocol.leb128_decode = function(bytes, pos)
+    return bincode.leb128_decode(utf8.tostring(bytes), pos)
+end
 
 -- local bignum = 1234567890123
 -- debug.print(bignum.."")
@@ -248,6 +397,5 @@ protocol.leb128_decode = function (bytes, pos) return leb128_decode(utf8.tostrin
 -- debug.print(buf)
 -- buf.pos = 1
 -- debug.print(byteutil.unpack('>l', buf.bytes).."")
-
 
 return protocol

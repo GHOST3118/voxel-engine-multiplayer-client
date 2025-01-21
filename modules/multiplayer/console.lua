@@ -1,7 +1,6 @@
 local session = require "multiplayer/global"
 local Client = require "multiplayer/client/client"
 local Server = require "multiplayer/server/server"
-local Proto = require "multiplayer/proto/core"
 local protocol = require "lib/protocol"
 local client_queue = require "multiplayer/client/client_queue"
 local List = require "lib/common/list"

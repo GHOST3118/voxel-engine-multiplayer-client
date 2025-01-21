@@ -3,6 +3,7 @@ local session = require "multiplayer/global"
 local protocol = require "lib/protocol"
 local Player = require "multiplayer/client/classes/player"
 local data_buffer = require "core:data_buffer"
+local bincode     = require "lib/common/bincode"
 
 local List = require "lib/common/list"
 
@@ -41,7 +42,10 @@ NetworkPipe:add_middleware(function ()
                 data_bytes_buffer:put_bytes( data_bytes )
                 while data_bytes_buffer:size() < length do
                     local data_bytes = session.client.network:recieve_bytes( length - data_bytes_buffer:size() )
-                    data_bytes_buffer:put_bytes( data_bytes )
+                    if data_bytes then
+                        
+                        data_bytes_buffer:put_bytes( data_bytes )
+                    end
                 end
 
                 data_bytes = data_bytes_buffer:get_bytes()

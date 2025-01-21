@@ -5,10 +5,11 @@ local LoginHandlers = {}
 
 LoginHandlers.on_event = function (client)
     return function (packet)
-        debug.print(packet)
+
         if packet.packet_type == protocol.ServerMsg.JoinSuccess then
-            console.log("Подключение успешно! Сид сервера: "..packet.seed..", время: "..packet.game_time)
+            console.log("Подключение успешно! время: "..packet.game_time)
             world.set_day_time_speed(0)
+            session.client.entity_id = packet.entity_id
             return protocol.States.Active
         else
             local str = ""

@@ -41,6 +41,7 @@ function Client.new(host, port)
     self.yaw = 0
     self.pitch = 0
     self.player_id = hud.get_player()
+    self.entity_id = self.player_id
     -- двигался ли игрок последний тик
     self.moved = false
 
@@ -97,6 +98,15 @@ function Client:player_tick(playerid, tps)
         end
     end
 
+end
+
+function Client:on_block_placed(blockid, x, y, z, states)
+
+    session.client:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, states, blockid) )
+end
+
+function Client:on_block_broken(blockid, x, y, z)
+    session.client:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, 0, 0) )
 end
 
 return Client

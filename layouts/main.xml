@@ -1,0 +1,4 @@
+<panel size='400' color='0' interval='1' z-index="1000" context='menu'>
+    
+    <button onclick='menu.page="main"'>@Back to Main Menu</button>
+</panel>

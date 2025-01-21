@@ -30,6 +30,13 @@ function Network:disconnect()
     end
 end
 
+function Network:alive()
+    if self.socket and self.socket:is_alive() then
+        return true
+    end
+    return false
+end
+
 function Network:send(data)
     if self.socket and self.socket:is_alive() then
         socketlib.send( self.socket, data )
