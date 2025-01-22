@@ -81,7 +81,6 @@ end
 --- @param buffer data буффер для декодирования
 --- @return number result Декодированное число
 function bincode.decode_varint(buffer)
-    debug.print(buffer)
     local first_byte = buffer:get_byte()
     -- If the first byte is less than 251, it's a single byte encoding
     if first_byte < 251 then

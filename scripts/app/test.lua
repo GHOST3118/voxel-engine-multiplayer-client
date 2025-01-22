@@ -10,7 +10,7 @@ events.on("connect", function(username, host, port)
 
     local network = Network.new()
     local status
-    network:connect("localhost", 25565, function(_status)
+    network:connect(host, port, function(_status)
         local packet = protocol.create_databuffer()
         packet:put_packet(protocol.build_packet("client", protocol.ClientMsg.HandShake, "0.26.0", protocol.data.version,
             protocol.States.Status))

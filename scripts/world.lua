@@ -2,6 +2,7 @@ local session = require "multiplayer/global"
 local console = require "multiplayer/console"
 local data_buffer = require "core:data_buffer"
 
+
 function on_world_tick()
     if session.client then
         session.client:world_tick()
@@ -18,12 +19,7 @@ function on_player_tick(playerid, tps)
         session.client:player_tick(playerid, tps)
     end
 
-    -- if timer >= 20 then
-    --     events.emit("minimap:update")
-    --     timer = 0
-    -- end
-
-    -- timer = timer +1
+    events.emit("minimap:update")
 end
 
 function on_world_quit()

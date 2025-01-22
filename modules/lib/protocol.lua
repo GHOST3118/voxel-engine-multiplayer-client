@@ -335,7 +335,7 @@ function protocol.parse_array_of(structure, data)
                 element[string.explode(":", value)[1]] = DATA_DECODE[string.explode(":", value)[2]](buffer)
             end
         end
-        debug.print(elements)
+        --debug.print(elements)
     end
 
     return elements

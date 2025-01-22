@@ -25,6 +25,9 @@ NetworkPipe:add_middleware(function ()
 
     local packet_count = 0
     local max_packet_count = 10
+
+    local start_time = os.clock()
+
     while packet_count < max_packet_count do
 
         local length_bytes = session.client.network:recieve_bytes(2)
@@ -61,6 +64,9 @@ NetworkPipe:add_middleware(function ()
             else break end
         else break end
     end
+
+    local end_time = os.clock()
+    print(  "Получено пакетов: "..packet_count.." за "..(end_time-start_time).." секунд." )
     return true
 end)
 

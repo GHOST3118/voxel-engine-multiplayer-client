@@ -60,7 +60,7 @@ ClientHandlers[ protocol.ServerMsg.BlockUpdate ] = function (packet)
 end
 
 ClientHandlers[ protocol.ServerMsg.WorldData ] = function (packet)
-    debug.print(packet)
+
     for key, value in ipairs(packet.data) do
         block.set( value.x, value.y, value.z, value.block_id, value.block_state )
     end
