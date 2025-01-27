@@ -1,10 +1,9 @@
-<panel size='400' color='#000000FF' interval='1' context='menu'>
-    <panel size='380,400' color='#333333FF'>
-        <label margin="5">@IP</label>
-        <textbox id="ip" padding="2" validator="is_valid_address_port" hint="address:port"></textbox>
-        <label margin="5">@Username</label>
-        <textbox id="username" padding="2" validator="is_valid_username"></textbox>
-        <button onclick='connect()'>Подключение к серверу</button>
+<panel size='400' color='0' interval='1' context='menu'>
+    <panel id="server_list" size="400" padding="5" color="#FFFFFF11" max-length="400">
     </panel>
+
+    <button onclick='menu.page="add_server"'>@Add Server</button>
+    <button onclick='menu.page="profile"'>@Profile</button>
     <button onclick='menu.page="main"'>@Back to Main Menu</button>
+    
 </panel>

@@ -12,6 +12,30 @@ local function push_packet(list, packet)
 end
 
 console.add_command(
+    "sphere.fill id:str cx:int~pos.x cy:int~pos.y cz:int~pos.z radius:int",
+    "Fill specified sphere with blocks",
+    function(args, kwargs)
+        local name, cx, cy, cz, radius = unpack(args)
+        local id = block.index(name)
+        local radius_squared = radius * radius
+
+        local blocks_set = 0
+        for y = -radius, radius do
+            for z = -radius, radius do
+                for x = -radius, radius do
+                    if x * x + y * y + z * z <= radius_squared then
+                        block.place(cx + x, cy + y, cz + z, id, 0, 0)
+                        blocks_set = blocks_set + 1
+                    end
+                end
+            end
+        end
+        return tostring(blocks_set) .. " blocks set"
+    end
+)
+
+
+console.add_command(
     "connect host:str port:int",
     "Connect to Server",
     function (args, kwargs)

@@ -14,13 +14,11 @@ end
 
 ---Декодирование строки
 ---@param data table Таблица с закодированной длиной строки
----@param pos number Позиция счётчика в начале закодированной длины
 ---@return string string Декодированная строка
----@return number new_pos Новая позиция счётчика за концом строки
-local function unpack_string(data, pos)
-    data = utf8.tostring(data)
-    local len, new_pos = bincode.bincode_varint_decode(data, pos)
-    return string.sub(data, new_pos, new_pos + len - 1), new_pos + len
+local function unpack_string(data)
+    local len = bincode.decode_varint(data)
+    local str = utf8.tostring(data:get_bytes(len))
+    return str
 end
 
 protocol.slice_table = function(tbl, first, last, step)
@@ -134,14 +132,12 @@ local DATA_DECODE = {
         return buffer:get_float64()
     end, -- алиас для double
     ["string"] = function(buffer)
-        local pos = buffer.pos
-        local string, new_pos = unpack_string(buffer.bytes, pos)
-        buffer:set_position(new_pos)
+        local string = unpack_string(buffer)
         return string
     end,
     ["byteArray"] = function(buffer)
         local length = bincode.decode_varint(buffer)
-        local bytes = buffer:get_bytes(buffer:size() + 1 - buffer.pos)
+        local bytes = buffer:get_bytes(length)
         return bytes
     end,
     ["block_vec"] = function(buffer)

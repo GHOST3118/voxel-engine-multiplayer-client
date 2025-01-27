@@ -6,6 +6,7 @@ local state_machine = require "lib/common/fsm"
 local Player = require "multiplayer/client/classes/player"
 local login_handlers = require "multiplayer/client/dev/login_handlers"
 local active_handlers= require "multiplayer/client/dev/active_handlers"
+local WorldDataQueue = require "multiplayer/client/WorldDataQueue"
 
 local ClientQueue = require "multiplayer/client/client_queue"
 local NetworkPipe = require "multiplayer/client/network_pipe"
@@ -23,6 +24,8 @@ function Client.new(host, port)
     self.network = Network.new()
 
     self.handlers = {}
+    self.on_disconnect = function () end
+    self.on_connect = function () end
     self.state = nil
 
     self.fsm = state_machine.new()
@@ -40,7 +43,7 @@ function Client.new(host, port)
     self.z = 0
     self.yaw = 0
     self.pitch = 0
-    self.player_id = hud.get_player()
+    self.player_id = 0
     self.entity_id = self.player_id
     -- двигался ли игрок последний тик
     self.moved = false
@@ -76,6 +79,16 @@ function Client:disconnect()
 end
 
 function Client:world_tick()
+
+    if not List.is_empty( WorldDataQueue ) then
+        local data = List.popleft( WorldDataQueue )
+        for key, value in ipairs(data) do
+            block.set( value.x, value.y, value.z, value.block_id, value.block_state )
+        end
+    end
+end
+
+function Client:tick()
 
     NetworkPipe:process()
 end

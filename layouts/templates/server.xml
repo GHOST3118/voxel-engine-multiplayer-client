@@ -1,0 +1,8 @@
+<container size="380,66" color="#0F1E2DB2" hover-color="#162B3399" onclick="%{onclick}">
+    <image pos='1' src='%{server_favicon}' size='64,64'></image>
+    <label markup='md' pos="72,8">%{server_name}</label>
+
+    <label markup='md' pos="72,24">%{players_online}</label>
+
+    <label markup='md' pos="317,44">%{server_status}</label>
+</container>

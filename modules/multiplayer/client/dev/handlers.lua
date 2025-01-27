@@ -1,6 +1,8 @@
 local protocol = require "lib/protocol"
 local session = require "multiplayer/global"
 local Player = require "multiplayer/client/classes/player"
+local list   = require "lib/common/list"
+local WorldDataQueue = require "multiplayer/client/WorldDataQueue"
 
 local ClientHandlers = {}
 
@@ -17,7 +19,9 @@ ClientHandlers[ protocol.ServerMsg.StatusResponse ] = function (packet)
 end
 
 ClientHandlers[ protocol.ServerMsg.TimeUpdate ] = function (packet)
-    world.set_day_time( packet.game_time )
+    if world.is_open() then
+        world.set_day_time( packet.game_time )
+    end
 end
 
 ClientHandlers[ protocol.ServerMsg.PlayerJoined ] = function (packet)
@@ -61,10 +65,7 @@ end
 
 ClientHandlers[ protocol.ServerMsg.WorldData ] = function (packet)
 
-    for key, value in ipairs(packet.data) do
-        block.set( value.x, value.y, value.z, value.block_id, value.block_state )
-    end
-
+    list.pushright( WorldDataQueue, packet.data )
 end
 
 return ClientHandlers

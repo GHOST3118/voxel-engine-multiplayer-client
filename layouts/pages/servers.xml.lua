@@ -1,37 +1,48 @@
-function is_valid_address_port(str)
-    local address
-    local port_separator = str:find(':')
-    if not port_separator then
-        return false
+
+
+local connectors = {
+
+}
+
+function on_open()
+    local handshake = require "multiplayer:multiplayer/utils/handshake"
+    local path = pack.shared_file("multiplayer", "local_profile.toml")
+    if file.exists( path ) then
+        local profile = toml.parse( file.read(path) )
+
+        debug.print( profile )
     end
-    local port_string = str:sub(port_separator + 1)
-    if not port_string:match("^%d+$") then
-        return false
+
+    handshake.make("localhost", 25565, function ( server )
+        if server then
+            connectors[1] = function ()
+                events.emit("connect", "ghosta", "localhost", 25565, server)
+            end
+
+            assets.load_texture(server.favicon, server.name..".icon")
+
+            document.server_list:add( gui.template("server", {
+                server_name = server.name,
+                server_status = "[#00aa00]online",
+                onclick = "connect_to(1)",
+                server_favicon = server.name..".icon",
+                players_online = server.online.." / "..server.max
+            }) )
+
+        else
+            document.server_list:add( gui.template("server", {
+                server_name = "[#aa0000]Failed to get status",
+                server_status = "[#aa0000]offline",
+            }) )
+        end
+        
+    end)
+    
+end
+
+function connect_to(id)
+    if connectors[id] then
+        
+        connectors[id]()
     end
-    local port = tonumber(port_string)
-    if port > 65535 then
-        return false
-    end
-    return true
-end
-
-function is_valid_username(str)
-    str = str:trim()
-    local len = utf8.length(str)
-    return len >= 3 and len <= 20
-end
-
-local function parse_address(address_string)
-    return address_string:match("([^:]+):(%d+)")
-end
-
-local function parse_address(address_string)
-    return address_string:match("([^:]+):(%d+)")
-end
-
-function connect()
-    local username = document.username.text
-    local host, port = parse_address(document.ip.text)
-
-    events.emit("connect", username, host, port)
 end

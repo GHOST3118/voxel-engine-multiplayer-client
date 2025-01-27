@@ -5,23 +5,28 @@ local LoginHandlers = {}
 
 LoginHandlers.on_event = function (client)
     return function (packet)
-
+        debug.print(packet)
         if packet.packet_type == protocol.ServerMsg.JoinSuccess then
+            client.on_connect( packet )
             console.log("Подключение успешно! время: "..packet.game_time)
-            world.set_day_time_speed(0)
+            -- world.set_day_time_speed(0)
             session.client.entity_id = packet.entity_id
+            print("Connected to server!")
             return protocol.States.Active
         else
             local str = ""
             if packet.packet_type == protocol.ServerMsg.Disconnect then
                 str = "Сервер отказал в подключении."
                 if packet.reason then str = str .. " Причина: " .. packet.reason end
+                
             else
                 str = "Сервер отправил какую-то ерунду вместо ожидаемых данных. Соединение разорвано."
             end
             console.log(str)
+            client.on_disconnect( packet )
             -- самоуничтожаемся!
             session.client:disconnect()
+            
             return nil
         end
     end
