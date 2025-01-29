@@ -64,7 +64,7 @@ events.on(PACK_ID .. ":connect", function(username, host, port, packet)
 end)
 
 
---events.on(PACK_ID..":disconnect", leave_to_menu)
+events.on(PACK_ID..":disconnect", leave_to_menu)
 
 
 app.sleep_until(function() return Session.client and Session.client.network:alive() end)
