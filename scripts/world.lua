@@ -3,15 +3,23 @@ local console = require "multiplayer/console"
 local data_buffer = require "core:data_buffer"
 
 events.on(PACK_ID .. ":connected", function(_session)
-    -- session.client = _session.client
+    if Session.client.network.socket:is_connected() then
+        print('сокеты живые!')
+    else
+        print('сокеты умерли')
+    end
+    -- print('перезаписывам Session.client. прежняя версия:')
+    -- debug.print(Session.client)
+    -- print('новая версия:')
+    -- debug.print(_Session.client)
+    -- Session.client = _Session.client
 end)
 
-events.on(PACK_ID .. ":disconnect", function ()
-    session.client = nil
+events.on(PACK_ID..":disconnect", function ()
+    Session.client = nil
 end)
 
 function on_world_tick()
-        session.client:world_tick()
     if not Session.client then
     end
 
@@ -26,6 +34,8 @@ end
 
 local timer = 0
 function on_player_tick(playerid, tps)
+    if not Session.client then
+    end
     if Session.client then
         Session.client:player_tick(playerid, tps)
     end
@@ -34,8 +44,8 @@ function on_player_tick(playerid, tps)
 end
 
 function on_world_quit()
-    -- if session.client then
-    --     session.client:disconnect()
+    -- if Session.client then
+    --     Session.client:disconnect()
     -- end
 
     if Session.server then

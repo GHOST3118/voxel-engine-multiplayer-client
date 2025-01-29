@@ -5,6 +5,6 @@
 
     <button onclick='menu.page="add_server"'>@Add Server</button>
     <button onclick='menu.page="profile"'>@Profile</button>
-    <button onclick='menu.page="main"'>@Back to Main Menu</button>
+    <button onclick='events.emit("multiplayer:disconnect")'>@Back to Main Menu</button>
     
 </panel>

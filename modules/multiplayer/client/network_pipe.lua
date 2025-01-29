@@ -66,7 +66,7 @@ NetworkPipe:add_middleware(function ()
     end
 
     local end_time = os.clock()
-    print(  "Получено пакетов: "..packet_count.." за "..(end_time-start_time).." секунд." )
+    if packet_count > 0 and end_time-start_time > 0.05 then print(  "Получено пакетов: "..packet_count.." за "..(end_time-start_time).." секунд." ) end
     return true
 end)
 
@@ -85,6 +85,7 @@ NetworkPipe:add_middleware(function ()
     if not Session.client then return false end
     if Session.client.network.socket and not Session.client.network.socket:is_alive() then
         console.log("Соединение прервано.")
+        print(' { соединение преравно, потому что мы окзывается отключены } ')
         -- самоуничтожаемся!
         Session.client:disconnect()
         return false
@@ -106,10 +107,10 @@ NetworkPipe:add_middleware(function ()
             -- TODO: нормальная загрузка чанков
             push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.RequestChunk, Session.client.chunk_x, Session.client.chunk_z))
             -- раскомментировать для загрузки соседних чанков
-            -- push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.RequestChunk, session.client.chunk_x+1, session.client.chunk_z))
-            -- push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.RequestChunk, session.client.chunk_x-1, session.client.chunk_z))
-            -- push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.RequestChunk, session.client.chunk_x, session.client.chunk_z+1))
-            -- push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.RequestChunk, session.client.chunk_x, session.client.chunk_z-1))
+            -- push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.RequestChunk, Session.client.chunk_x+1, Session.client.chunk_z))
+            -- push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.RequestChunk, Session.client.chunk_x-1, Session.client.chunk_z))
+            -- push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.RequestChunk, Session.client.chunk_x, Session.client.chunk_z+1))
+            -- push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.RequestChunk, Session.client.chunk_x, Session.client.chunk_z-1))
             Session.client.moved_thru_chunk = false
         end
     end

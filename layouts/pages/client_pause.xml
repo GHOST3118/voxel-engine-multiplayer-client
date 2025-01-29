@@ -1,4 +1,5 @@
 <panel size="400" color="0" interval="1" context="menu">
     <button onclick="menu:reset()">@Continue</button>
     <button onclick='menu.page="settings"'>@Settings</button>
+    <button onclick="disconnect()"> @Disconnect</button>
 </panel>

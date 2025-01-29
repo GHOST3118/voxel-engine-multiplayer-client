@@ -71,12 +71,12 @@ function Client:connect()
 end
 
 function Client:disconnect()
+    print(' { получили запрос на дисконнект Client:disconnect } ')
     self.network:disconnect()
     for _, value in ipairs(self.players) do
         value:despawn()
     end
-    session.client = nil
-    events.emit(PACK_ID .. ":disconnect")
+    Session.client = nil
 end
 
 function Client:world_tick()
