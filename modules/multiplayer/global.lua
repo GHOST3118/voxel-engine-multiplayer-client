@@ -1,8 +1,10 @@
-local Session = {}
+if not Session then
+    Session = {}
 
-Session.client = nil
-Session.username = nil
+    Session.client = nil
+    Session.server = nil
+    Session.username = nil
+    Session.ip = nil
+    Session.port = nil
 
-Session.server = nil
-
-return Session
+end

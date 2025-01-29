@@ -1,5 +1,5 @@
 local protocol = require "lib/protocol"
-local session = require "multiplayer/global"
+require "multiplayer/global"
 
 local LoginHandlers = {}
 
@@ -10,7 +10,7 @@ LoginHandlers.on_event = function (client)
             client.on_connect( packet )
             console.log("Подключение успешно! время: "..packet.game_time)
             -- world.set_day_time_speed(0)
-            session.client.entity_id = packet.entity_id
+            Session.client.entity_id = packet.entity_id
             print("Connected to server!")
             return protocol.States.Active
         else
@@ -25,7 +25,7 @@ LoginHandlers.on_event = function (client)
             console.log(str)
             client.on_disconnect( packet )
             -- самоуничтожаемся!
-            session.client:disconnect()
+            Session.client:disconnect()
             
             return nil
         end
@@ -39,7 +39,7 @@ LoginHandlers.on_enter = function (client)
         client.network:send(packet.bytes)
 
         packet = protocol.create_databuffer()
-        packet:put_packet(protocol.build_packet("client", protocol.ClientMsg.JoinGame, session.username))
+        packet:put_packet(protocol.build_packet("client", protocol.ClientMsg.JoinGame, Session.username))
         client.network:send(packet.bytes)
     end
 end

@@ -1,5 +1,5 @@
 local Pipeline = require "lib/pipeline"
-local session = require "multiplayer/global"
+require "multiplayer/global"
 local protocol = require "lib/protocol"
 
 local List = require "lib/common/list"
@@ -19,7 +19,7 @@ end
 
 local function global_chat(msg)
     console.log("| " .. msg)
-    for _, client in ipairs(session.server.clients) do
+    for _, client in ipairs(Session.server.clients) do
         if client.active then
             push_packet(client.response_queue, protocol.build_packet("server", protocol.ServerMsg.ChatMessage, 0, msg, 0))
         end

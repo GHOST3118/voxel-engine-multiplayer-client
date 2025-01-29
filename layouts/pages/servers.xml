@@ -1,4 +1,5 @@
 <panel size='400' color='0' interval='1' context='menu'>
+    <label>@Server list</label>
     <panel id="server_list" size="400" padding="5" color="#FFFFFF11" max-length="400">
     </panel>
 

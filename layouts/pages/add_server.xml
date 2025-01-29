@@ -1,10 +1,9 @@
 <panel size='400' color='#000000FF' interval='1' context='menu'>
     <panel size='380,380' color='#333333FF'>
+        <label margin="5">@Server Name</label>
+        <textbox id="server_name" padding="2"></textbox>
         <label margin="5">@IP</label>
         <textbox id="ip" padding="2" validator="is_valid_address_port" hint="address:port"></textbox>
-        <label margin="5">@Username</label>
-        <textbox id="username" padding="2" validator="is_valid_username"></textbox>
-        <button onclick='connect()'>@Connect to Server</button>
         <button onclick='add_server()'>@Add Server</button>
     </panel>
     <button onclick='menu.page="servers"'>@Back to Main Menu</button>

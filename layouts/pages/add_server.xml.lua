@@ -1,6 +1,9 @@
+local config = require "config"
+
 function is_valid_address_port(str)
     local address
     local port_separator = str:find(':')
+    if str == "" then return false end
     if not port_separator then
         return false
     end
@@ -16,13 +19,7 @@ function is_valid_address_port(str)
 end
 
 function is_valid_username(str)
-    str = str:trim()
-    local len = utf8.length(str)
-    return len >= 3 and len <= 20
-end
 
-local function parse_address(address_string)
-    return address_string:match("([^:]+):(%d+)")
 end
 
 local function parse_address(address_string)
@@ -34,4 +31,10 @@ function connect()
     local host, port = parse_address(document.ip.text)
 
     events.emit("connect", username, host, port)
+end
+
+function add_server()
+    config.data.multiplayer.servers[#config.data.multiplayer.servers+1] = {document.server_name.text, document.ip.text}
+    config.write()
+    menu.page="servers"
 end

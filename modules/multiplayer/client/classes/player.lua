@@ -1,4 +1,4 @@
-local session = require "multiplayer/global"
+require "multiplayer/global"
 
 local Player = {}
 Player.__index = Player
@@ -26,10 +26,10 @@ function Player:move(x, y, z)
     local current_position = self.tsf:get_pos()
     local target_position = {x, y, z}
 
-    if  session.client and 
-        session.client.x == x and
-        session.client.y == y and
-        session.client.z == z
+    if  Session.client and 
+        Session.client.x == x and
+        Session.client.y == y and
+        Session.client.z == z
     then
 
         self.entity.skeleton:set_visible(false)

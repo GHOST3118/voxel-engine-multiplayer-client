@@ -23,7 +23,7 @@ gui_util.add_page_dispatcher(function(name, args)
     return name, args
 end)
 
-local session = require "multiplayer:multiplayer/global"
+require "multiplayer:multiplayer/global"
 local Client = require "multiplayer:multiplayer/client/client"
 
 events.on("connect", function(username, host, port, packet)
@@ -36,19 +36,19 @@ events.on("connect", function(username, host, port, packet)
         session.client = nil
     end
 
-    session.username = username
-    session.client = Client.new( host, port )
-    session.client.on_disconnect = function (packet)
+    Session.username = username
+    Session.client = Client.new( host, port )
+    Session.client.on_disconnect = function (packet)
         gui.alert("Server disconnected | reason: "..packet.reason, leave_to_menu)
         
     end
-    session.client.on_connect = function (_packet)
+    Session.client.on_connect = function (_packet)
         app.config_packs({"base", "multiplayer"})
         app.new_world("", packet.seed, "base:demo", 0)
-        events.emit("connected", session)
+        events.emit("connected", Session)
         
     end
-    session.client:connect()
+    Session.client:connect()
 
     
 end)
@@ -58,10 +58,10 @@ end)
 
 
 
-app.sleep_until(function() return session.client and session.client.network:alive() end)
+app.sleep_until(function() return Session.client and Session.client.network:alive() end)
 
-while session.client and session.client.network:alive() do
-    session.client:tick()
+while Session.client and Session.client.network:alive() do
+    Session.client:tick()
     app.tick()
 end
 

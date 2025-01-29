@@ -1,9 +1,8 @@
-local session = require "multiplayer/global"
+require "multiplayer/global"
 local console = require "multiplayer/console"
 local data_buffer = require "core:data_buffer"
 
 events.on("connected", function(_session)
-    session.client = _session.client
 end)
 
 events.on("disconnect", function ()
@@ -11,19 +10,23 @@ events.on("disconnect", function ()
 end)
 
 function on_world_tick()
-    if session.client then
         session.client:world_tick()
+    if not Session.client then
     end
 
-    if session.server then
-        session.server:tick()
+    if Session.client then
+        Session.client:world_tick()
+    end
+
+    if Session.server then
+        Session.server:tick()
     end
 end
 
 local timer = 0
 function on_player_tick(playerid, tps)
-    if session.client then
-        session.client:player_tick(playerid, tps)
+    if Session.client then
+        Session.client:player_tick(playerid, tps)
     end
 
     events.emit("minimap:update")
@@ -34,23 +37,23 @@ function on_world_quit()
     --     session.client:disconnect()
     -- end
 
-    if session.server then
-        session.server:stop()
+    if Session.server then
+        Session.server:stop()
     end
 end
 
 function on_block_placed(blockid, x, y, z, playerid)
 
-    if session.client then
-        if session.client.player_id ~= playerid then return end
+    if Session.client then
+        if Session.client.player_id ~= playerid then return end
         local states = block.get_states(x, y, z)
-        session.client:on_block_placed(blockid, x, y, z, states)
+        Session.client:on_block_placed(blockid, x, y, z, states)
     end
 end
 
 function on_block_broken(blockid, x, y, z, playerid)
-    if session.client then
-        if session.client.player_id ~= playerid then return end
-        session.client:on_block_broken(blockid, x, y, z)
+    if Session.client then
+        if Session.client.player_id ~= playerid then return end
+        Session.client:on_block_broken(blockid, x, y, z)
     end
 end

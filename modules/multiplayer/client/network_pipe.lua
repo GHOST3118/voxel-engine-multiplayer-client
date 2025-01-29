@@ -1,9 +1,9 @@
 local Pipeline = require "lib/pipeline"
-local session = require "multiplayer/global"
+require "multiplayer/global"
 local protocol = require "lib/protocol"
 local Player = require "multiplayer/client/classes/player"
 local data_buffer = require "core:data_buffer"
-local bincode     = require "lib/common/bincode"
+local bincode = require "lib/common/bincode"
 
 local List = require "lib/common/list"
 
@@ -30,7 +30,7 @@ NetworkPipe:add_middleware(function ()
 
     while packet_count < max_packet_count do
 
-        local length_bytes = session.client.network:recieve_bytes(2)
+        local length_bytes = Session.client.network:recieve_bytes(2)
 
         if length_bytes then
             local length_buffer = protocol.create_databuffer( length_bytes )
@@ -38,13 +38,13 @@ NetworkPipe:add_middleware(function ()
             if length then
                 local data_bytes_buffer = data_buffer()
 
-                local data_bytes = session.client.network:recieve_bytes( length )
+                local data_bytes = Session.client.network:recieve_bytes( length )
                 while not data_bytes do
-                    data_bytes = session.client.network:recieve_bytes( length )
+                    data_bytes = Session.client.network:recieve_bytes( length )
                 end
                 data_bytes_buffer:put_bytes( data_bytes )
                 while data_bytes_buffer:size() < length do
-                    local data_bytes = session.client.network:recieve_bytes( length - data_bytes_buffer:size() )
+                    local data_bytes = Session.client.network:recieve_bytes( length - data_bytes_buffer:size() )
                     if data_bytes then
                         
                         data_bytes_buffer:put_bytes( data_bytes )
@@ -75,18 +75,18 @@ NetworkPipe:add_middleware(function()
     while not List.is_empty(ReceivedPackets) do
         local packet = List.popleft(ReceivedPackets)
 
-        session.client.fsm:handle_event( packet )
+        Session.client.fsm:handle_event( packet )
     end
     return true
 end)
 
 -- Проверим, не отключились ли мы вдруг случаем
 NetworkPipe:add_middleware(function ()
-    if not session.client then return false end
-    if session.client.network.socket and not session.client.network.socket:is_alive() then
+    if not Session.client then return false end
+    if Session.client.network.socket and not Session.client.network.socket:is_alive() then
         console.log("Соединение прервано.")
         -- самоуничтожаемся!
-        session.client:disconnect()
+        Session.client:disconnect()
         return false
     end
     return true
@@ -95,22 +95,22 @@ end)
 -- Отправляем на очередь всё, что хотим отправить на сервер
 NetworkPipe:add_middleware(function ()
     -- Убедимся, что мы не отсылаем пакеты движения во время логина.
-    if session.client.fsm.current_state == protocol.States.Active then
+    if Session.client.fsm.current_state == protocol.States.Active then
         
-        if session.client.moved then
-            push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.PlayerPosition, session.client.x, session.client.y, session.client.z, session.client.yaw, session.client.pitch))
-            session.client.moved = false
+        if Session.client.moved then
+            push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.PlayerPosition, Session.client.x, Session.client.y, Session.client.z, Session.client.yaw, Session.client.pitch))
+            Session.client.moved = false
         end
 
-        if session.client.moved_thru_chunk then
+        if Session.client.moved_thru_chunk then
             -- TODO: нормальная загрузка чанков
-            push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.RequestChunk, session.client.chunk_x, session.client.chunk_z))
+            push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.RequestChunk, Session.client.chunk_x, Session.client.chunk_z))
             -- раскомментировать для загрузки соседних чанков
             -- push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.RequestChunk, session.client.chunk_x+1, session.client.chunk_z))
             -- push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.RequestChunk, session.client.chunk_x-1, session.client.chunk_z))
             -- push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.RequestChunk, session.client.chunk_x, session.client.chunk_z+1))
             -- push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.RequestChunk, session.client.chunk_x, session.client.chunk_z-1))
-            session.client.moved_thru_chunk = false
+            Session.client.moved_thru_chunk = false
         end
     end
     return true
@@ -120,7 +120,7 @@ end)
 NetworkPipe:add_middleware(function ()
     while not List.is_empty(ClientQueue) do
         local packet = List.popleft(ClientQueue)
-        session.client.network:send(packet)
+        Session.client.network:send(packet)
     end
     return true
 end)

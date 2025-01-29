@@ -1,0 +1,4 @@
+<container id="connecting" size="1000,200">
+    <label gravity="center-center" pos="0,0">@Connecting...</label>
+    <button gravity="bottom-center" pos="0,0" onclick='back()'>@Back to Main Menu</button>
+</container>

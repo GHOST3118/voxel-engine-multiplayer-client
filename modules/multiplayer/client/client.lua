@@ -1,5 +1,5 @@
 local Network = require "lib/network"
-local session = require "multiplayer/global"
+require "multiplayer/global"
 local protocol = require "lib/protocol"
 local List = require "lib/common/list"
 local state_machine = require "lib/common/fsm"
@@ -75,8 +75,8 @@ function Client:disconnect()
     for _, value in ipairs(self.players) do
         value:despawn()
     end
-    session.client = nil
     events.emit("disconnect")
+    Session.client = nil
 end
 
 function Client:world_tick()
@@ -105,7 +105,7 @@ function Client:player_tick(playerid, tps)
         -- print(x, y, z, yaw, pitch)
         self.x = x self.y = y self.z = z self.yaw = yaw self.pitch = pitch
         self.moved = true
-        local chunk_x, chunk_z = math.floor(session.client.x/16), math.floor(session.client.z/16)
+        local chunk_x, chunk_z = math.floor(Session.client.x/16), math.floor(Session.client.z/16)
         if chunk_x ~= self.chunk_x or chunk_z ~= self.chunk_z then
             self.moved_thru_chunk = true
             self.chunk_x = chunk_x self.chunk_z = chunk_z
@@ -116,11 +116,11 @@ end
 
 function Client:on_block_placed(blockid, x, y, z, states)
 
-    session.client:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, states, blockid) )
+    Session.client:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, states, blockid) )
 end
 
 function Client:on_block_broken(blockid, x, y, z)
-    session.client:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, 0, 0) )
+    Session.client:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, 0, 0) )
 end
 
 return Client
