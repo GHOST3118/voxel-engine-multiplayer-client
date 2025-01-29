@@ -76,6 +76,7 @@ function Client:disconnect()
         value:despawn()
     end
     session.client = nil
+    events.emit("disconnect")
 end
 
 function Client:world_tick()

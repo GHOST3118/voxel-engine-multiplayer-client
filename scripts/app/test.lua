@@ -54,7 +54,7 @@ events.on("connect", function(username, host, port, packet)
 end)
 
 
-events.on("disconnect", leave_to_menu)
+--events.on("disconnect", leave_to_menu)
 
 
 

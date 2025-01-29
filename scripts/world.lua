@@ -6,6 +6,10 @@ events.on("connected", function(_session)
     session.client = _session.client
 end)
 
+events.on("disconnect", function ()
+    session.client = nil
+end)
+
 function on_world_tick()
     if session.client then
         session.client:world_tick()
