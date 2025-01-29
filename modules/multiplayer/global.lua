@@ -1,3 +1,5 @@
+PACK_ID = "multiplayer"
+
 if not Session then
     Session = {}
 

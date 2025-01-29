@@ -75,8 +75,8 @@ function Client:disconnect()
     for _, value in ipairs(self.players) do
         value:despawn()
     end
-    events.emit("disconnect")
-    Session.client = nil
+    session.client = nil
+    events.emit(PACK_ID .. ":disconnect")
 end
 
 function Client:world_tick()

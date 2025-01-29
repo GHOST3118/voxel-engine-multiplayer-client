@@ -23,7 +23,7 @@ function on_open()
         handshake.make(ip, port, function(server)
             if server then
                 connectors[index] = function()
-                    events.emit("connect", username, ip, port, server)
+                    events.emit(PACK_ID .. "connect", username, ip, port, server)
                     menu.page="connecting"
                 end
 
