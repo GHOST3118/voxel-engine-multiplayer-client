@@ -50,8 +50,10 @@ events.on(PACK_ID .. ":connect", function(username, host, port, packet)
     end
     Session.client.on_connect = function (_packet)
         print('{ клиент приконнектился, открываем мир }')
+
+        Session.player_id = _packet.entity_id
         app.config_packs({"base", "multiplayer"})
-        app.new_world("", packet.seed, "base:demo", 0)
+        app.new_world("", packet.seed, "base:demo", _packet.entity_id)
         events.emit(PACK_ID .. ":connected", Session)
 
     end
@@ -63,7 +65,6 @@ end)
 
 
 --events.on(PACK_ID..":disconnect", leave_to_menu)
-
 
 
 app.sleep_until(function() return Session.client and Session.client.network:alive() end)

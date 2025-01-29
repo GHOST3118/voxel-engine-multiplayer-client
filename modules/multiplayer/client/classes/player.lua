@@ -6,72 +6,38 @@ Player.__index = Player
 local MOVEMENT_SPEED = 8
 local ROTATION_SPEED_FACTOR = 0.2
 
-function Player.new(x, y, z, entity_id)
+function Player.new(x, y, z, entity_id, username)
     local self = setmetatable({}, Player)
 
-    self.head_angle = 0
-    self.body_angle = 0
-
-    self.entity = entities.spawn("base:player", {x, y, z})
-    self.tsf = self.entity.transform
-    self.rb = self.entity.rigidbody
     self.entity_id = entity_id
-
-    self.rb:set_gravity_scale({ 0, 0, 0 })
+    player.create("", entity_id)
+    player.set_name(entity_id, username or "")
 
     return self
 end
 
 function Player:move(x, y, z)
-    local current_position = self.tsf:get_pos()
-    local target_position = {x, y, z}
 
-    if  Session.client and 
-        Session.client.x == x and
-        Session.client.y == y and
-        Session.client.z == z
-    then
-
-        self.entity.skeleton:set_visible(false)
-    end
+    player.set_pos(self.entity_id, x, y, z)
     
-    if current_position then
-        self.rb:set_vel({
-            (target_position[1] - current_position[1]) * MOVEMENT_SPEED,
-            (target_position[2] - current_position[2]) * MOVEMENT_SPEED,
-            (target_position[3] - current_position[3]) * MOVEMENT_SPEED
-        })
+    local entity = entities.get(player.get_entity( self.entity_id ))
+    if entity then
+        entity.rigidbody:set_enabled(false)
+        entity.skeleton:set_interpolated(true)
     end
-    
 end
 
 function Player:rotate(yaw, pitch)
-    self:update_body_rotation(yaw)
-    self:update_head_rotation(pitch)
-end
-
-function Player:update_head_rotation(target_rotation)
-    self.head_angle = self.head_angle + (target_rotation - self.head_angle) * ROTATION_SPEED_FACTOR
-    self.entity.skeleton:set_matrix(self.entity.skeleton:index("head"), mat4.rotate({1, 0, 0}, self.head_angle))
-end
-
-function Player:update_body_rotation(target_rotation)
-    self.body_angle = self:smooth_rotation(self.body_angle, target_rotation, ROTATION_SPEED_FACTOR)
-    self.entity.transform:set_rot(mat4.rotate({0, 1, 0}, self.body_angle))
-end
-
-function Player:smooth_rotation(start_angle, end_angle, factor)
-    local angle_difference = end_angle - start_angle
-    
-    if math.abs(angle_difference) > 180 then
-        end_angle = end_angle + (angle_difference > 0 and -360 or 360)
+    player.set_rot(self.entity_id, yaw, pitch)
+    local entity = entities.get(player.get_entity( self.entity_id ))
+    if entity then
+        entity.rigidbody:set_enabled(false)
+        entity.skeleton:set_interpolated(true)
     end
-    
-    return start_angle + (end_angle - start_angle) * factor
 end
 
 function Player:despawn()
-    self.entity:despawn()
+    player.delete(self.entity_id)
     -- самоуничтожение
     self = nil
 end

@@ -36,7 +36,8 @@ local timer = 0
 function on_player_tick(playerid, tps)
     if not Session.client then
     end
-    if Session.client then
+
+    if Session.client and playerid == Session.player_id then
         Session.client:player_tick(playerid, tps)
     end
 

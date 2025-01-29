@@ -1,4 +1,5 @@
 local config = require "config"
+require "multiplayer/global"
 
 local connectors = {
 
@@ -10,7 +11,7 @@ function on_open()
     for index, value in pairs(config.data.multiplayer.servers) do
         assets.load_texture(file.read_bytes('multiplayer:default_icon.png'), index .. ".icon")
         document.server_list:add(gui.template("server", {
-            id = tostring(index),
+            id = ""..index,
             server_name = value[1],
             server_status = "[#aaaaaa]Pending...",
             players_online = "",
@@ -20,6 +21,7 @@ function on_open()
         }))
         local ip = string.split(value[2], ":")[1]
         local port = tonumber(string.split(value[2], ":")[2]) or 25565
+
         handshake.make(ip, port, function(server)
             if server then
                 connectors[index] = function()

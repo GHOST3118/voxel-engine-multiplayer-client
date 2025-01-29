@@ -26,7 +26,7 @@ end
 
 ClientHandlers[ protocol.ServerMsg.PlayerJoined ] = function (packet)
     console.log("| [SERVER] "..packet.username.." Joined to Server!")
-    Session.client.players[packet.entity_id] = Player.new(packet.x, packet.y, packet.z, packet.entity_id)
+    Session.client.players[packet.entity_id] = Player.new(packet.x, packet.y, packet.z, packet.entity_id, packet.username)
 end
 
 ClientHandlers[ protocol.ServerMsg.PlayerMoved ] = function (packet)
@@ -34,6 +34,8 @@ ClientHandlers[ protocol.ServerMsg.PlayerMoved ] = function (packet)
     if not Session.client.players[packet.entity_id] then
         Session.client.players[packet.entity_id] = Player.new(packet.x, packet.y, packet.z, packet.entity_id)
     end
+
+    debug.print( packet )
 
     Session.client.players[packet.entity_id]:move(packet.x, packet.y, packet.z)
     Session.client.players[packet.entity_id]:rotate(packet.yaw, packet.pitch)
