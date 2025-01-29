@@ -33,5 +33,5 @@ function connect()
     local username = document.username.text
     local host, port = parse_address(document.ip.text)
 
-    events.emit("connect", username, host, port)
+    events.emit(PACK_ID .. "connect", username, host, port)
 end

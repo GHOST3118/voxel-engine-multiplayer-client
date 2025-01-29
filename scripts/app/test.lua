@@ -26,7 +26,7 @@ end)
 local session = require "multiplayer:multiplayer/global"
 local Client = require "multiplayer:multiplayer/client/client"
 
-events.on("connect", function(username, host, port, packet)
+events.on(PACK_ID .. "connect", function(username, host, port, packet)
     if world.is_open() then
         app.close_world(false)
         
@@ -45,7 +45,7 @@ events.on("connect", function(username, host, port, packet)
     session.client.on_connect = function (_packet)
         app.config_packs({"base", "multiplayer"})
         app.new_world("", packet.seed, "base:demo", 0)
-        events.emit("connected", session)
+        events.emit(PACK_ID .. "connected", session)
         
     end
     session.client:connect()
@@ -54,7 +54,7 @@ events.on("connect", function(username, host, port, packet)
 end)
 
 
---events.on("disconnect", leave_to_menu)
+--events.on(PACK_ID .. "disconnect", leave_to_menu)
 
 
 

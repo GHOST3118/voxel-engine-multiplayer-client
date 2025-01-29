@@ -1,3 +1,5 @@
+PACK_ID = "multiplayer"
+
 local Session = {}
 
 Session.client = nil

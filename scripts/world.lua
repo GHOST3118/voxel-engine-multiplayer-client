@@ -2,11 +2,11 @@ local session = require "multiplayer/global"
 local console = require "multiplayer/console"
 local data_buffer = require "core:data_buffer"
 
-events.on("connected", function(_session)
+events.on(PACK_ID .. "connected", function(_session)
     session.client = _session.client
 end)
 
-events.on("disconnect", function ()
+events.on(PACK_ID .. ":disconnect", function ()
     session.client = nil
 end)
 

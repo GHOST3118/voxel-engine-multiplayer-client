@@ -16,7 +16,7 @@ function on_open()
     handshake.make("localhost", 25565, function ( server )
         if server then
             connectors[1] = function ()
-                events.emit("connect", "ghosta", "localhost", 25565, server)
+                events.emit(PACK_ID .. "connect", "ghosta", "localhost", 25565, server)
             end
 
             assets.load_texture(server.favicon, server.name..".icon")
