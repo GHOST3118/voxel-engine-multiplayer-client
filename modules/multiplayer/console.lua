@@ -5,122 +5,6 @@ local protocol = require "lib/protocol"
 local client_queue = require "multiplayer/client/client_queue"
 local List = require "lib/common/list"
 
-local function push_packet(list, packet)
-    local buffer = protocol.create_databuffer()
-    buffer:put_packet(packet)
-    List.pushright(list, buffer.bytes)
-end
-
-console.add_command(
-    "sphere.fill id:str cx:int~pos.x cy:int~pos.y cz:int~pos.z radius:int",
-    "Fill specified sphere with blocks",
-    function(args, kwargs)
-        local name, cx, cy, cz, radius = unpack(args)
-        local id = block.index(name)
-        local radius_squared = radius * radius
-
-        local blocks_set = 0
-        for y = -radius, radius do
-            for z = -radius, radius do
-                for x = -radius, radius do
-                    if x * x + y * y + z * z <= radius_squared then
-                        block.place(cx + x, cy + y, cz + z, id, 0, 0)
-                        blocks_set = blocks_set + 1
-                    end
-                end
-            end
-        end
-        return tostring(blocks_set) .. " blocks set"
-    end
-)
-
-
-console.add_command(
-    "connect host:str port:int",
-    "Connect to Server",
-    function (args, kwargs)
-        if not Session.username then
-            return console.log('Имя пользователя не задано, задайте с помощью команды "cu никнейм"!')
-        end
-
-        if Session.client then
-            Session.client:disconnect()
-            console.log('Закрытие подключения...')
-        end
-
-        console.log('Подключение...')
-        Session.client = Client.new( unpack(args) )
-        Session.client:connect()
-    end
-)
-
-console.add_command(
-    "c",
-    "Connect to dev server",
-    function (args, kwargs)
-        console.execute("connect localhost 25565")
-    end
-)
-
-console.add_command(
-    "execute script:str",
-    "Connect to dev server",
-    function (args, kwargs)
-        console.execute(unpack(args))
-    end
-)
-
-console.add_command(
-    "cu username:str",
-    "Change Username",
-    function (args, kwargs)
-        Session.username = args[1]
-        console.log('Имя изменнено на "'..Session.username..'"')
-    end
-)
-
-console.add_command(
-    "disconnect",
-    "Close connection with Server",
-    function (args, kwargs)
-        if Session.client then
-            Session.client:disconnect()
-            console.log('Закрытие подключения...')
-        end
-    end
-)
-
-console.add_command(
-    "serve",
-    "Open server",
-    function (args, kwargs)
-        if Session.server then
-            console.log('Сервер уже запущен!')
-        elseif Session.client then
-            console.log('Невозможно запустить сервер, пока вы подключены к другому серверу')
-        else
-            local port = 3000
-            Session.server = Server.new(port)
-            Session.server:serve()
-            console.log('Сервер открыт, слушаем порт '..port)
-        end
-    end
-)
-
-console.add_command(
-    "stop",
-    "Close server",
-    function (args, kwargs)
-        if Session.server then
-            console.log('Сервер ещё не запущен!')
-        else
-            Session.server:stop()
-            Session.server = nil
-            console.log('Сервер был остановлен')
-        end
-    end
-)
-
 console.add_command(
     "chat message:str",
     "Send message",
@@ -144,3 +28,12 @@ console.add_command(
         end
     end
 )
+console.submit = function (command)
+    local name, args = command:match("^(%S+)%s*(.*)$")
+
+    if name == "chat" then
+        console.log( console.execute(command) )
+    else
+        console.execute("chat '."..command.."'")
+    end
+end

@@ -11,7 +11,7 @@ ClientHandlers[ protocol.ServerMsg.ChunkData ] = function (packet)
 end
 
 ClientHandlers[ protocol.ServerMsg.ChatMessage ] = function (packet)
-    console.log("| "..packet.message)
+    console.chat("| "..packet.message)
 end
 
 ClientHandlers[ protocol.ServerMsg.StatusResponse ] = function (packet)

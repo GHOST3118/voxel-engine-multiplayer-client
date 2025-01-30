@@ -1,4 +1,4 @@
-<panel size='400' color='#000000FF' interval='1' context='menu'>
+<panel class="some_class" size='400' color='#000000FF' interval='1' context='menu'>
     <panel size='380,380' color='#333333FF'>
         <label margin="5">@Username</label>
         <textbox id="username" padding="2" validator="is_valid_username"></textbox>
