@@ -59,6 +59,7 @@ function on_block_placed(blockid, x, y, z, playerid)
     if Session.client then
         if Session.client.player_id ~= playerid then return end
         local states = block.get_states(x, y, z)
+        debug.print({blockid, x, y, z, playerid})
         Session.client:on_block_placed(blockid, x, y, z, states)
     end
 end

@@ -154,8 +154,9 @@ local DATA_DECODE = {
             end
         }
 
-        buffer:set_position(2)
+        --buffer:set_position(1)
         local element_count = bincode.decode_varint(buffer)
+        print(element_count)
         if element_count == 0 then return {} end
         local elements = {}
         for i = 1, element_count, 1 do
@@ -170,11 +171,12 @@ local DATA_DECODE = {
             table.insert(elements, element)
         end
 
+        debug.print(#elements)
+
         return elements
     end,
     ["stringArray"] = function(buffer)
         local element_count = bincode.decode_varint(buffer)
-        print(element_count)
         local strings = {}
         for i = 1, element_count, 1 do
             strings[i] = buffer:unpack_string()
