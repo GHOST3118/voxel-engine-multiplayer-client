@@ -18,12 +18,14 @@ local function perform_handshake(network)
 end
 
 local function receive_length(network)
-    local attempts = 100
+    local attempts = 50000
     local length_bytes
     
     while attempts > 0 do
         length_bytes = network:recieve_bytes(2)
-        debug.print(length_bytes)
+        if length_bytes then
+            debug.print(length_bytes)
+        end
         if length_bytes then break end
         attempts = attempts - 1
     end
