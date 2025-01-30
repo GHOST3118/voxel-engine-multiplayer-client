@@ -123,13 +123,21 @@ function Client:disconnect()
 end
 
 function Client:world_tick()
+    local __data = {}
 
     if not List.is_empty( WorldDataQueue ) then
         local data = List.popleft( WorldDataQueue )
         for key, value in ipairs(data) do
-            block.set( value.x, value.y, value.z, value.block_id, value.block_state )
+            if block.get( value.x, value.y, value.z ) ~= -1 then
+                block.set( value.x, value.y, value.z, value.block_id, value.block_state )
+            else
+                table.insert( __data, value)
+            end
+            
         end
     end
+
+    List.pushright( WorldDataQueue, __data )
 end
 
 function Client:tick()
