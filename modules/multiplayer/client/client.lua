@@ -110,6 +110,7 @@ function Client:connect()
         if not status then error("Произошла какая-то ошибка, смотрите строки выше!") end
 
         self.fsm:transition_to( protocol.States.Login )
+        
     end)
 end
 
@@ -123,21 +124,28 @@ function Client:disconnect()
 end
 
 function Client:world_tick()
-    local __data = {}
+    local blocks_per_tick = 500
+    local blocks_placed = 0
 
-    if not List.is_empty( WorldDataQueue ) then
-        local data = List.popleft( WorldDataQueue )
-        for key, value in ipairs(data) do
-            if block.get( value.x, value.y, value.z ) ~= -1 then
-                block.set( value.x, value.y, value.z, value.block_id, value.block_state )
+    while blocks_placed < blocks_per_tick do
+        if not List.is_empty( WorldDataQueue ) then
+            local target_block = List.popleft( WorldDataQueue )
+
+            if block.get( target_block.x, target_block.y, target_block.z ) ~= -1 then
+                block.set( target_block.x, target_block.y, target_block.z, target_block.block_id, target_block.block_state )
+                if block.get( target_block.x, target_block.y, target_block.z ) ~= target_block.block_id then
+                    List.pushright( WorldDataQueue, target_block )
+                end
             else
-                table.insert( __data, value)
+                List.pushright( WorldDataQueue, target_block )
             end
+
             
         end
-    end
 
-    List.pushright( WorldDataQueue, __data )
+        blocks_placed = blocks_placed + 1
+    end
+    
 end
 
 function Client:tick()

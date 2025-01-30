@@ -67,7 +67,10 @@ end
 
 ClientHandlers[ protocol.ServerMsg.WorldData ] = function (packet)
 
-    list.pushright( WorldDataQueue, packet.data )
+    
+    for index, value in ipairs(packet.data) do
+        list.pushright( WorldDataQueue, value )
+    end
     console.log("WorldData: "..packet.progress.."/"..packet.max_progress)
 end
 
