@@ -43,8 +43,6 @@ local function receive_data(network, length)
         local data_bytes = network:recieve_bytes(remaining)
         if data_bytes then
             data_bytes_buffer:put_bytes(data_bytes)
-        else
-            return nil
         end
     end
     return data_bytes_buffer
