@@ -35,8 +35,6 @@ ClientHandlers[ protocol.ServerMsg.PlayerMoved ] = function (packet)
         Session.client.players[packet.entity_id] = Player.new(packet.x, packet.y, packet.z, packet.entity_id)
     end
 
-    debug.print( packet )
-
     Session.client.players[packet.entity_id]:move(packet.x, packet.y, packet.z)
     Session.client.players[packet.entity_id]:rotate(packet.yaw, packet.pitch)
 end

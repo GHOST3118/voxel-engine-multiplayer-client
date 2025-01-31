@@ -3,11 +3,7 @@ local console = require "multiplayer/console"
 local data_buffer = require "core:data_buffer"
 
 events.on(PACK_ID .. ":connected", function(_session)
-    if Session.client.network.socket:is_connected() then
-        print('сокеты живые!')
-    else
-        print('сокеты умерли')
-    end
+
     -- print('перезаписывам Session.client. прежняя версия:')
     -- debug.print(Session.client)
     -- print('новая версия:')
@@ -59,7 +55,7 @@ function on_block_placed(blockid, x, y, z, playerid)
     if Session.client then
         if Session.client.player_id ~= playerid then return end
         local states = block.get_states(x, y, z)
-        debug.print({blockid, x, y, z, playerid})
+
         Session.client:on_block_placed(blockid, x, y, z, states)
     end
 end

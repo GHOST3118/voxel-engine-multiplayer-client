@@ -23,9 +23,7 @@ local function receive_length(network)
     
     while attempts > 0 do
         length_bytes = network:recieve_bytes(2)
-        if length_bytes then
-            debug.print(length_bytes)
-        end
+
         if length_bytes then break end
         attempts = attempts - 1
     end

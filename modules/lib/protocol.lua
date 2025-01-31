@@ -156,7 +156,7 @@ local DATA_DECODE = {
 
         --buffer:set_position(1)
         local element_count = bincode.decode_varint(buffer)
-        print(element_count)
+
         if element_count == 0 then return {} end
         local elements = {}
         for i = 1, element_count, 1 do
@@ -170,8 +170,6 @@ local DATA_DECODE = {
 
             table.insert(elements, element)
         end
-
-        debug.print(#elements)
 
         return elements
     end,
@@ -326,14 +324,13 @@ function protocol.parse_array_of(structure, data)
 
     while buffer.pos < buffer:size() do
         local element = {}
-        print(buffer.pos)
+
         local __table = protocol.data.structures[structure] or {}
         for key, value in pairs(__table) do
             if key ~= 1 then
                 element[string.explode(":", value)[1]] = DATA_DECODE[string.explode(":", value)[2]](buffer)
             end
         end
-        --debug.print(elements)
     end
 
     return elements

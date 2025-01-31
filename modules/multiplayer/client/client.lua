@@ -91,8 +91,7 @@ function Client:receive_packets(max_packets, ReceivedPackets)
                 data_bytes = data_bytes_buffer:get_bytes()
 
                 if data_bytes then
-                    if not protocol.check_packet("server", data_bytes) then print("сервер нам отправил какую-то хуйню! казнить!!!") end
-                    
+
                     local packet = protocol.parse_packet("server", data_bytes)
 
                     List.pushright(ReceivedPackets, packet)
@@ -115,7 +114,7 @@ function Client:connect()
 end
 
 function Client:disconnect()
-    print(' { получили запрос на дисконнект Client:disconnect } ')
+
     self.network:disconnect()
     for _, value in ipairs(self.players) do
         value:despawn()

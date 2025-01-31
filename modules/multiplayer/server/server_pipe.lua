@@ -38,7 +38,6 @@ ServerPipe:add_middleware(function(client)
             if length then
                 local data_bytes = client.network:recieve_bytes(length)
                 if data_bytes then
-                    if not protocol.check_packet("client", data_bytes) then print("клиент нам отправил какую-то хуйню! казнить!!!") end
                     local packet = protocol.parse_packet("client", data_bytes)
                     List.pushright(client.received_packets, packet)
                     packet_count = packet_count + 1

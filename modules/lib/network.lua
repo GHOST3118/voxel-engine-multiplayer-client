@@ -18,7 +18,6 @@ function Network:connect(host, port, callback)
         callback(true)
     end,
     function (err)
-        print(err)
         callback(false)
     end)
 end

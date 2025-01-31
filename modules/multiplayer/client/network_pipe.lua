@@ -27,10 +27,7 @@ NetworkPipe:add_middleware(function()
     local packet_count = Session.client:receive_packets(max_packet_count, ReceivedPackets)
 
     local end_time = os.clock()
-    if packet_count > 0 and end_time - start_time > 0.05 then
-        print("Получено пакетов: " .. packet_count .. " за " .. (end_time - start_time) ..
-                  " секунд.")
-    end
+
     return true
 end)
 
@@ -51,8 +48,7 @@ NetworkPipe:add_middleware(function()
     end
     if Session.client.network.socket and not Session.client.network.socket:is_alive() then
         console.log("Соединение прервано.")
-        print(
-            ' { соединение преравно, потому что мы окзывается отключены } ')
+
         -- самоуничтожаемся!
         Session.client:disconnect()
         return false

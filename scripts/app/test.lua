@@ -6,7 +6,6 @@ menu.page = "servers"
 
 app.sleep_until(function () return not world.is_open() end)
 local function leave_to_menu()
-    print("leaving to menu")
     if world.is_open() then
         app.close_world(false)
     end

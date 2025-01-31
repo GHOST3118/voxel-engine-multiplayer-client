@@ -52,7 +52,7 @@ end
 --
 local function padbits(num,bits)
 	if #num == bits then return num end
-	if #num > bits then print("too many bits") end
+
 	local pad = bits - #num
 	for i=1,pad do
 		num = "0" .. num
