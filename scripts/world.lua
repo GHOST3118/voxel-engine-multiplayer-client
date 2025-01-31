@@ -53,7 +53,7 @@ end
 function on_block_placed(blockid, x, y, z, playerid)
 
     if Session.client then
-        if Session.client.player_id ~= playerid then return end
+        if Session.player_id ~= playerid then return end
         local states = block.get_states(x, y, z)
 
         Session.client:on_block_placed(blockid, x, y, z, states)
@@ -62,7 +62,7 @@ end
 
 function on_block_broken(blockid, x, y, z, playerid)
     if Session.client then
-        if Session.client.player_id ~= playerid then return end
+        if Session.player_id ~= playerid then return end
         Session.client:on_block_broken(blockid, x, y, z)
     end
 end

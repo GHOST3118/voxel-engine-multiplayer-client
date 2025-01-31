@@ -48,6 +48,8 @@ function Client.new(host, port)
     self.entity_id = self.player_id
     -- двигался ли игрок последний тик
     self.moved = false
+    -- присылал ли сервер местоположение клиента
+    self.position_initialized = false
 
     self.chunks = {}
     self.moved_thru_chunk = false
@@ -173,6 +175,7 @@ function Client:player_tick(playerid, tps)
         -- print(x, y, z, yaw, pitch)
         self.x = x self.y = y self.z = z self.yaw = yaw self.pitch = pitch
         self.moved = true
+        print('обновляем позицию игрока ало ',playerid, self.x, self.y, self.z)
         local chunk_x, chunk_z = math.floor(self.x/16), math.floor(self.z/16)
         if chunk_x ~= self.chunk_x or chunk_z ~= self.chunk_z then
             self.moved_thru_chunk = true

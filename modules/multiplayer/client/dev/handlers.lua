@@ -45,12 +45,12 @@ end
 
 ClientHandlers[ protocol.ServerMsg.Disconnect ] = function (packet)
     local str = "Сервер кикнул вас"
-            if packet.reason ~= "" then
-                str = str.." по причине: "..packet.reason
-            else str = str.."." end
-            console.log(str)
-            -- самоуничтожение
-            Session.client:disconnect()
+    if packet.reason ~= "" then
+        str = str .. " по причине: " .. packet.reason
+    else str = str .. "." end
+    console.log(str)
+    -- самоуничтожение
+    Session.client:disconnect()
 end
 
 ClientHandlers[ protocol.ServerMsg.BlockUpdate ] = function (packet)
@@ -64,12 +64,27 @@ ClientHandlers[ protocol.ServerMsg.BlockUpdate ] = function (packet)
 end
 
 ClientHandlers[ protocol.ServerMsg.WorldData ] = function (packet)
-
-    
     for index, value in ipairs(packet.data) do
         list.pushright( WorldDataQueue, value )
     end
-    console.log("WorldData: "..packet.progress.."/"..packet.max_progress)
+    -- console.log("WorldData: "..packet.progress.."/"..packet.max_progress)
+end
+
+ClientHandlers[ protocol.ServerMsg.SynchronizePlayerPosition ] = function (packet)
+    -- небольшой костыль: намеренно игнорируем пакет, если все параметры равны нулю
+    if packet.x ~= 0 or packet.y ~= 0 or packet.z ~= 0 or packet.yaw ~= 0 or packet.pitch ~= 0 then
+        player.set_pos(Session.player_id, packet.x, packet.y, packet.z)
+        player.set_rot(Session.player_id, packet.yaw, packet.pitch, 0)
+        Session.client.x = packet.x
+        Session.client.y = packet.y
+        Session.client.z = packet.z
+        Session.client.yaw = packet.yaw
+        Session.client.pitch = packet.pitch
+        Session.client.moved = false
+        Session.client.moved_thru_chunk = false
+    end
+    Session.client.position_initialized = true
+    print('получили позицию игрока! ', Session.player_id, packet.x, packet.y, packet.z)
 end
 
 return ClientHandlers

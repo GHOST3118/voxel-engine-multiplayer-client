@@ -60,11 +60,12 @@ end)
 NetworkPipe:add_middleware(function()
     -- Убедимся, что мы не отсылаем пакеты движения во время логина.
     if Session.client.fsm.current_state == protocol.States.Active then
-        if Session.client.moved then
+        if Session.client.moved and Session.client.position_initialized then
             push_packet(ClientQueue,
                 protocol.build_packet("client", protocol.ClientMsg.PlayerPosition, Session.client.x, Session.client.y,
                     Session.client.z, Session.client.yaw, Session.client.pitch))
             Session.client.moved = false
+            print('отправляем свою позицию ', hud.get_player())
         end
 
         if Session.client.moved_thru_chunk then

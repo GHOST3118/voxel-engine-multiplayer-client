@@ -15,7 +15,7 @@ console.add_command(
             Session.client.network:send(buffer.bytes)
         elseif Session.server then
             local msg = "[HOST] "..args[1]
-            console.log("| "..msg)
+            -- console.log("| "..msg)
             for _, client in ipairs(Session.server.clients) do
                 if client.network.socket and client.network.socket:is_alive() and client.active then
                     local buffer = protocol.create_databuffer()
@@ -32,7 +32,8 @@ console.submit = function (command)
     local name, args = command:match("^(%S+)%s*(.*)$")
 
     if name == "chat" then
-        console.log( console.execute(command) )
+        -- console.log(  )
+        console.execute(command)
     else
         console.execute("chat '."..command.."'")
     end

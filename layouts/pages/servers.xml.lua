@@ -30,14 +30,14 @@ function on_open()
                 end
 
                 assets.load_texture(server.favicon, index .. ".icon")
-                document["serverstatus_"..index].text = "[#00aa00]Online"
+                document["serverstatus_"..index].text = "[#22ff22]Online"
                 document["playersonline_"..index].text = server.online .. " / " .. server.max
                 document["servermotd_"..index].text = server.name
 
             else
-                document["serverstatus_"..index].text = "[#aa1111]Offline"
+                document["serverstatus_"..index].text = "[#ff2222]Offline"
                 document["playersonline_"..index].text = ""
-                document["servermotd_"..index].text = "[#aa1111]Can't reach the server"
+                document["servermotd_"..index].text = "[#ff2222]Can't reach the server"
             end
         end)
     end
