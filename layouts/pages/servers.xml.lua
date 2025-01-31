@@ -35,9 +35,9 @@ function on_open()
                 document["servermotd_"..index].text = server.name
 
             else
-                document["serverstatus_"..index].text = "[#aa0000]Offline"
+                document["serverstatus_"..index].text = "[#aa1111]Offline"
                 document["playersonline_"..index].text = ""
-                document["servermotd_"..index].text = "[#aa0000]Can't reach the server"
+                document["servermotd_"..index].text = "[#aa1111]Can't reach the server"
             end
         end)
     end
