@@ -28,6 +28,7 @@
             "fast_interaction:boolean"
         ],
         ["WorldData", "data:block_vec", "progress:uint16", "max_progress:uint16"],
+        ["SynchronizePlayerPosition", "x:float", "y:float", "z:float", "yaw:float", "pitch:float"],
         ["SetPlayerAbilities", "flags:uint8"],
         ["TimeUpdate", "game_time:double"],
         ["StatusResponse", "name:string", "favicon:byteArray", "version:string", "protocol:uint16", "players:stringArray", "seed:string", "max:uint16", "online:uint16"],
@@ -36,7 +37,8 @@
         ["PlayerJoined", "entity_id:uint32", "username:string", "x:float", "y:float", "z:float"],
         ["PlayerMoved", "entity_id:uint8", "x:float", "y:float", "z:float", "yaw:float", "pitch:float"],
         ["PlayerList"],
-        ["PlayerListRemove", "entity_id:uint32"],
+        ["PlayerListAdd", "username:string", "entity_id:uint32"],
+        ["PlayerListRemove", "username:string", "entity_id:uint32"],
         ["ChunkData", "x:int32", "z:int32", "data:byteArray"],
         ["ChatMessage", "message:string"],
         ["BlockUpdate", "x:int32", "y:int32", "z:int32", "block_state:uint16", "block_id:uint8"],
@@ -44,6 +46,7 @@
     ],
     "states": ["Status", "Login", "Active"],
     "structures": [
-        ["Block", "x:int32", "y:int32", "z:int32", "block_state:uint16", "block_id:uint8"]
+        ["Block", "x:int32", "y:int32", "z:int32", "block_state:uint16", "block_id:uint8"],
+        ["Player", "username:string"]
     ]
 }
