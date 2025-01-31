@@ -65,7 +65,6 @@ NetworkPipe:add_middleware(function()
                 protocol.build_packet("client", protocol.ClientMsg.PlayerPosition, Session.client.x, Session.client.y,
                     Session.client.z, Session.client.yaw, Session.client.pitch))
             Session.client.moved = false
-            print('отправляем свою позицию ', hud.get_player())
         end
 
         if Session.client.moved_thru_chunk then

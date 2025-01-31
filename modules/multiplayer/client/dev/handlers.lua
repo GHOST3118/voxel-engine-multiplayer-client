@@ -84,7 +84,6 @@ ClientHandlers[ protocol.ServerMsg.SynchronizePlayerPosition ] = function (packe
         Session.client.moved_thru_chunk = false
     end
     Session.client.position_initialized = true
-    print('получили позицию игрока! ', Session.player_id, packet.x, packet.y, packet.z)
 end
 
 return ClientHandlers
