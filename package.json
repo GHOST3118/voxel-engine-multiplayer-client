@@ -1,6 +1,7 @@
 {
     "id": "multiplayer",
-    "title": "Voxel Engine Multiplayer Client",
+    "title": "Voxel Online",
     "version": "0.1",
-    "description": "base VE mp package"
+    "description": "base VE mp package",
+    "creators": ["Wampal", "Murka124", "Ghost", "Xertis"]
 }
