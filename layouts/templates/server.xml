@@ -3,7 +3,7 @@
     <label id="servername_%{id}" markup='md' pos="72,8">%{server_name}</label>
     <label id="servermotd_%{id}" markup='md' pos="72,24">%{server_motd}</label>
 
-    <label id="playersonline_%{id}" markup='md' pos="317,8">%{players_online}</label>
+    <label id="playersonline_%{id}" markup='md' pos="317,8" tooltip="" tooltip_delay="0">%{players_online}</label>
 
     <label id="serverstatus_%{id}" markup='md' pos="317,44">%{server_status}</label>
 </container>

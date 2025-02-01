@@ -24,9 +24,48 @@ ClientHandlers[ protocol.ServerMsg.TimeUpdate ] = function (packet)
     end
 end
 
+local function search_player(player_table, player_id)
+    local found_index = nil
+    for i, _player in pairs(player_table) do
+        if _player.entity_id == player_id then
+            found_index = i
+            break
+        end
+    end
+    return found_index
+end
+
 ClientHandlers[ protocol.ServerMsg.PlayerJoined ] = function (packet)
     console.log("| [SERVER] "..packet.username.." Joined to Server!")
-    Session.client.players[packet.entity_id] = Player.new(packet.x, packet.y, packet.z, packet.entity_id, packet.username)
+    if not search_player(Session.client.players, packet.entity_id) then
+        Session.client.players[packet.entity_id] = Player.new(packet.x, packet.y, packet.z, packet.entity_id, packet.username)
+    end
+end
+
+ClientHandlers[ protocol.ServerMsg.PlayerList ] = function (packet)
+    for i, _player in ipairs(packet.list) do
+        local player_index = search_player(Session.client.players, _player.entity_id)
+        if not player_index then
+            Session.client.players[_player.entity_id] = Player.new(0, 0, 0, _player.entity_id, _player.username, _player.entity_id ~= Session.player_id)
+        end
+    end
+end
+
+ClientHandlers[ protocol.ServerMsg.PlayerListAdd ] = function (packet)
+    local player_index = search_player(Session.client.players, packet.entity_id)
+    if not player_index then
+        Session.client.players[packet.entity_id] = Player.new(0, 0, 0, packet.entity_id, packet.username, player_index ~= Session.player_id)
+    end
+end
+
+ClientHandlers[ protocol.ServerMsg.PlayerListRemove ] = function (packet)
+    local player_index = search_player(Session.client.players, packet.entity_id)
+    if player_index then
+        Session.client.players[packet.entity_id]:despawn()
+
+        -- если не задать вручную, игрок не сможет быть создан заново
+        Session.client.players[packet.entity_id] = nil
+    end
 end
 
 ClientHandlers[ protocol.ServerMsg.PlayerMoved ] = function (packet)
@@ -83,6 +122,8 @@ ClientHandlers[ protocol.ServerMsg.SynchronizePlayerPosition ] = function (packe
         Session.client.moved = false
         Session.client.moved_thru_chunk = false
     end
+    player.set_suspended(Session.player_id, false)
+    player.set_loading_chunks(Session.player_id, true)
     Session.client.position_initialized = true
 end
 
