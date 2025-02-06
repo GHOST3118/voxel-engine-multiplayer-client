@@ -5,10 +5,14 @@ local connectors = {
 
 }
 
+local servertable = {}
+
 function on_open()
+    print("мы проходимся снова по списку")
     local handshake = require "multiplayer:multiplayer/utils/handshake"
     local username = config.data.profiles.current.username
     for index, value in pairs(config.data.multiplayer.servers) do
+        if not value or (value and value == 0) then goto continue end
         assets.load_texture(file.read_bytes('multiplayer:default_icon.png'), index .. ".icon")
         document.server_list:add(gui.template("server", {
             id = ""..index,
@@ -19,10 +23,13 @@ function on_open()
             onclick = "connect_to(" .. index .. ")",
             server_favicon = index .. ".icon",
         }))
+        ::continue::
+    end
+    for index, value in pairs(config.data.multiplayer.servers) do
+        if not value or (value and value == 0) then goto continue end
         local ip = string.split(value[2], ":")[1]
         local port = tonumber(string.split(value[2], ":")[2]) or 25565
-
-        handshake.make(ip, port, function(server)
+        local success = pcall(handshake.make, ip, port, function(server)
             if server then
                 connectors[index] = function()
                     events.emit(PACK_ID..":connect", username, ip, port, server)
@@ -42,7 +49,30 @@ function on_open()
                 document["servermotd_"..index].text = "[#ff2222]Can't reach the server"
             end
         end)
+        if not success then
+            -- будем считать, что обратились туда-не-знаю-куда за тем-не-знаю-чем
+            document["serverstatus_"..index].text = "[#ff2222]Error"
+            document["playersonline_"..index].text = ""
+            document["servermotd_"..index].text = "[#ff2222]Unknown host"
+            print("Handshake error. Host address: \""..ip..":"..port.."\"")
+        end
+        ::continue::
     end
+
+    -- таблица хранит в себе список серверов для возможности их удаления
+    servertable = table.copy(config.data.multiplayer.servers)
+end
+
+function remove_server(id)
+    document["serverlist_"..id]:destruct()
+    servertable[id] = 0
+    -- дополнительная таблица, которую мы скукожим и запишем в конфиг
+    local tmptable = table.copy(servertable)
+    while table.has(tmptable, 0) do
+        table.remove_value(tmptable, 0)
+    end
+    config.data.multiplayer.servers = table.copy(tmptable)
+    config.write()
 end
 
 function connect_to(id)
