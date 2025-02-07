@@ -1,7 +1,7 @@
 config_version = 0
 
 [multiplayer]
-servers = [["The Localhost server", "localhost:25565" ]]
+servers = [["The VoxelOnline", "vo.theunboard.com:25565" ]]
 
 [profiles]
 profiles = ["Player"]
