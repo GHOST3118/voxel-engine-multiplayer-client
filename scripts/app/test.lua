@@ -43,6 +43,7 @@ events.on(PACK_ID .. ":connect", function(username, host, port, packet)
 
     end
     Session.client.on_connect = function (_packet)
+        debug.print(packet)
 
         Session.player_id = _packet.entity_id
         app.config_packs({"base", "multiplayer"})

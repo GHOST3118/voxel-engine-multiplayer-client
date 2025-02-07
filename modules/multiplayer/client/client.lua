@@ -193,4 +193,8 @@ function Client:on_block_broken(blockid, x, y, z)
     self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, 0, 0) )
 end
 
+function Client:on_block_interact(blockid, x, y, z, states)
+    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, states, blockid) )
+end
+
 return Client

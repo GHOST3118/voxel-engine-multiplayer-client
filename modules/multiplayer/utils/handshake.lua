@@ -18,7 +18,7 @@ local function perform_handshake(network)
 end
 
 local function receive_length(network)
-    local attempts = 50000
+    local attempts = 50000000
     local length_bytes
     
     while attempts > 0 do
@@ -65,16 +65,16 @@ function handshake.make(host, port, callback)
 
         perform_handshake(network)
         local handshake_time = time.uptime()
-        while true do -- TODO: эту страшную силу нужно как-то угомонить, ибо всё виснет
-            if network.socket:available() > 0 then
-                break;
-            end
-            if time.uptime() - handshake_time > 5 then
-                network:disconnect()
-                callback(nil)
-                return nil
-            end
-        end
+        -- while true do -- TODO: эту страшную силу нужно как-то угомонить, ибо всё виснет
+        --     if network.socket:available() > 0 then
+        --         break;
+        --     end
+        --     if time.uptime() - handshake_time > 5 then
+        --         network:disconnect()
+        --         callback(nil)
+        --         return nil
+        --     end
+        -- end
         local length = receive_length(network)
         if length == 0 then
             callback(nil)

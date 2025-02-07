@@ -59,7 +59,7 @@ end
 
 -- Получение байт через сокет
 function socketlib.receive(socket, max_length)
-    if socket and socket:is_alive() then
+    if socket then
         local bytes = socket:recv(max_length, true) -- Читаем как таблицу
         if bytes and #bytes > 0 then
             return bytes
