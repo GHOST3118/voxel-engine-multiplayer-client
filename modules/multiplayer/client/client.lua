@@ -1,6 +1,6 @@
 local Network = require "lib/network"
 require "multiplayer/global"
-local data_buffer = require "core:data_buffer"
+local data_buffer = require "lib/data_buffer"
 local protocol = require "lib/protocol"
 local List = require "lib/common/list"
 local state_machine = require "lib/common/fsm"
@@ -73,9 +73,9 @@ function Client:receive_packets(max_packets, ReceivedPackets)
 
         if length_bytes then
             local length_buffer = protocol.create_databuffer( length_bytes )
-            local length = length_buffer:get_uint16()
+            local length = length_buffer:unpack("!H")[1]
             if length then
-                local data_bytes_buffer = data_buffer()
+                local data_bytes_buffer = data_buffer:new()
 
                 local data_bytes = self.network:recieve_bytes( length )
                 while not data_bytes do

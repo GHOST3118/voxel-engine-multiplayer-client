@@ -1,4 +1,4 @@
-local data_buffer = require "core:data_buffer"
+local data_buffer = require "lib/data_buffer"
 local bincode = {}
 
 -- нейронка вампала много помогла с кодированием в leb128
@@ -87,7 +87,7 @@ function bincode.decode_varint(buffer)
         return first_byte
         -- If the first byte is 251, we expect a 16-bit value
     elseif first_byte == 251 then
-        return buffer:get_uint16()
+        return buffer:unpack("!H")[1]
         -- If the first byte is 252, we expect a 32-bit value
     elseif first_byte == 252 then
         return byteutil.unpack(">I", buffer:get_bytes(4))
@@ -109,7 +109,7 @@ end
 --- @param value number буффер для декодирования
 --- @return byteArray result Декодированное число
 function bincode.encode_varint(value)
-    local buffer = data_buffer()
+    local buffer = data_buffer:new()
     -- If the first byte is less than 251, it's a single byte encoding
     if value < 251 then
         buffer:put_byte(value)

@@ -34,7 +34,7 @@ ServerPipe:add_middleware(function(client)
         local length_bytes = client.network:recieve_bytes(2)
         if length_bytes then
             local length_buffer = protocol.create_databuffer(length_bytes)
-            local length = length_buffer:get_uint16()
+            local length = length_buffer:unpack("!H")[1]
             if length then
                 local data_bytes = client.network:recieve_bytes(length)
                 if data_bytes then
