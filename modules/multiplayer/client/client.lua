@@ -73,7 +73,7 @@ function Client:receive_packets(max_packets, ReceivedPackets)
 
         if length_bytes then
             local length_buffer = protocol.create_databuffer( length_bytes )
-            local length = length_buffer:unpack("!H")[1]
+            local length = length_buffer:get_uint16()
             if length then
                 local data_bytes_buffer = data_buffer:new()
 

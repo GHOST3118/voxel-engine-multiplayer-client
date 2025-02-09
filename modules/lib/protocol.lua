@@ -1,7 +1,7 @@
 local bincode = require "lib/common/bincode"
 
 local protocol = {}
-local data_buffer = require "lib/data_buffer"
+local data_buffer = require "core:data_buffer"
 protocol.data = json.parse(file.read("multiplayer:modules/lib/protocol.json"))
 
 ---Кодирование строки
@@ -96,7 +96,7 @@ local DATA_ENCODE = {
 
 local DATA_DECODE = {
     ["boolean"] = function(buffer)
-        return buffer:unpack("!?")[1]
+        return buffer:get_bool()
     end,
     ["byte"] = function (buffer)
         return buffer:get_byte()
@@ -108,7 +108,7 @@ local DATA_DECODE = {
         return bincode.decode_varint(buffer)
     end,
     ["int16"] = function(buffer)
-        return buffer:unpack("!h")[1]
+        return buffer:get_sint16()
     end,
     ["uint16"] = function(buffer)
         return bincode.decode_varint(buffer)
@@ -128,16 +128,16 @@ local DATA_DECODE = {
         return bincode.decode_varint(buffer)
     end,
     ["float"] = function(buffer)
-        return buffer:unpack("!F")[1]
+        return buffer:get_float32()
     end,
     ["f32"] = function(buffer)
-        return buffer:unpack("!F")[1]
+        return buffer:get_float32()
     end, -- алиас для float
     ["double"] = function(buffer)
-        return buffer:unpack("!D")[1]
+        return buffer:get_float64()
     end,
     ["f64"] = function(buffer)
-        return buffer:unpack("!D")[1]
+        return buffer:get_float64()
     end, -- алиас для double
     ["string"] = function(buffer)
         local string = unpack_string(buffer)

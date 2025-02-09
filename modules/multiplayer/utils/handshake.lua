@@ -33,7 +33,7 @@ local function receive_length(network)
     local length_buffer = data_buffer:new()
     length_buffer:put_bytes(length_bytes)
     length_buffer:set_position(1)
-    return length_buffer:unpack("!H")[1]
+    return length_buffer:get_uint16()
 end
 
 local function receive_data(network, length)

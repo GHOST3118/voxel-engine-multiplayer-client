@@ -87,7 +87,7 @@ function bincode.decode_varint(buffer)
         return first_byte
         -- If the first byte is 251, we expect a 16-bit value
     elseif first_byte == 251 then
-        return buffer:unpack("!H")[1]
+        return buffer:get_uint16()
         -- If the first byte is 252, we expect a 32-bit value
     elseif first_byte == 252 then
         return byteutil.unpack(">I", buffer:get_bytes(4))
