@@ -67,7 +67,9 @@ end
 
 function Client:receive_packets(max_packets, ReceivedPackets)
     local packet_count = 0
-    while packet_count < max_packets do
+    local MIN_BYTES_AVAILABLE = 32 -- TODO: Move to Config
+
+    while packet_count < max_packets and self.network.socket:available() > MIN_BYTES_AVAILABLE do
 
         local length_bytes = self.network:recieve_bytes(2)
 
@@ -173,7 +175,11 @@ function Client:player_tick(playerid, tps)
     local yaw, pitch = player.get_rot(playerid)
     if x ~= self.x or y ~= self.y or z ~= self.z or yaw ~= self.yaw or pitch ~= self.pitch then
         -- print(x, y, z, yaw, pitch)
-        self.x = x self.y = y self.z = z self.yaw = yaw self.pitch = pitch
+        self.x = x
+        self.y = y
+        self.z = z
+        self.yaw = yaw
+        self.pitch = pitch
         self.moved = true
         local chunk_x, chunk_z = math.floor(self.x/16), math.floor(self.z/16)
         if chunk_x ~= self.chunk_x or chunk_z ~= self.chunk_z then

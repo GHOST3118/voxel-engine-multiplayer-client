@@ -22,11 +22,9 @@ end
 NetworkPipe:add_middleware(function()
     local max_packet_count = 10
 
-    local start_time = os.clock()
 
     local packet_count = Session.client:receive_packets(max_packet_count, ReceivedPackets)
 
-    local end_time = os.clock()
 
     return true
 end)

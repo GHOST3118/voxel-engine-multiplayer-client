@@ -70,9 +70,7 @@ end
 
 ClientHandlers[ protocol.ServerMsg.PlayerMoved ] = function (packet)
     if packet.entity_id == Session.client.entity_id then return end
-    if not Session.client.players[packet.entity_id] then
-        Session.client.players[packet.entity_id] = Player.new(packet.x, packet.y, packet.z, packet.entity_id)
-    end
+    if not Session.client.players[packet.entity_id] then return end
 
     Session.client.players[packet.entity_id]:move(packet.x, packet.y, packet.z)
     Session.client.players[packet.entity_id]:rotate(packet.yaw, packet.pitch)
