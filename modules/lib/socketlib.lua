@@ -3,7 +3,6 @@ local socketlib = {}
 
 -- Подключение к TCP-серверу
 function socketlib.connect(address, port, on_connect, on_error)
-    print(type(address), type(port))
     local socket = network.tcp_connect(address, port, function(s)
         if s:is_connected() then
             if on_connect then
