@@ -12,8 +12,11 @@ local function leave_to_menu()
     app.reset_content()
     menu:reset()
     menu.page = "main"
-    Session.client:disconnect()
-    Session.client = nil
+    if Session.client then
+        Session.client:disconnect()
+        Session.client = nil
+    end
+    
 end
 
 gui_util.add_page_dispatcher(function(name, args)
@@ -56,7 +59,38 @@ end)
 
 events.on(PACK_ID..":disconnect", leave_to_menu)
 
+local config = require "multiplayer:config"
+local handshake = require "multiplayer:multiplayer/utils/handshake"
+
+local handshakes = {}
+local runs = coroutine.create(function ()
+    for index, value in pairs(config.data.multiplayer.servers) do
+        local ip = string.split(value[2], ":")[1]
+        local port = tonumber(string.split(value[2], ":")[2]) or 25565
+    
+        local hs = handshake.create(ip, port, function (server)
+            events.emit(PACK_ID..":success", index, config.data.profiles.current.username, ip, port, server)
+            
+        end,
+        function ()
+            events.emit(PACK_ID..":failed", index, ip, port)
+        end)
+    
+        handshakes[index] = hs
+        coroutine.yield()
+    end
+end)
+
 while not world.is_open() do
+
+    if coroutine.status(runs) == "suspended" then
+        coroutine.resume(runs)
+    end
+
+    for index, hs in pairs(handshakes) do
+        
+        hs:tick()
+    end
     
     if Session.client then
         Session.client:await_join()

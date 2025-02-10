@@ -7,6 +7,35 @@ local connectors = {
 
 local servertable = {}
 
+events.on(PACK_ID..":success", function (index, username, ip, port, server)
+    if server then
+        connectors[index] = function()
+            events.emit(PACK_ID..":connect", username, ip, port, server)
+            menu.page="connecting"
+        end
+
+        assets.load_texture(server.favicon, index .. ".icon")
+        document["serverstatus_"..index].text = "[#22ff22]Online"
+        document["playersonline_"..index].text = server.online .. " / " .. server.max
+        document["playersonline_"..index].tooltip = table.concat(server.players, "\n")
+        -- не удалось понять почему не работает tooltip.
+        -- возможно потому что это элемент списка?
+        document["servermotd_"..index].text = server.name
+    else
+        document["serverstatus_"..index].text = "[#ff2222]Offline"
+        document["playersonline_"..index].text = ""
+        document["servermotd_"..index].text = "[#ff2222]Can't reach the server"
+    end
+end)
+
+events.on(PACK_ID..":failed", function (index, ip, port)
+    -- будем считать, что обратились туда-не-знаю-куда за тем-не-знаю-чем
+    document["serverstatus_"..index].text = "[#ff2222]Error"
+    document["playersonline_"..index].text = ""
+    document["servermotd_"..index].text = "[#ff2222]Unknown host"
+    print("Handshake error. Host address: \""..ip..":"..port.."\"")
+end)
+
 function on_open()
     print("мы проходимся снова по списку")
     local handshake = require "multiplayer:multiplayer/utils/handshake"
@@ -25,39 +54,8 @@ function on_open()
         }))
         ::continue::
     end
-    for index, value in pairs(config.data.multiplayer.servers) do
-        if not value or (value and value == 0) then goto continue end
-        local ip = string.split(value[2], ":")[1]
-        local port = tonumber(string.split(value[2], ":")[2]) or 25565
-        local success = pcall(handshake.make, ip, port, function(server)
-            if server then
-                connectors[index] = function()
-                    events.emit(PACK_ID..":connect", username, ip, port, server)
-                    menu.page="connecting"
-                end
 
-                assets.load_texture(server.favicon, index .. ".icon")
-                document["serverstatus_"..index].text = "[#22ff22]Online"
-                document["playersonline_"..index].text = server.online .. " / " .. server.max
-                document["playersonline_"..index].tooltip = table.concat(server.players, "\n")
-                -- не удалось понять почему не работает tooltip.
-                -- возможно потому что это элемент списка?
-                document["servermotd_"..index].text = server.name
-            else
-                document["serverstatus_"..index].text = "[#ff2222]Offline"
-                document["playersonline_"..index].text = ""
-                document["servermotd_"..index].text = "[#ff2222]Can't reach the server"
-            end
-        end)
-        if not success then
-            -- будем считать, что обратились туда-не-знаю-куда за тем-не-знаю-чем
-            document["serverstatus_"..index].text = "[#ff2222]Error"
-            document["playersonline_"..index].text = ""
-            document["servermotd_"..index].text = "[#ff2222]Unknown host"
-            print("Handshake error. Host address: \""..ip..":"..port.."\"")
-        end
-        ::continue::
-    end
+    
 
     -- таблица хранит в себе список серверов для возможности их удаления
     servertable = table.copy(config.data.multiplayer.servers)

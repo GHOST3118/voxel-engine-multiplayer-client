@@ -18,7 +18,7 @@ local function perform_handshake(network)
 end
 
 local function receive_length(network)
-    local attempts = 50000000
+    local attempts = 500
     local length_bytes
     
     while attempts > 0 do
@@ -46,6 +46,21 @@ local function receive_data(network, length)
         end
     end
     return data_bytes_buffer
+end
+
+local function try_receive_data(network, length)
+    local attempts = 500
+    local data_bytes_buffer = data_buffer()
+
+    while data_bytes_buffer:size() < length and attempts > 0 do
+        local remaining = length - data_bytes_buffer:size()
+        local data_bytes = network:recieve_bytes(remaining)
+        if data_bytes then
+            data_bytes_buffer:put_bytes(data_bytes)
+        end
+        attempts = attempts - 1
+    end
+    return data_bytes_buffer:get_bytes()
 end
 
 local function parse(buffer)
@@ -88,6 +103,64 @@ function handshake.make(host, port, callback)
         end
         network:disconnect()
     end)
+end
+
+
+local Handshake = {}
+Handshake.__index = Handshake
+
+function handshake.create(host, port, func_success, func_failed)
+    local self = setmetatable({}, Handshake)
+
+    self.host = host
+    self.port = port
+    self.func_success = func_success
+    self.func_failed = func_failed
+
+    self.length = 0
+    self.body = data_buffer()
+
+    self.network = create_network()
+
+    self.network:connect(host, port, function(success)
+        if not success then
+            return
+        end
+
+        perform_handshake(self.network)
+
+    end)
+
+    return self
+end
+
+function Handshake:tick()
+    if self.network then
+        while self.length == 0 do
+            local length = receive_length(self.network)
+            if length == 0 then
+                
+                return
+            end
+            self.length = length
+        end
+
+        while self.body:size() < self.length do
+            local data = try_receive_data(self.network, self.length - self.body:size())
+            if data then
+                self.body:put_bytes(data)
+            end
+        end
+
+        if self.body:size() == self.length then
+            local packet = parse(self.body)
+            if packet.packet_type == protocol.ServerMsg.StatusResponse then
+                self.func_success(packet)
+            else
+                self.func_failed()
+            end
+        end
+    end
 end
 
 return handshake

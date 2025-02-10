@@ -69,6 +69,10 @@ function Client:receive_packets(max_packets, ReceivedPackets)
     local packet_count = 0
     local MIN_BYTES_AVAILABLE = 32 -- TODO: Move to Config
 
+    if not self.network.socket then
+        return 0
+    end
+
     while packet_count < max_packets and self.network.socket:available() > MIN_BYTES_AVAILABLE do
 
         local length_bytes = self.network:recieve_bytes(2)
@@ -136,6 +140,7 @@ function Client:world_tick()
 
             if block.get( target_block.x, target_block.y, target_block.z ) ~= -1 then
                 block.set( target_block.x, target_block.y, target_block.z, target_block.block_id, target_block.block_state )
+
                 if block.get( target_block.x, target_block.y, target_block.z ) ~= target_block.block_id then
                     List.pushright( WorldDataQueue, target_block )
                 end
@@ -188,6 +193,12 @@ function Client:player_tick(playerid, tps)
         end
     end
 
+end
+
+
+function Client:on_block_set(blockid, x, y, z, states)
+
+    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, states, blockid) )
 end
 
 function Client:on_block_placed(blockid, x, y, z, states)
