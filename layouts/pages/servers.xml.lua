@@ -76,7 +76,7 @@ function refresh_server_list()
         document.server_list:add(gui.template("server", {
             id = ""..index,
             server_name = value[1],
-            server_status = "[#aaaaaa]Checking...",
+            server_status = "[#aaaaaa]Pending...",
             players_online = "",
             server_motd = "",
             onclick = "connect_to(" .. index .. ")",
@@ -86,7 +86,7 @@ function refresh_server_list()
         -- получаем адрес
         local server_parts = string.split(value[2], ":")
         if #server_parts < 2 then
-            document["serverstatus_"..index].text = "[#ff2222]Invalid address"
+            document["serverstatus_"..index].text = "[#ab0000]Invalid address"
             goto continue
         end
         
