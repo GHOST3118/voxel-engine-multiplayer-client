@@ -139,9 +139,9 @@ function Client:world_tick()
             local target_block = List.popleft( WorldDataQueue )
 
             if block.get( target_block.x, target_block.y, target_block.z ) ~= -1 then
-                block.set( target_block.x, target_block.y, target_block.z, target_block.block_id, target_block.block_state )
+                block.set( target_block.x, target_block.y, target_block.z, block.index(target_block.block_id), target_block.block_state )
 
-                if block.get( target_block.x, target_block.y, target_block.z ) ~= target_block.block_id then
+                if block.get( target_block.x, target_block.y, target_block.z ) ~= block.index(target_block.block_id) then
                     List.pushright( WorldDataQueue, target_block )
                 end
             else
@@ -198,20 +198,20 @@ end
 
 function Client:on_block_set(blockid, x, y, z, states)
 
-    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, states, blockid) )
+    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, states, block.name(blockid)) )
 end
 
 function Client:on_block_placed(blockid, x, y, z, states)
 
-    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, states, blockid) )
+    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, states, block.name(blockid)) )
 end
 
 function Client:on_block_broken(blockid, x, y, z)
-    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, 0, 0) )
+    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, 0, block.name(0)) )
 end
 
 function Client:on_block_interact(blockid, x, y, z, states)
-    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, states, blockid) )
+    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, states, block.name(blockid)) )
 end
 
 return Client
