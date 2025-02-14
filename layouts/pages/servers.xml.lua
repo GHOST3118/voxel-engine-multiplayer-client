@@ -37,7 +37,6 @@ events.on(PACK_ID..":failed", function (index, ip, port)
 end)
 
 function on_open()
-
     local handshake = require "multiplayer:multiplayer/utils/handshake"
     local username = config.data.profiles.current.username
     for index, value in pairs(config.data.multiplayer.servers) do

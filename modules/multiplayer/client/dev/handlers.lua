@@ -92,10 +92,10 @@ end
 
 ClientHandlers[ protocol.ServerMsg.BlockUpdate ] = function (packet)
 
-    if packet.block_id == 0 then
+    if block.index(packet.block_id) == 0 then
         block.destruct(packet.x, packet.y, packet.z, -1)
     else
-        block.place( packet.x, packet.y, packet.z, packet.block_id, packet.block_state, -1 )
+        block.place( packet.x, packet.y, packet.z, block.index(packet.block_id), packet.block_state, -1 )
     end
 
 end
