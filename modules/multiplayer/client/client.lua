@@ -67,7 +67,7 @@ end
 
 function Client:receive_packets(max_packets, ReceivedPackets)
     local packet_count = 0
-    local MIN_BYTES_AVAILABLE = 32 -- TODO: Move to Config
+    local MIN_BYTES_AVAILABLE = 2 -- TODO: Move to Config
 
     if not self.network.socket then
         return 0

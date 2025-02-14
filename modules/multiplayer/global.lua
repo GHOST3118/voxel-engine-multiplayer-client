@@ -1,5 +1,8 @@
 PACK_ID = "multiplayer"
 
+ON_CONNECT = PACK_ID .. ":connect"
+ON_DISCONNECT = PACK_ID .. ":disconnect"
+
 if not Session then
     Session = {}
 
