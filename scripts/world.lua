@@ -74,3 +74,9 @@ function on_block_interact(blockid, x, y, z, playerid)
         Session.client:on_block_interact(blockid, x, y, z, states)
     end
 end
+
+function on_chunk_present(x, z, is_loaded)
+    if Session.client then
+        Session.client:on_chunk_present(x, z, is_loaded)
+    end
+end

@@ -1,4 +1,5 @@
 local protocol = require "lib/protocol"
+local hash = require "lib/common/hash"
 require "multiplayer/global"
 
 local LoginHandlers = {}
@@ -35,6 +36,8 @@ LoginHandlers.on_enter = function (client)
         local packet = protocol.create_databuffer()
         packet:put_packet(protocol.build_packet("client", protocol.ClientMsg.HandShake, "0.26.0", protocol.data.version, protocol.States.Login))
         client.network:send(packet.bytes)
+
+        ---
 
         packet = protocol.create_databuffer()
         packet:put_packet(protocol.build_packet("client", protocol.ClientMsg.JoinGame, Session.username))

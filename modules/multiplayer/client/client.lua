@@ -197,12 +197,10 @@ end
 
 
 function Client:on_block_set(blockid, x, y, z, states)
-
     self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, states, block.name(blockid)) )
 end
 
 function Client:on_block_placed(blockid, x, y, z, states)
-
     self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, states, block.name(blockid)) )
 end
 
@@ -212,6 +210,10 @@ end
 
 function Client:on_block_interact(blockid, x, y, z, states)
     self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, states, block.name(blockid)) )
+end
+
+function Client:on_chunk_present(x, z, loaded)
+    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.RequestChunk, x, z) )
 end
 
 return Client
