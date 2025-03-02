@@ -1,0 +1,9 @@
+
+[void]
+parameters = []
+layers = [
+    {height=-1, block="core:air"}
+]
+sea-layers = [
+    {height=-1, block="core:air"}
+]

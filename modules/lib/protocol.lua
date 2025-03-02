@@ -85,6 +85,12 @@ local DATA_ENCODE = {
         buffer:put_leb128(#value)
         buffer:put_bytes(value)
     end,
+    ["int16Array"] = function(buffer, value)
+        buffer:put_leb128(#value)
+        for _, val in ipairs(value) do
+            buffer:put_sint16(val)
+        end
+    end,
     ["stringArray"] = function(buffer, value)
         buffer:put_leb128(#value)
         for i = 1, #value, 1 do

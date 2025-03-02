@@ -12,6 +12,14 @@ LoginHandlers.on_event = function (client)
             -- world.set_day_time_speed(0)
             Session.client.entity_id = packet.entity_id
             return protocol.States.Active
+        elseif packet.packet_type == protocol.ServerMsg.PacksList then
+            local packs = packet.packs
+
+            CONTENT_PACKS = packs
+
+            packet = protocol.create_databuffer()
+            packet:put_packet(protocol.build_packet("client", protocol.ClientMsg.PacksHashes, {"0000", "0000"}))
+            client.network:send(packet.bytes)
         else
             local str = ""
             if packet.packet_type == protocol.ServerMsg.Disconnect then

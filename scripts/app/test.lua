@@ -66,8 +66,10 @@ events.on(ON_CONNECT, function(username, host, port, packet)
     Session.client.on_connect = function (_packet)
 
         Session.player_id = _packet.entity_id
-        app.config_packs({"base", "multiplayer"})
-        app.new_world("", packet.seed, "base:demo", _packet.entity_id)
+
+        app.reconfig_packs(CONTENT_PACKS, {})
+        app.new_world("", packet.seed, "multiplayer:void", _packet.entity_id)
+
         events.emit(PACK_ID .. ":connected", Session)
 
     end
@@ -108,14 +110,14 @@ while not world.is_open() do
     end
 
     for index, hs in pairs(handshakes) do
-        
+
         hs:tick()
     end
-    
+
     if Session.client then
         Session.client:await_join()
     end
-    
+
     app.tick()
 end
 

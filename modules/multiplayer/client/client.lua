@@ -212,8 +212,17 @@ function Client:on_block_interact(blockid, x, y, z, states)
     self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, states, block.name(blockid)) )
 end
 
-function Client:on_chunk_present(x, z, loaded)
-    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.RequestChunk, x, z) )
+local buffer = {}
+function Client:on_chunk_present(x, z, is_loaded)
+    if #buffer < core.get_setting("chunks.load-distance") then
+        table.insert(buffer, x)
+        table.insert(buffer, z)
+        return
+    end
+
+    local packet = protocol.build_packet("client", protocol.ClientMsg.RequestChunks, buffer)
+    self:push_packet( packet )
+    buffer = {x, z}
 end
 
 return Client
