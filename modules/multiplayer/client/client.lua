@@ -209,7 +209,7 @@ function Client:on_block_broken(blockid, x, y, z)
 end
 
 function Client:on_block_interact(blockid, x, y, z, states)
-    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, states, block.name(blockid)) )
+    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockInteract, x, y, z) )
 end
 
 local buffer = {}

@@ -2,6 +2,8 @@
 app.config_packs({"multiplayer"})
 app.load_content()
 
+_G['$VoxelOnline'] = "client"
+
 menu.page = "servers"
 
 -- Sleep until the world is closed
@@ -60,6 +62,7 @@ events.on(ON_CONNECT, function(username, host, port, packet)
     Session.username = username
     Session.client = Client.new( host, port )
     Session.client.on_disconnect = function (_packet)
+        _packet.reason = _packet.reason or "No reason"
         gui.alert("Server disconnected | reason: ".._packet.reason, leave_to_menu)
 
     end

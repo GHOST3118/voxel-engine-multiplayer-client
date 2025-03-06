@@ -48,8 +48,8 @@ local function rightRotate(value, amount)
 end
 
 local function get_pack_path(pack) -- Да костыль, да я знаю, но подругому никак - пробовал
-    path = "core:content/" .. pack
-    path2 = "user:content/" .. pack
+    local path = "core:content/" .. pack
+    local path2 = "user:content/" .. pack
 
     if file.exists(path) then
         return path
@@ -190,7 +190,12 @@ function module.hash_mods(packs)
         local files = recursive_list(pack_path)
 
         files = filter(files, function (_, path)
-            if string.ends_with(path, "png") or string.starts_with(path, '.') or string.ends_with(path, "vec3") or string.ends_with(path, "ogg") then
+            if string.ends_with(path, "png") or
+            string.starts_with(path, '.') or
+            string.ends_with(path, "vec3") or
+            string.ends_with(path, "ogg") or
+            string.find(path, ".git")
+            then
                 return false
             end
             return true
