@@ -14,11 +14,20 @@ LoginHandlers.on_event = function (client)
             return protocol.States.Active
         elseif packet.packet_type == protocol.ServerMsg.PacksList then
             local packs = packet.packs
+            local pack_available = pack.get_available()
+            local hashes = {}
+
+            for i, pack in ipairs(packs) do
+                if table.has(pack_available, pack) then
+                    table.insert(hashes, pack)
+                    table.insert(hashes, hash.hash_mods({pack}))
+                end
+            end
 
             CONTENT_PACKS = packs
 
             packet = protocol.create_databuffer()
-            packet:put_packet(protocol.build_packet("client", protocol.ClientMsg.PacksHashes, {"0000", "0000"}))
+            packet:put_packet(protocol.build_packet("client", protocol.ClientMsg.PacksHashes, hashes))
             client.network:send(packet.bytes)
         else
             local str = ""

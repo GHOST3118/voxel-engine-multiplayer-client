@@ -15,8 +15,47 @@ local function recursive_list(path)
     return paths
 end
 
+local function filter(t, func)
+
+    for i = #t, 1, -1 do
+        if not func(i, t[i]) then
+            table.remove(t, i)
+        end
+    end
+
+    local size = #t
+
+    for i, v in pairs(t) do
+        local i_type = type(i)
+        if i_type == "number" then
+            if i < 1 or i > size then
+                if not func(i, v) then
+                    t[i] = nil
+                end
+            end
+        else
+            if not func(i, v) then
+                t[i] = nil
+            end
+        end
+    end
+
+    return t
+end
+
 local function rightRotate(value, amount)
     return bit.bor(bit.rshift(value, amount), bit.lshift(value, 32 - amount))
+end
+
+local function get_pack_path(pack) -- Да костыль, да я знаю, но подругому никак - пробовал
+    path = "core:content/" .. pack
+    path2 = "user:content/" .. pack
+
+    if file.exists(path) then
+        return path
+    elseif file.exists(path2) then
+        return path2
+    end
 end
 
 local function unpackInt32(data, offset)
@@ -121,15 +160,22 @@ function module.sha256(input)
 end
 
 function module.lite(str, seed)
-    local hash = seed or 5381
-    local len = #str
+    local hash_high = seed
+    local hash_low = seed
 
-    for i = 1, len do
+    for i = 1, #str do
         local char = string.byte(str, i)
-        hash = bit.bxor(bit.lshift(hash, 5) + hash, char)
+        hash_high = bit.bxor(hash_high, bit.rol(hash_low + char, 7))
+        hash_low = bit.bxor(hash_low, bit.rol(hash_high + char, 13))
     end
 
-    local hex_hash = string.format("%08x", bit.band(hash, 0xFFFFFFFF))
+    local hex_hash = string.format("%08x%08x%08x%08x",
+        bit.band(bit.rshift(hash_high, 32), 0xFFFFFFFF),
+        bit.band(hash_high, 0xFFFFFFFF),
+        bit.band(bit.rshift(hash_low, 32), 0xFFFFFFFF),
+        bit.band(hash_low, 0xFFFFFFFF)
+    )
+
     return hex_hash
 end
 
@@ -139,16 +185,19 @@ function module.hash_mods(packs)
     local hash_data = "00000000"
 
     for _, pack_path in ipairs(packs) do
+        pack_path = get_pack_path(pack_path)
+
         local files = recursive_list(pack_path)
 
-        table.filter(files, function (_, path)
-            if string.ends_with(path, "png") or string.starts_with(path, '.') then
+        files = filter(files, function (_, path)
+            if string.ends_with(path, "png") or string.starts_with(path, '.') or string.ends_with(path, "vec3") or string.ends_with(path, "ogg") then
                 return false
             end
             return true
         end)
 
         for _, abs_file_path in ipairs(files) do
+
             local file_data = file.read_bytes(abs_file_path)
             local str_data = ""
 
