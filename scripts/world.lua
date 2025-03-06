@@ -68,6 +68,7 @@ function on_block_broken(blockid, x, y, z, playerid)
 end
 
 function on_block_interact(blockid, x, y, z, playerid)
+    x, y, z = block.seek_origin(x, y, z)
     if Session.client then
         if Session.player_id ~= playerid then return end
         local states = block.get_states(x, y, z)
