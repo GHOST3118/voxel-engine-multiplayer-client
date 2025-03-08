@@ -85,10 +85,11 @@ local DATA_ENCODE = {
         buffer:put_leb128(#value)
         buffer:put_bytes(value)
     end,
-    ["int16Array"] = function(buffer, value)
+    ["int32Array"] = function(buffer, value)
         buffer:put_leb128(#value)
         for _, val in ipairs(value) do
-            buffer:put_sint16(val)
+            local result = bincode.zigzag_encode(val)
+            buffer:put_bytes(bincode.encode_varint(result))
         end
     end,
     ["stringArray"] = function(buffer, value)
