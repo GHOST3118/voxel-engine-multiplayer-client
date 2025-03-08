@@ -186,7 +186,9 @@ function module.hash_mods(packs)
 
     for _, pack_path in ipairs(packs) do
         pack_path = get_pack_path(pack_path)
-
+        if not pack_path then
+            goto continue
+        end
         local files = recursive_list(pack_path)
 
         files = filter(files, function (_, path)
@@ -212,6 +214,8 @@ function module.hash_mods(packs)
 
             hash_data = module.lite(str_data, tonumber(hash_data, 16))
         end
+
+        ::continue::
     end
 
     return hash_data
