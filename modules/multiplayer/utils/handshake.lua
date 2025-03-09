@@ -1,6 +1,6 @@
 local protocol = require "multiplayer:lib/protocol"
 local Network = require "lib/network"
-local data_buffer = require "core:data_buffer"
+local data_buffer = require "lib/common/data_buffer"
 
 local function create_network()
     return Network.new()

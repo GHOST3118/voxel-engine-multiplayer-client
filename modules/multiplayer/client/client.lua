@@ -1,6 +1,6 @@
 local Network = require "lib/network"
 require "multiplayer/global"
-local data_buffer = require "core:data_buffer"
+local data_buffer = require "lib/common/data_buffer"
 local protocol = require "lib/protocol"
 local List = require "lib/common/list"
 local state_machine = require "lib/common/fsm"
