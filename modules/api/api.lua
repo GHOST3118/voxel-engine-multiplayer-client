@@ -1,4 +1,4 @@
-local events = require "api/events"
+local events = start_require "api/events"
 local rpc = require "api/rpc"
 local bson = require "lib/common/bson"
 

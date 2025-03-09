@@ -1,4 +1,4 @@
-local events = require "api/events"
+local events = start_require "api/events"
 local bson = require "lib/common/bson"
 local db = require "lib/common/data_buffer"
 
