@@ -207,7 +207,7 @@ function Client:on_block_placed(blockid, x, y, z, states, rotation)
 end
 
 function Client:on_block_broken(blockid, x, y, z)
-    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, 0, 0, 0) )
+    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockDestroy, x, y, z) )
 end
 
 function Client:on_block_interact(blockid, x, y, z, states)
