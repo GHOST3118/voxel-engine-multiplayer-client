@@ -88,15 +88,9 @@ events.on(ON_CONNECT, function(username, host, port, packet)
         app.reconfig_packs(CONTENT_PACKS, {})
         app.new_world("", packet.seed, "multiplayer:void", _packet.entity_id)
 
-        rules.set("cheat-commands", _packet.cheat_commands)
-        rules.set("allow-content-access", _packet.content_access)
-        rules.set("allow-flight", _packet.flight)
-        rules.set("allow-noclip", _packet.noclip)
-        rules.set("allow-attack", _packet.attack)
-        rules.set("allow-destroy", _packet.destroy)
-        rules.set("allow-cheat-movement", _packet.cheat_movement)
-        rules.set("allow-debug-cheats", _packet.debug_cheats)
-        rules.set("allow-fast-interaction", _packet.fast_interaction)
+        for _, rule in ipairs(_packet.rules) do
+            rules.set(rule.rule, rule.value)
+        end
 
         Session.player_id = _packet.entity_id
         _G["/$p"] = table.copy(package.loaded)
