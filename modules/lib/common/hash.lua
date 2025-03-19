@@ -47,14 +47,17 @@ local function rightRotate(value, amount)
     return bit.bor(bit.rshift(value, amount), bit.lshift(value, 32 - amount))
 end
 
-local function get_pack_path(pack) -- Да костыль, да я знаю, но подругому никак - пробовал
-    local path = "core:content/" .. pack
-    local path2 = "user:content/" .. pack
+local function get_pack_path(_pack) -- Да костыль, да я знаю, но подругому никак - пробовал
+    local path = "core:content/" .. _pack
+    local path2 = "user:content/" .. _pack
+    local path3 = _pack .. ":/"
 
     if file.exists(path) then
         return path
     elseif file.exists(path2) then
         return path2
+    elseif file.exists(path3) then
+        return path3
     end
 end
 
@@ -174,6 +177,7 @@ function module.hash_mods(packs)
 
     for _, pack_path in ipairs(packs) do
         pack_path = get_pack_path(pack_path)
+        print(pack_path)
         if not pack_path then
             goto continue
         end

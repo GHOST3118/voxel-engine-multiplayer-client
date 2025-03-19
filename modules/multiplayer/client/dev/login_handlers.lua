@@ -15,13 +15,22 @@ LoginHandlers.on_event = function (client)
         elseif packet.packet_type == protocol.ServerMsg.PacksList then
             local packs = packet.packs
             local pack_available = pack.get_available()
+            local pack_installed = pack.get_installed()
             local hashes = {}
 
-            for i, pack in ipairs(packs) do
-                if table.has(pack_available, pack) then
-                    table.insert(hashes, pack)
-                    table.insert(hashes, hash.hash_mods({pack}))
+            for i=#packs, 1, -1 do
+                if not table.has(pack_available, packs[i]) then
+                    table.remove(packs, i)
                 end
+            end
+
+            _G["$APP"].config_packs({"multiplayer"})
+            _G["$APP"].reconfig_packs(packs, {})
+            _G["$APP"].load_content()
+
+            for i, pack in ipairs(packs) do
+                table.insert(hashes, pack)
+                table.insert(hashes, hash.hash_mods({pack}))
             end
 
             CONTENT_PACKS = packs

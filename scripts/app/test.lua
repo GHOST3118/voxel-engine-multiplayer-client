@@ -2,6 +2,8 @@
 app.config_packs({"multiplayer"})
 app.load_content()
 
+_G["$APP"] = app
+
 function _G.start_require(path)
     if not string.find(path, ':') then
         local prefix, _ = parse_path(debug.getinfo(2).source)
@@ -85,7 +87,6 @@ events.on(ON_CONNECT, function(username, host, port, packet)
     end
     Session.client.on_connect = function (_packet)
 
-        app.reconfig_packs(CONTENT_PACKS, {})
         app.new_world("", packet.seed, "multiplayer:void", _packet.entity_id)
 
         for _, rule in ipairs(_packet.rules) do
