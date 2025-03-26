@@ -4,10 +4,10 @@ require "multiplayer/global"
 
 local LoginHandlers = {}
 
-LoginHandlers.on_event = function (client)
-    return function (packet)
+LoginHandlers.on_event = function(client)
+    return function(packet)
         if packet.packet_type == protocol.ServerMsg.JoinSuccess then
-            client.on_connect( packet )
+            client.on_connect(packet)
             console.log("Подключение успешно!")
             -- world.set_day_time_speed(0)
             Session.client.entity_id = packet.entity_id
@@ -18,19 +18,19 @@ LoginHandlers.on_event = function (client)
             local pack_installed = pack.get_installed()
             local hashes = {}
 
-            for i=#packs, 1, -1 do
+            for i = #packs, 1, -1 do
                 if not table.has(pack_available, packs[i]) then
                     table.remove(packs, i)
                 end
             end
 
-            _G["$APP"].config_packs({"multiplayer"})
+            _G["$APP"].config_packs({ "multiplayer" })
             _G["$APP"].reconfig_packs(packs, {})
             _G["$APP"].load_content()
 
             for i, pack in ipairs(packs) do
                 table.insert(hashes, pack)
-                table.insert(hashes, hash.hash_mods({pack}))
+                table.insert(hashes, hash.hash_mods({ pack }))
             end
 
             CONTENT_PACKS = packs
@@ -43,24 +43,24 @@ LoginHandlers.on_event = function (client)
             if packet.packet_type == protocol.ServerMsg.Disconnect then
                 str = "Сервер отказал в подключении."
                 if packet.reason then str = str .. " Причина: " .. packet.reason end
-                
             else
                 str = "Сервер отправил какую-то ерунду вместо ожидаемых данных. Соединение разорвано."
             end
             console.log(str)
-            client.on_disconnect( packet )
+            client.on_disconnect(packet)
             -- самоуничтожаемся!
             Session.client:disconnect()
-            
+
             return nil
         end
     end
 end
 
-LoginHandlers.on_enter = function (client)
-    return function ()
+LoginHandlers.on_enter = function(client)
+    return function()
         local packet = protocol.create_databuffer()
-        packet:put_packet(protocol.build_packet("client", protocol.ClientMsg.HandShake, "0.26.0", protocol.data.version, protocol.States.Login))
+        packet:put_packet(protocol.build_packet("client", protocol.ClientMsg.HandShake, "0.26.0", protocol.data.version,
+            protocol.States.Login))
         client.network:send(packet.bytes)
 
         ---
