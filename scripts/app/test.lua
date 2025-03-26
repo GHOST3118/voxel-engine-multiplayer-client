@@ -21,7 +21,7 @@ function _G.start_require(path)
 end
 
 _G['$VoxelOnline'] = "client"
-_G["/$p"] = package.loaded
+_G["/$p"] = table.copy(package.loaded)
 
 menu.page = "servers"
 
