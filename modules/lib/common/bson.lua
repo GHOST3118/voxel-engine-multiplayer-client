@@ -1,4 +1,4 @@
-local db = require "lib/data_buffer"
+local db = require "lib/common/data_buffer"
 
 local MAX_UINT16 = 65535
 local MIN_UINT16 = 0
