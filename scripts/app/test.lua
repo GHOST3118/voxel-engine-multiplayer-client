@@ -2,6 +2,7 @@ app.config_packs({ "multiplayer" })
 app.load_content()
 
 _G["$APP"] = app
+_G['$VoxelOnline'] = nil
 
 function _G.start_require(path)
     if not string.find(path, ':') then
@@ -20,7 +21,6 @@ function _G.start_require(path)
     return _G["/$p"][path]
 end
 
-_G['$VoxelOnline'] = "client"
 _G["/$p"] = table.copy(package.loaded)
 
 menu.page = "servers"
@@ -41,6 +41,7 @@ local function leave_to_menu()
     if world.is_open() then
         app.close_world(false)
     end
+    _G['$VoxelOnline'] = nil
 
     app.reset_content()
     menu:reset()
@@ -86,6 +87,7 @@ events.on(ON_CONNECT, function(username, host, port, packet)
         Session.player_id = _packet.entity_id
 
         events.emit(PACK_ID .. ":connected", Session)
+        _G['$VoxelOnline'] = "client"
     end
     Session.client:connect()
 end)
