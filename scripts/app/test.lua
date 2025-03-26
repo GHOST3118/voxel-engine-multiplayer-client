@@ -78,6 +78,7 @@ events.on(ON_CONNECT, function(username, host, port, packet)
         gui.alert("Server disconnected | reason: " .. _packet.reason, leave_to_menu)
     end
     Session.client.on_connect = function(_packet)
+        _G['$VoxelOnline'] = "client"
         app.new_world("", packet.seed, "multiplayer:void", _packet.entity_id)
 
         for _, rule in ipairs(_packet.rules) do
@@ -87,7 +88,6 @@ events.on(ON_CONNECT, function(username, host, port, packet)
         Session.player_id = _packet.entity_id
 
         events.emit(PACK_ID .. ":connected", Session)
-        _G['$VoxelOnline'] = "client"
     end
     Session.client:connect()
 end)
