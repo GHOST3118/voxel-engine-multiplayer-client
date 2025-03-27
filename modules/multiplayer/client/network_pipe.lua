@@ -2,7 +2,9 @@ local Pipeline = require "lib/pipeline"
 require "multiplayer/global"
 local protocol = require "lib/protocol"
 local Player = require "multiplayer/client/classes/player"
-local data_buffer = require "lib/data_buffer"
+
+local data_buffer = require "lib/common/data_buffer"
+
 local bincode = require "lib/common/bincode"
 
 local List = require "lib/common/list"
@@ -67,8 +69,8 @@ NetworkPipe:add_middleware(function()
 
         if Session.client.moved_thru_chunk then
             -- TODO: нормальная загрузка чанков
-            push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.RequestChunk,
-                Session.client.chunk_x, Session.client.chunk_z))
+            -- push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.RequestChunk,
+            --     Session.client.chunk_x, Session.client.chunk_z))
             -- раскомментировать для загрузки соседних чанков
             -- push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.RequestChunk, Session.client.chunk_x+1, Session.client.chunk_z))
             -- push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.RequestChunk, Session.client.chunk_x-1, Session.client.chunk_z))

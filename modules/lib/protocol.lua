@@ -1,7 +1,7 @@
 local bincode = require "lib/common/bincode"
 
 local protocol = {}
-local data_buffer = require "lib/data_buffer"
+local data_buffer = require "lib/common/data_buffer"
 protocol.data = json.parse(file.read("multiplayer:modules/lib/protocol.json"))
 
 ---Кодирование строки
@@ -33,109 +33,109 @@ end
 
 -- чтобы функции были доступны из DATA_DECODE
 local recursive_parse = function (data_struct, buffer, result) end
+local recursive_encode = function (data_struct, buffer, result) end
 local data_decode = function (data_type, buffer) end
+local data_encode = function (data_type, buffer) end
+
 
 -- Функции для кодирования и декодирования разных типов значений
 local DATA_ENCODE = {
     ["boolean"] = function(buffer, value)
         buffer:put_bool(value)
     end,
+    ["var"] = function (buffer, value)
+        buffer:put_bytes(bincode.encode_varint(value))
+    end,
     ["int8"] = function(buffer, value)
-        buffer:put_byte(value < 0 and value + 256 or value)
+        buffer:put_byte(value + 127)
     end,
     ["uint8"] = function(buffer, value)
-        buffer:put_bytes(bincode.encode_varint(value))
+        buffer:put_byte(value)
     end,
     ["int16"] = function(buffer, value)
         buffer:put_sint16(value)
     end,
     ["uint16"] = function(buffer, value)
-        buffer:put_bytes(bincode.encode_varint(value))
+        buffer:put_uint16(value)
     end,
     ["int32"] = function(buffer, value)
-        local result = bincode.zigzag_encode(value)
-        buffer:put_bytes(bincode.encode_varint(result))
+        buffer:put_sint32(value)
     end,
     ["uint32"] = function(buffer, value)
-        buffer:put_bytes(bincode.encode_varint(value))
+        buffer:put_uint32(value)
     end,
     ["int64"] = function(buffer, value)
-        local result = bincode.zigzag_encode(value)
-        buffer:put_bytes(bincode.encode_varint(result))
-    end, -- TODO: сделать как на строке ниже
-    ["uint64"] = function(buffer, value)
-        buffer:put_bytes(bincode.encode_varint(value))
-    end, -- TODO: зависимость от текущего порядка байтов в буфере
-    ["float"] = function(buffer, value)
-        buffer:put_float32(value)
+        buffer:put_int64(value)
     end,
     ["f32"] = function(buffer, value)
         buffer:put_float32(value)
-    end, -- алиас для float
-    ["double"] = function(buffer, value)
-        buffer:put_float64(value)
     end,
     ["f64"] = function(buffer, value)
         buffer:put_float64(value)
-    end, -- алиас для double
+    end,
     ["string"] = function(buffer, value)
         buffer:put_bytes(pack_string(value))
     end,
     ["byteArray"] = function(buffer, value)
-        buffer:put_leb128(#value)
+        buffer:put_bytes(bincode.encode_varint(#value))
         buffer:put_bytes(value)
     end,
     ["stringArray"] = function(buffer, value)
-        buffer:put_leb128(#value)
+        buffer:put_bytes(bincode.encode_varint(#value))
         for i = 1, #value, 1 do
             buffer:pack_string(value[i])
         end
+    end,
+    ["array"] = function (buffer, value, data_type)
+        buffer:put_bytes(bincode.encode_varint(#value))
+        for i = 1, #value, 1 do
+            data_encode(data_type, buffer, value[i])
+        end
+    end,
+    ["structure"] = function (buffer, value, struct_name)
+        local struct_index = 0
+
+        for index, structure in ipairs(protocol.Structures) do
+            if structure[1] == struct_name then struct_index = index break end end
+
+        buffer:put_bytes(bincode.encode_varint(#value))
+        for i = 1, #value, 1 do
+            recursive_encode(protocol.Structures[struct_index], value[i], buffer)
+        end
     end
-    -- TODO: structure и array
 }
 
 local DATA_DECODE = {
     ["boolean"] = function(buffer)
         return buffer:get_bool()
     end,
-    ["byte"] = function (buffer)
-        return buffer:get_byte()
+    ["var"] = function (buffer)
+        return bincode.decode_varint(buffer)
     end,
     ["int8"] = function(buffer)
-        return buffer:get_byte()
+        return buffer:get_byte() - 127
     end,
     ["uint8"] = function(buffer)
-        return bincode.decode_varint(buffer)
+        return buffer:get_byte()
     end,
     ["int16"] = function(buffer)
         return buffer:get_sint16()
     end,
     ["uint16"] = function(buffer)
-        return bincode.decode_varint(buffer)
+        return buffer:get_uint16()
     end,
     ["int32"] = function(buffer)
-        local result = bincode.decode_varint(buffer)
-        return bincode.zigzag_decode(result)
+        return buffer:get_sint32()
     end,
     ["uint32"] = function(buffer)
-        return bincode.decode_varint(buffer)
+        return buffer:get_uint32()
     end,
     ["int64"] = function(buffer)
-        local result = bincode.decode_varint(buffer)
-        return bincode.zigzag_decode(result)
-    end,
-    ["uint64"] = function(buffer)
-        return bincode.decode_varint(buffer)
-    end,
-    ["float"] = function(buffer)
-        return buffer:get_float32()
+        return buffer:get_int64()
     end,
     ["f32"] = function(buffer)
         return buffer:get_float32()
     end, -- алиас для float
-    ["double"] = function(buffer)
-        return buffer:get_float64()
-    end,
     ["f64"] = function(buffer)
         return buffer:get_float64()
     end, -- алиас для double
@@ -163,6 +163,7 @@ local DATA_DECODE = {
     ["array"] = function (buffer, data_type)
         local result = {}
         local array_length = bincode.decode_varint(buffer)
+
         for i = 1, array_length, 1 do
             result[#result+1] = data_decode(data_type, buffer)
         end
@@ -179,6 +180,10 @@ data_decode = function (data_type, buffer)
     return DATA_DECODE[data_type](buffer)
 end
 
+data_encode = function (data_type, buffer, value)
+    DATA_ENCODE[data_type](buffer, value)
+end
+
 ---Помощник парсера пакетов. Используется в DATA_ENCODE
 ---и protocol.parse_packet. Позволяет парсить структуры. Объявлен выше ↑
 ---@param data_struct table Структура данных (может содержать другие структуры)
@@ -189,7 +194,22 @@ recursive_parse = function(data_struct, buffer, result)
         if key ~= 1 then
             local type_descr = string.explode("|", value)[1]
             local struct_descr = string.explode("|", value)[2]
+
             result[string.explode(":", type_descr)[1]] = DATA_DECODE[string.explode(":", type_descr)[2]](buffer, struct_descr)
+        end
+    end
+end
+
+recursive_encode = function(data_struct, data, buffer)
+    for key, value in pairs(data_struct) do
+        if key ~= 1 then
+            local type_descr = string.explode("|", value)[1]
+            local struct_descr = string.explode("|", value)[2]
+
+            local data_type = string.explode(":", type_descr)[2]
+            local data_value = data[key-1]
+
+            DATA_ENCODE[data_type](buffer, data_value, struct_descr)
         end
     end
 end
@@ -259,15 +279,13 @@ end
 ---@param ... any Дополнительные параметры пакета
 ---@return table bytes Пакет
 function protocol.build_packet(client_or_server, packet_type, ...)
-    local args = {...}
+    local data = {...}
     local buffer = protocol.create_databuffer()
     buffer:put_byte(packet_type - 1)
-    -- TODO: поддержка structure и array
-    for key, value in pairs(protocol.data[client_or_server][packet_type]) do
-        if key > 1 then
-            DATA_ENCODE[string.explode(":", value)[2]](buffer, args[key - 1])
-        end
-    end
+
+    local data_struct = protocol.data[client_or_server][packet_type]
+    recursive_encode(data_struct, data, buffer)
+
     return buffer.bytes
 end
 
@@ -285,7 +303,6 @@ function protocol.parse_packet(client_or_server, data)
     local data_struct = protocol.data[client_or_server][packet_type] or {}
     -- TODO: улучшить парсинг для возможности парсинга структур (сделано) и массивов (сделано)
     recursive_parse(data_struct, buffer, result)
-
     return result
 end
 

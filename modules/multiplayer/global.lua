@@ -1,4 +1,5 @@
 PACK_ID = "multiplayer"
+CONTENT_PACKS = {}
 
 ON_CONNECT = PACK_ID .. ":connect"
 ON_DISCONNECT = PACK_ID .. ":disconnect"

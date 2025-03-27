@@ -2,12 +2,23 @@ local protocol = require "lib/protocol"
 require "multiplayer/global"
 local Player = require "multiplayer/client/classes/player"
 local list   = require "lib/common/list"
+local api_events = require "api/events"
 local WorldDataQueue = require "multiplayer/client/WorldDataQueue"
 
 local ClientHandlers = {}
 
 ClientHandlers[ protocol.ServerMsg.ChunkData ] = function (packet)
     world.set_chunk_data(packet.x, packet.z, Bytearray(packet.data), true)
+end
+
+ClientHandlers[ protocol.ServerMsg.ChunksData ] = function (packet)
+    for _, chunk in ipairs(packet.list) do
+        world.set_chunk_data(chunk.x, chunk.z, Bytearray(chunk.data), true)
+    end
+end
+
+ClientHandlers[ protocol.ServerMsg.PackEvent ] = function (packet)
+    api_events.__emit__(packet.pack, packet.event, packet.bytes)
 end
 
 ClientHandlers[ protocol.ServerMsg.ChatMessage ] = function (packet)

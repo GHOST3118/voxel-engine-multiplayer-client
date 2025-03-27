@@ -1,7 +1,7 @@
 {
     "id": "multiplayer",
     "title": "Voxel Online",
-    "version": "0.1-alpha",
+    "version": "0.1.2",
     "description": "Voxel Online Client",
     "creators": ["Wampal", "Murka124", "Ghost", "Xertis"]
 }

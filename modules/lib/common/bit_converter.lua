@@ -126,4 +126,38 @@ function bit_converter.bytes_to_float64(bytes, order)
     return bytesToFloatOrDouble(toLE(bytes, order), 'd')
 end
 
+function bit_converter.bytes_to_string(bytes, pos)
+	local len = byteutil.unpack("<H",{ bytes[pos], bytes[pos+1] })
+
+	local str = ""
+
+	for i = pos+2, len+pos+1 do
+		str = str..string.char(bytes[i])
+	end
+
+	return str
+end
+
+function bit_converter.string_to_bytes(str)
+	local bytes = { }
+
+	local len = string.len(str)
+
+	local lenBytes = byteutil.tpack("<H", len)
+
+	for i = 1, #lenBytes do
+		bytes[i] = lenBytes[i]
+	end
+
+	for i = 1, len do
+		bytes[#bytes + 1] = string.byte(string.sub(str, i, i))
+	end
+
+	return bytes
+end
+
+function bit_converter.bool_to_byte(bool)
+	return bool and 1 or 0
+end
+
 return bit_converter

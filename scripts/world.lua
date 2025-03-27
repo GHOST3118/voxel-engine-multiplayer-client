@@ -1,6 +1,7 @@
 require "multiplayer/global"
 local console = require "multiplayer/console"
-local data_buffer = require "lib/data_buffer"
+
+local data_buffer = require "lib/common/data_buffer"
 
 events.on(PACK_ID .. ":connected", function(_session)
 
@@ -55,8 +56,9 @@ function on_block_placed(blockid, x, y, z, playerid)
     if Session.client then
         if Session.player_id ~= playerid then return end
         local states = block.get_states(x, y, z)
+        local rotation = block.get_rotation(x, y, z)
 
-        Session.client:on_block_placed(blockid, x, y, z, states)
+        Session.client:on_block_placed(blockid, x, y, z, states, rotation)
     end
 end
 
@@ -72,5 +74,11 @@ function on_block_interact(blockid, x, y, z, playerid)
         if Session.player_id ~= playerid then return end
         local states = block.get_states(x, y, z)
         Session.client:on_block_interact(blockid, x, y, z, states)
+    end
+end
+
+function on_chunk_present(x, z, is_loaded)
+    if Session.client then
+        Session.client:on_chunk_present(x, z, is_loaded)
     end
 end

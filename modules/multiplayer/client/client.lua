@@ -1,6 +1,6 @@
 local Network = require "lib/network"
 require "multiplayer/global"
-local data_buffer = require "lib/data_buffer"
+local data_buffer = require "lib/common/data_buffer"
 local protocol = require "lib/protocol"
 local List = require "lib/common/list"
 local state_machine = require "lib/common/fsm"
@@ -196,22 +196,35 @@ function Client:player_tick(playerid, tps)
 end
 
 
-function Client:on_block_set(blockid, x, y, z, states)
-
-    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, states, block.name(blockid)) )
+function Client:on_block_set(blockid, x, y, z, states, rotation)
+    rotation = rotation or block.get_rotation(x, y, z)
+    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, states, rotation, blockid) )
 end
 
-function Client:on_block_placed(blockid, x, y, z, states)
-
-    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, states, block.name(blockid)) )
+function Client:on_block_placed(blockid, x, y, z, states, rotation)
+    rotation = rotation or block.get_rotation(x, y, z)
+    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, states, rotation, blockid) )
 end
 
 function Client:on_block_broken(blockid, x, y, z)
-    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, 0, block.name(0)) )
+    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockDestroy, x, y, z) )
 end
 
 function Client:on_block_interact(blockid, x, y, z, states)
-    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, states, block.name(blockid)) )
+    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockInteract, x, y, z) )
+end
+
+local buffer = {}
+function Client:on_chunk_present(x, z, is_loaded)
+    if #buffer < core.get_setting("chunks.load-distance") then
+        table.insert(buffer, x)
+        table.insert(buffer, z)
+        return
+    end
+
+    local packet = protocol.build_packet("client", protocol.ClientMsg.RequestChunks, buffer)
+    self:push_packet( packet )
+    buffer = {x, z}
 end
 
 return Client
