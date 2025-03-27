@@ -1,5 +1,6 @@
 local protocol = require "multiplayer:lib/protocol"
 local Network = require "lib/network"
+
 local data_buffer = require "lib/common/data_buffer"
 
 local function create_network()
@@ -30,14 +31,14 @@ local function receive_length(network)
     
     if not length_bytes then return 0 end
     
-    local length_buffer = data_buffer()
+    local length_buffer = data_buffer:new()
     length_buffer:put_bytes(length_bytes)
     length_buffer:set_position(1)
     return length_buffer:get_uint16()
 end
 
 local function receive_data(network, length)
-    local data_bytes_buffer = data_buffer()
+    local data_bytes_buffer = data_buffer:new()
     while data_bytes_buffer:size() < length do
         local remaining = length - data_bytes_buffer:size()
         local data_bytes = network:recieve_bytes(remaining)

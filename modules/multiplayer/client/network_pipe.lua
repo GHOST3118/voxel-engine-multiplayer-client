@@ -2,7 +2,9 @@ local Pipeline = require "lib/pipeline"
 require "multiplayer/global"
 local protocol = require "lib/protocol"
 local Player = require "multiplayer/client/classes/player"
+
 local data_buffer = require "lib/common/data_buffer"
+
 local bincode = require "lib/common/bincode"
 
 local List = require "lib/common/list"

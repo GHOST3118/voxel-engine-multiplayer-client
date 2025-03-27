@@ -81,7 +81,7 @@ function Client:receive_packets(max_packets, ReceivedPackets)
             local length_buffer = protocol.create_databuffer( length_bytes )
             local length = length_buffer:get_uint16()
             if length then
-                local data_bytes_buffer = data_buffer()
+                local data_bytes_buffer = data_buffer:new()
 
                 local data_bytes = self.network:recieve_bytes( length )
                 while not data_bytes do
