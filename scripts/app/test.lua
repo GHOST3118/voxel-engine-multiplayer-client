@@ -131,6 +131,10 @@ while not world.is_open() do
         Session.client:await_join()
     end
 
+    if _G['$VoxelOnline'] then
+        _G['$VoxelOnline'] = nil
+    end
+
     app.tick()
 end
 
