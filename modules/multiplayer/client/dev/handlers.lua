@@ -31,7 +31,7 @@ end
 
 ClientHandlers[ protocol.ServerMsg.TimeUpdate ] = function (packet)
     if world.is_open() then
-        local day_time = packet.game_time / 65535 * 2 - 1
+        local day_time = packet.game_time / 65535
         world.set_day_time( day_time )
     end
 end
