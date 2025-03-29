@@ -9,7 +9,6 @@ LoginHandlers.on_event = function(client)
         if packet.packet_type == protocol.ServerMsg.JoinSuccess then
             client.on_connect(packet)
             console.log("Подключение успешно!")
-            -- world.set_day_time_speed(0)
             Session.client.entity_id = packet.entity_id
             return protocol.States.Active
         elseif packet.packet_type == protocol.ServerMsg.PacksList then
