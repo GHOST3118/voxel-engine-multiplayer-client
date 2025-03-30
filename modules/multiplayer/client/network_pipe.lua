@@ -63,7 +63,7 @@ NetworkPipe:add_middleware(function()
         if Session.client.moved and Session.client.position_initialized then
             push_packet(ClientQueue,
                 protocol.build_packet("client", protocol.ClientMsg.PlayerPosition, Session.client.x, Session.client.y,
-                    Session.client.z, Session.client.yaw, Session.client.pitch))
+                    Session.client.z, Session.client.yaw, Session.client.pitch, Session.client.noclip, Session.client.flight))
             Session.client.moved = false
         end
 

@@ -44,6 +44,8 @@ function Client.new(host, port)
     self.z = 0
     self.yaw = 0
     self.pitch = 0
+    self.noclip = false
+    self.flight = false
     self.player_id = 0
     self.entity_id = self.player_id
     -- двигался ли игрок последний тик
@@ -91,7 +93,7 @@ function Client:receive_packets(max_packets, ReceivedPackets)
                 while data_bytes_buffer:size() < length do
                     local data_bytes = self.network:recieve_bytes( length - data_bytes_buffer:size() )
                     if data_bytes then
-                        
+
                         data_bytes_buffer:put_bytes( data_bytes )
                     end
                 end
@@ -185,6 +187,8 @@ function Client:player_tick(playerid, tps)
         self.z = z
         self.yaw = yaw
         self.pitch = pitch
+        self.noclip = player.is_noclip(playerid)
+        self.flight = player.is_flight(playerid)
         self.moved = true
         local chunk_x, chunk_z = math.floor(self.x/16), math.floor(self.z/16)
         if chunk_x ~= self.chunk_x or chunk_z ~= self.chunk_z then

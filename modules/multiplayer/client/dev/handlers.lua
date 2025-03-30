@@ -86,6 +86,7 @@ ClientHandlers[ protocol.ServerMsg.PlayerMoved ] = function (packet)
 
     Session.client.players[packet.entity_id]:move(packet.x, packet.y, packet.z)
     Session.client.players[packet.entity_id]:rotate(packet.yaw, packet.pitch)
+    Session.client.players[packet.entity_id]:cheats(packet.noclip, packet.flight)
 end
 
 ClientHandlers[ protocol.ServerMsg.KeepAlive ] = function (packet)
@@ -129,6 +130,8 @@ ClientHandlers[ protocol.ServerMsg.SynchronizePlayerPosition ] = function (packe
         Session.client.z = packet.z
         Session.client.yaw = packet.yaw
         Session.client.pitch = packet.pitch
+        Session.client.noclip = packet.noclip
+        Session.client.flight = packet.flight
         Session.client.moved = false
         Session.client.moved_thru_chunk = false
     end

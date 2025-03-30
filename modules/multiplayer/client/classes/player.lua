@@ -29,7 +29,7 @@ function Player:move(x, y, z)
     player.set_suspended(self.entity_id, false)
 
     player.set_pos(self.entity_id, x, y, z)
-    
+
     local entity = entities.get(player.get_entity( self.entity_id ))
     if entity then
         entity.rigidbody:set_enabled(false)
@@ -45,6 +45,11 @@ function Player:rotate(yaw, pitch)
         entity.rigidbody:set_enabled(false)
         entity.skeleton:set_interpolated(true)
     end
+end
+
+function Player:cheats(noclip, flight)
+    player.set_noclip(self.entity_id, noclip)
+    player.set_flight(self.entity_id, flight)
 end
 
 function Player:despawn()
