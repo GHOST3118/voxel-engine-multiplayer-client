@@ -211,6 +211,7 @@ function Client:on_block_placed(blockid, x, y, z, states, rotation)
 end
 
 function Client:on_block_broken(blockid, x, y, z)
+    if block.get(x, y, z) == 0 then return end
     self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockDestroy, x, y, z) )
 end
 
