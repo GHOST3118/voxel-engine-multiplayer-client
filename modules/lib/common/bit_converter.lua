@@ -160,4 +160,58 @@ function bit_converter.bool_to_byte(bool)
 	return bool and 1 or 0
 end
 
+function bit_converter.norm16_to_bytes(val, order)
+  val = math.clamp(val, -1, 1)
+
+  local uint16
+  if val >= 0 then
+      uint16 = math.floor(val * 32767 + 32767 + 0.5)
+  else
+      uint16 = math.floor((val + 1) * 32767 + 0.5)
+  end
+
+  return fromLE({
+      uint16 % 256,
+      math.floor(uint16 / 256)
+  }, order)
+end
+
+function bit_converter.bytes_to_norm16(bytes, order)
+  bytes = toLE(bytes, order)
+  local uint16 = bytes[1] + bytes[2] * 256
+
+  if uint16 > 32767 then
+      return (uint16 - 32767) / 32767
+  else
+      return uint16 / 32767 - 1
+  end
+end
+
+function bit_converter.uint24_to_bytes(val, order)
+  return fromLE({
+      bit.band(bit.rshift(val, 16), 0xFF),
+      bit.band(bit.rshift(val, 8), 0xFF),
+      bit.band(val, 0xFF)
+  }, order)
+end
+
+function bit_converter.bytes_to_uint24(bytes, order)
+    bytes = toLE(bytes, order)
+    return bit.bor(
+      bit.lshift(bytes[1], 16),
+      bit.lshift(bytes[2], 8),
+      bytes[3]
+  )
+end
+
+function bit_converter.norm8_to_byte(val)
+  local uint8 = math.floor((math.clamp(val, -1, 1) + 1) * 127.5 + 0.5)
+  return uint8
+end
+
+function bit_converter.byte_to_norm8(uint8)
+  return (uint8 / 127.5) - 1
+end
+
+
 return bit_converter
