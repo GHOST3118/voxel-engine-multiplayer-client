@@ -52,6 +52,7 @@ function Client.new(host, port)
     -- двигался ли игрок последний тик
     self.pos_moved = false
     self.rotation_moved = false
+    self.cheats_changed = false
     -- присылал ли сервер местоположение клиента
     self.position_initialized = false
 
@@ -183,19 +184,24 @@ function Client:player_tick(playerid, tps)
     local x, y, z = player.get_pos(playerid)
     local yaw, pitch = player.get_rot(playerid)
     local noclip, flight = player.is_noclip(playerid), player.is_flight(playerid)
-    if x ~= self.x or y ~= self.y or z ~= self.z or noclip ~= self.noclip or flight ~= self.flight then
-        -- print(x, y, z, yaw, pitch)
+
+    if x ~= self.x or y ~= self.y or z ~= self.z then
         self.x = x
         self.y = y
         self.z = z
-        self.noclip = noclip
-        self.flight = flight
         self.pos_moved = true
         local chunk_x, chunk_z = math.floor(self.x/16), math.floor(self.z/16)
         if chunk_x ~= self.chunk_x or chunk_z ~= self.chunk_z then
             self.moved_thru_chunk = true
             self.chunk_x = chunk_x self.chunk_z = chunk_z
         end
+    end
+
+    if noclip ~= self.noclip or flight ~= self.flight then
+        self.noclip = noclip
+        self.flight = flight
+
+        self.cheats_changed = true
     end
 
     if yaw ~= self.yaw or pitch ~= self.pitch then

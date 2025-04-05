@@ -73,9 +73,6 @@ NetworkPipe:add_middleware(function()
             protocol.build_packet("client", protocol.ClientMsg.PlayerPosition, {Session.client.x, Session.client.y,
                 Session.client.z}))
 
-            push_packet(ClientQueue,
-            protocol.build_packet("client", protocol.ClientMsg.PlayerCheats, Session.client.noclip, Session.client.flight))
-
             Session.client.pos_moved = false
         end
 
@@ -84,6 +81,13 @@ NetworkPipe:add_middleware(function()
             protocol.build_packet("client", protocol.ClientMsg.PlayerRotation, Session.client.yaw, Session.client.pitch))
 
             Session.client.rotation_moved = false
+        end
+
+        if Session.client.cheats_changed then
+            push_packet(ClientQueue,
+            protocol.build_packet("client", protocol.ClientMsg.PlayerCheats, Session.client.noclip, Session.client.flight))
+
+            Session.client.cheats_changed = false
         end
 
         if Session.client.moved_thru_chunk then
