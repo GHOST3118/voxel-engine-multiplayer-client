@@ -132,7 +132,8 @@ ClientHandlers[ protocol.ServerMsg.SynchronizePlayerPosition ] = function (packe
         Session.client.pitch = packet.pitch
         Session.client.noclip = packet.noclip
         Session.client.flight = packet.flight
-        Session.client.moved = false
+        Session.client.pos_moved = false
+        Session.client.rotation_moved = false
         Session.client.moved_thru_chunk = false
         Session.client.region_pos = {x = math.floor(packet.x / 32), math.floor(packet.z / 32)}
     end

@@ -60,7 +60,7 @@ end)
 NetworkPipe:add_middleware(function()
     -- Убедимся, что мы не отсылаем пакеты движения во время логина.
     if Session.client.fsm.current_state == protocol.States.Active then
-        if Session.client.moved and Session.client.position_initialized then
+        if Session.client.pos_moved and Session.client.position_initialized then
             local region_x = math.floor(Session.client.x / 32)
             local region_z = math.floor(Session.client.z / 32)
             if Session.client.region_pos.x ~= region_x or Session.client.region_pos.z ~= region_z then
@@ -71,9 +71,19 @@ NetworkPipe:add_middleware(function()
 
             push_packet(ClientQueue,
             protocol.build_packet("client", protocol.ClientMsg.PlayerPosition, {Session.client.x, Session.client.y,
-                Session.client.z}, Session.client.yaw, Session.client.pitch, Session.client.noclip, Session.client.flight))
+                Session.client.z}))
 
-            Session.client.moved = false
+            push_packet(ClientQueue,
+            protocol.build_packet("client", protocol.ClientMsg.PlayerCheats, Session.client.noclip, Session.client.flight))
+
+            Session.client.pos_moved = false
+        end
+
+        if Session.client.rotation_moved then
+            push_packet(ClientQueue,
+            protocol.build_packet("client", protocol.ClientMsg.PlayerRotation, Session.client.yaw, Session.client.pitch))
+
+            Session.client.rotation_moved = false
         end
 
         if Session.client.moved_thru_chunk then
