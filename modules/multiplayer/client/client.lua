@@ -46,6 +46,7 @@ function Client.new(host, port)
     self.pitch = 0
     self.noclip = false
     self.flight = false
+    self.region_pos = {x = 0, z = 0}
     self.player_id = 0
     self.entity_id = self.player_id
     -- двигался ли игрок последний тик

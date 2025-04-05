@@ -61,10 +61,18 @@ NetworkPipe:add_middleware(function()
     -- Убедимся, что мы не отсылаем пакеты движения во время логина.
     if Session.client.fsm.current_state == protocol.States.Active then
         if Session.client.moved and Session.client.position_initialized then
-            --print(Session.client.yaw, Session.client.pitch)
+            local region_x = math.floor(Session.client.x / 32)
+            local region_z = math.floor(Session.client.z / 32)
+            if Session.client.region_pos.x ~= region_x or Session.client.region_pos.z ~= region_z then
+                Session.client.region_pos = {x = region_x, z = region_z}
+                push_packet(ClientQueue,
+                    protocol.build_packet("client", protocol.ClientMsg.PlayerRegion, region_x, region_z))
+            end
+
             push_packet(ClientQueue,
-                protocol.build_packet("client", protocol.ClientMsg.PlayerPosition, Session.client.x, Session.client.y,
-                    Session.client.z, Session.client.yaw, Session.client.pitch, Session.client.noclip, Session.client.flight))
+            protocol.build_packet("client", protocol.ClientMsg.PlayerPosition, {Session.client.x, Session.client.y,
+                Session.client.z}, Session.client.yaw, Session.client.pitch, Session.client.noclip, Session.client.flight))
+
             Session.client.moved = false
         end
 
