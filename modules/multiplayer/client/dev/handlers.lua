@@ -17,6 +17,12 @@ ClientHandlers[ protocol.ServerMsg.ChunksData ] = function (packet)
     end
 end
 
+ClientHandlers[ protocol.ServerMsg.BlockUpdate ] = function (packet)
+    print(packet.block_id)
+    block.place(packet.x, packet.y, packet.z, packet.block_id, packet.block_state, packet.pid)
+    block.set_rotation(packet.x, packet.y, packet.z, packet.block_rotation)
+end
+
 ClientHandlers[ protocol.ServerMsg.PackEvent ] = function (packet)
     api_events.__emit__(packet.pack, packet.event, packet.bytes)
 end
