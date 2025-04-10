@@ -80,6 +80,7 @@ end
 
 function on_block_interact(blockid, x, y, z, playerid)
     if Session.client then
+        x, y, z = block.seek_origin(x, y, z)
         if Session.player_id ~= playerid then return end
         local states = block.get_states(x, y, z)
         Session.client:on_block_interact(blockid, x, y, z, states)

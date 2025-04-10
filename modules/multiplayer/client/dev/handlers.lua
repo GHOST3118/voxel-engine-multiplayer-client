@@ -17,10 +17,10 @@ ClientHandlers[ protocol.ServerMsg.ChunksData ] = function (packet)
     end
 end
 
-ClientHandlers[ protocol.ServerMsg.BlockUpdate ] = function (packet)
-    print(packet.block_id)
-    block.place(packet.x, packet.y, packet.z, packet.block_id, packet.block_state, packet.pid)
-    block.set_rotation(packet.x, packet.y, packet.z, packet.block_rotation)
+ClientHandlers[ protocol.ServerMsg.BlockChanged ] = function (packet)
+    block.set(packet.x, packet.y, packet.z, packet.block_id, packet.block_state, packet.pid)
+
+    block.set_rotation(packet.x, packet.y, packet.z, bit.band(packet.block_state, 0x7))
 end
 
 ClientHandlers[ protocol.ServerMsg.PackEvent ] = function (packet)
@@ -107,16 +107,6 @@ ClientHandlers[ protocol.ServerMsg.Disconnect ] = function (packet)
     console.log(str)
     -- самоуничтожение
     Session.client:disconnect()
-end
-
-ClientHandlers[ protocol.ServerMsg.BlockUpdate ] = function (packet)
-
-    if block.index(packet.block_id) == 0 then
-        block.destruct(packet.x, packet.y, packet.z, -1)
-    else
-        block.place( packet.x, packet.y, packet.z, block.index(packet.block_id), packet.block_state, -1 )
-    end
-
 end
 
 ClientHandlers[ protocol.ServerMsg.WorldData ] = function (packet)
