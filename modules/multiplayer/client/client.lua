@@ -214,7 +214,7 @@ function Client:player_tick(playerid, tps)
 end
 
 function Client:on_block_placed(blockid, x, y, z, states, rotation)
-    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, 65287, blockid) )
+    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, states, blockid) )
 end
 
 function Client:on_block_broken(blockid, x, y, z)
