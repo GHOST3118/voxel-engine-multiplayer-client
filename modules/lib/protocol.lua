@@ -46,6 +46,9 @@ local DATA_ENCODE = {
     ["var"] = function (buffer, value)
         buffer:put_bytes(bincode.encode_varint(value))
     end,
+    ["any"] = function (buffer, value)
+        return buffer:put_any(value)
+    end,
     ["pos"] = function (buffer, value)
         local x, y, z = unpack(value)
 
@@ -134,6 +137,9 @@ local DATA_DECODE = {
     end,
     ["var"] = function (buffer)
         return bincode.decode_varint(buffer)
+    end,
+    ["any"] = function (buffer)
+        return buffer:get_any()
     end,
     ["pos"] = function (buffer)
         local i = buffer:get_uint32()

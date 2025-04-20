@@ -3,6 +3,7 @@ require "multiplayer/global"
 local Player = require "multiplayer/client/classes/player"
 local list   = require "lib/common/list"
 local api_events = require "api/events"
+local api_env = require "api/env"
 local WorldDataQueue = require "multiplayer/client/WorldDataQueue"
 
 local ClientHandlers = {}
@@ -25,6 +26,10 @@ end
 
 ClientHandlers[ protocol.ServerMsg.PackEvent ] = function (packet)
     api_events.__emit__(packet.pack, packet.event, packet.bytes)
+end
+
+ClientHandlers[ protocol.ServerMsg.PackEnv ] = function (packet)
+    api_env.__env_update__(packet.pack, packet.env, packet.key, packet.value)
 end
 
 ClientHandlers[ protocol.ServerMsg.ChatMessage ] = function (packet)
