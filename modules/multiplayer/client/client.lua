@@ -213,16 +213,36 @@ function Client:player_tick(playerid, tps)
 
 end
 
+local function in_region(client, x, y, z)
+    if math.floor(x / 32) == client.region_pos.x and math.floor(z / 32) == client.region_pos.z then
+        return true
+    end
+
+    return false
+end
+
 function Client:on_block_placed(blockid, x, y, z, states, rotation)
-    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, states, blockid) )
+    if not in_region(self, x, y, z) then
+        self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, states, blockid) )
+    else
+        self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockRegionUpdate, {x, y, z}, states, blockid) )
+    end
 end
 
 function Client:on_block_broken(blockid, x, y, z)
-    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockDestroy, x, y, z) )
+    if not in_region(self, x, y, z) then
+        self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockDestroy, x, y, z) )
+    else
+        self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockRegionDestroy, {x, y, z}) )
+    end
 end
 
 function Client:on_block_interact(blockid, x, y, z, states)
-    self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockInteract, x, y, z) )
+    if not in_region(self, x, y, z) then
+        self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockInteract, x, y, z) )
+    else
+        self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockRegionInteract, {x, y, z}) )
+    end
 end
 
 local buffer = {}
