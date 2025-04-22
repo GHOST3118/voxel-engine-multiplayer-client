@@ -153,12 +153,11 @@ function Client:world_tick()
                 List.pushright( WorldDataQueue, target_block )
             end
 
-            
+
         end
 
         blocks_placed = blocks_placed + 1
     end
-    
 end
 
 function Client:tick()
@@ -214,18 +213,23 @@ function Client:player_tick(playerid, tps)
 end
 
 local function in_region(client, x, y, z)
-    if math.floor(x / 32) == client.region_pos.x and math.floor(z / 32) == client.region_pos.z then
-        return true
+    local abs_x = x - client.region_pos.x * 32
+    local abs_z = z - client.region_pos.z * 32
+
+    if abs_x < -127 or abs_x > 127 or abs_z < -127 or abs_z > 127 then
+        return false
     end
 
-    return false
+    return true
 end
 
 function Client:on_block_placed(blockid, x, y, z, states, rotation)
     if not in_region(self, x, y, z) then
         self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockUpdate, x, y, z, states, blockid) )
     else
-        self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockRegionUpdate, {x, y, z}, states, blockid) )
+        local abs_x = x - self.region_pos.x * 32
+        local abs_z = z - self.region_pos.z * 32
+        self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockRegionUpdate, abs_x, y, abs_z, states, blockid) )
     end
 end
 
@@ -233,7 +237,9 @@ function Client:on_block_broken(blockid, x, y, z)
     if not in_region(self, x, y, z) then
         self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockDestroy, x, y, z) )
     else
-        self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockRegionDestroy, {x, y, z}) )
+        local abs_x = x - self.region_pos.x * 32
+        local abs_z = z - self.region_pos.z * 32
+        self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockRegionDestroy, abs_x, y, abs_z) )
     end
 end
 
@@ -241,7 +247,9 @@ function Client:on_block_interact(blockid, x, y, z, states)
     if not in_region(self, x, y, z) then
         self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockInteract, x, y, z) )
     else
-        self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockRegionInteract, {x, y, z}) )
+        local abs_x = x - self.region_pos.x * 32
+        local abs_z = z - self.region_pos.z * 32
+        self:push_packet( protocol.build_packet("client", protocol.ClientMsg.BlockRegionInteract, abs_x, y, abs_z) )
     end
 end
 

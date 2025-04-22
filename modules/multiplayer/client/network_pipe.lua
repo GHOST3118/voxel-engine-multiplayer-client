@@ -64,9 +64,10 @@ NetworkPipe:add_middleware(function()
             local region_x = math.floor(Session.client.x / 32)
             local region_z = math.floor(Session.client.z / 32)
             if Session.client.region_pos.x ~= region_x or Session.client.region_pos.z ~= region_z then
-                Session.client.region_pos = {x = region_x, z = region_z}
                 push_packet(ClientQueue,
                     protocol.build_packet("client", protocol.ClientMsg.PlayerRegion, region_x, region_z))
+
+                Session.client.region_pos = {x = region_x, z = region_z}
             end
 
             push_packet(ClientQueue,
