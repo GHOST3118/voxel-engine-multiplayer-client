@@ -39,7 +39,7 @@ end
 
 function Player:rotate(yaw, pitch)
     player.set_suspended(self.entity_id, false)
-    player.set_rot(self.entity_id, yaw, pitch)
+    player.set_rot(self.entity_id, yaw, pitch, 0)
     local entity = entities.get(player.get_entity( self.entity_id ))
     if entity then
         entity.rigidbody:set_enabled(false)
