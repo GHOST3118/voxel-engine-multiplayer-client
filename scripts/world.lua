@@ -32,8 +32,8 @@ function on_world_tick()
     local pid = hud.get_player()
     local x, y, z = player.get_pos(pid)
 
-    if y < 0 or y > 262 then
-        y = math.clamp(y, 0, 262)
+    if y < 0 or y > 255 then
+        y = math.clamp(y, 0, 255)
         player.set_pos(pid, x, y, z)
     end
 end
