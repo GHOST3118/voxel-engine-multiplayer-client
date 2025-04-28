@@ -122,7 +122,7 @@ function Client:connect()
         if not status then error("Произошла какая-то ошибка, смотрите строки выше!") end
 
         self.fsm:transition_to( protocol.States.Login )
-        
+
     end)
 end
 

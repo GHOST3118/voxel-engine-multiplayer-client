@@ -126,6 +126,10 @@ ClientHandlers[ protocol.ServerMsg.SynchronizePlayerPosition ] = function (packe
     if packet.x ~= 0 or packet.y ~= 0 or packet.z ~= 0 or packet.yaw ~= 0 or packet.pitch ~= 0 then
         player.set_pos(Session.player_id, packet.x, packet.y, packet.z)
         player.set_rot(Session.player_id, packet.yaw, packet.pitch, 0)
+
+        player.set_noclip(Session.player_id, packet.noclip)
+        player.set_flight(Session.player_id, packet.flight)
+
         Session.client.x = packet.x
         Session.client.y = packet.y
         Session.client.z = packet.z
