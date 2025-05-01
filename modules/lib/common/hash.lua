@@ -15,32 +15,16 @@ local function recursive_list(path)
     return paths
 end
 
-local function filter(t, func)
+local function freeze_unpack(arr)
+    local i = 1
+    local res = {}
 
-    for i = #t, 1, -1 do
-        if not func(i, t[i]) then
-            table.remove(t, i)
-        end
+    while arr[i] ~= nil do
+        table.insert(res, arr[i])
+        i = i + 1
     end
 
-    local size = #t
-
-    for i, v in pairs(t) do
-        local i_type = type(i)
-        if i_type == "number" then
-            if i < 1 or i > size then
-                if not func(i, v) then
-                    t[i] = nil
-                end
-            end
-        else
-            if not func(i, v) then
-                t[i] = nil
-            end
-        end
-    end
-
-    return t
+    return res
 end
 
 local function rightRotate(value, amount)
@@ -183,7 +167,7 @@ function module.hash_mods(packs)
         end
         local files = recursive_list(pack_path)
 
-        files = filter(files, function (_, path)
+        files = table.filter(files, function (_, path)
             if string.ends_with(path, "png") or
             string.starts_with(path, '.') or
             string.ends_with(path, "vec3") or
@@ -196,7 +180,7 @@ function module.hash_mods(packs)
         end)
 
         for _, abs_file_path in ipairs(files) do
-            local file_data = file.read_bytes(abs_file_path)
+            local file_data = freeze_unpack(file.read_bytes(abs_file_path))
 
             hash_data = module.lite(file_data, tonumber(hash_data, 16))
         end
