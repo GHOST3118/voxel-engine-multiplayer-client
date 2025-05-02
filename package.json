@@ -1,7 +1,7 @@
 {
     "id": "multiplayer",
-    "title": "Voxel Online",
+    "title": "Neutron",
     "version": "0.2.0",
-    "description": "Voxel Online Client",
+    "description": "Neutron Client",
     "creators": ["Wampal", "Murka124", "Ghost", "Xertis", "Onran"]
 }
