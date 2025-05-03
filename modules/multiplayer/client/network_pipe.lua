@@ -80,7 +80,6 @@ NetworkPipe:add_middleware(function()
         if Session.client.rotation_moved then
             push_packet(ClientQueue,
             protocol.build_packet("client", protocol.ClientMsg.PlayerRotation, Session.client.yaw, Session.client.pitch))
-
             Session.client.rotation_moved = false
         end
 
