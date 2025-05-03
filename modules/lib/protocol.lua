@@ -2,6 +2,7 @@ local bincode = require "lib/common/bincode"
 
 local protocol = {}
 local data_buffer = require "lib/common/data_buffer"
+local bson = require "lib/common/bson"
 protocol.data = json.parse(file.read("multiplayer:modules/lib/protocol.json"))
 
 ---Кодирование строки

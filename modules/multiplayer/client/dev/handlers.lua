@@ -5,6 +5,7 @@ local list   = require "lib/common/list"
 local api_events = require "api/events"
 local api_env = require "api/env"
 local WorldDataQueue = require "multiplayer/client/WorldDataQueue"
+local utils = require "lib/utils"
 
 local ClientHandlers = {}
 
@@ -16,6 +17,10 @@ ClientHandlers[ protocol.ServerMsg.ChunksData ] = function (packet)
     for _, chunk in ipairs(packet.list) do
         world.set_chunk_data(chunk.x, chunk.z, Bytearray(chunk.data), true)
     end
+end
+
+ClientHandlers[ protocol.ServerMsg.PlayerInventory ] = function (packet)
+    utils.set_inv(player.get_inventory(hud.get_player()), packet.inventory)
 end
 
 ClientHandlers[ protocol.ServerMsg.BlockChanged ] = function (packet)

@@ -8,6 +8,7 @@ local Player = require "multiplayer/client/classes/player"
 local login_handlers = require "multiplayer/client/dev/login_handlers"
 local active_handlers= require "multiplayer/client/dev/active_handlers"
 local WorldDataQueue = require "multiplayer/client/WorldDataQueue"
+local utils = require "lib/utils"
 
 local ClientQueue = require "multiplayer/client/client_queue"
 local NetworkPipe = require "multiplayer/client/network_pipe"
@@ -49,6 +50,7 @@ function Client.new(host, port)
     self.region_pos = {x = 0, z = 0}
     self.player_id = 0
     self.entity_id = self.player_id
+    self.inv = {}
     -- двигался ли игрок последний тик
     self.pos_moved = false
     self.rotation_moved = false
@@ -56,6 +58,7 @@ function Client.new(host, port)
     -- присылал ли сервер местоположение клиента
     self.position_initialized = false
 
+    self.inv_changed = false
     self.chunks = {}
     self.moved_thru_chunk = false
     self.chunk_x = 0
@@ -183,6 +186,7 @@ function Client:player_tick(playerid, tps)
     local x, y, z = player.get_pos(playerid)
     local yaw, pitch = player.get_rot(playerid)
     local noclip, flight = player.is_noclip(playerid), player.is_flight(playerid)
+    local inv = utils.get_inv(player.get_inventory(hud.get_player()))
 
     if x ~= self.x or y ~= self.y or z ~= self.z then
         self.x = x
@@ -210,6 +214,10 @@ function Client:player_tick(playerid, tps)
         self.rotation_moved = true
     end
 
+    if json.tostring(inv) ~= json.tostring(self.inv) then
+        self.inv = inv
+        self.inv_changed = true
+    end
 end
 
 local function in_region(client, x, y, z)
