@@ -97,6 +97,12 @@ NetworkPipe:add_middleware(function()
             Session.client.inv_changed = false
         end
 
+        if Session.client.hand_slot_changed then
+            push_packet(ClientQueue,
+            protocol.build_packet("client", protocol.ClientMsg.PlayerHandSlot, Session.client.hand_slot))
+            Session.client.hand_slot_changed = false
+        end
+
         if Session.client.moved_thru_chunk then
             -- TODO: нормальная загрузка чанков
             -- push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.RequestChunk,

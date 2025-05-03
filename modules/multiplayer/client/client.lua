@@ -51,6 +51,8 @@ function Client.new(host, port)
     self.player_id = 0
     self.entity_id = self.player_id
     self.inv = {}
+    self.hand_slot = 0
+    self.hand_slot_changed = false
     -- двигался ли игрок последний тик
     self.pos_moved = false
     self.rotation_moved = false
@@ -186,7 +188,9 @@ function Client:player_tick(playerid, tps)
     local x, y, z = player.get_pos(playerid)
     local yaw, pitch = player.get_rot(playerid)
     local noclip, flight = player.is_noclip(playerid), player.is_flight(playerid)
-    local inv = utils.get_inv(player.get_inventory(hud.get_player()))
+
+    local invid, hand_slot = player.get_inventory(hud.get_player())
+    local inv = utils.get_inv(invid)
 
     if x ~= self.x or y ~= self.y or z ~= self.z then
         self.x = x
@@ -217,6 +221,11 @@ function Client:player_tick(playerid, tps)
     if json.tostring(inv) ~= json.tostring(self.inv) then
         self.inv = inv
         self.inv_changed = true
+    end
+
+    if hand_slot ~= self.hand_slot then
+        self.hand_slot = hand_slot
+        self.hand_slot_changed = true
     end
 end
 

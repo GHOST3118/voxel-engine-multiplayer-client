@@ -23,6 +23,10 @@ ClientHandlers[ protocol.ServerMsg.PlayerInventory ] = function (packet)
     utils.set_inv(player.get_inventory(hud.get_player()), packet.inventory)
 end
 
+ClientHandlers[ protocol.ServerMsg.PlayerHandSlot ] = function (packet)
+    player.set_selected_slot(hud.get_player(), packet.slot)
+end
+
 ClientHandlers[ protocol.ServerMsg.BlockChanged ] = function (packet)
     block.set(packet.x, packet.y, packet.z, packet.block_id, packet.block_state, packet.pid)
 
