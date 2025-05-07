@@ -61,6 +61,7 @@ end)
 
 require "multiplayer:multiplayer/global"
 local Client = require "multiplayer:multiplayer/client/client"
+local chunks_distance = 255
 
 -- ----------------------------------------------
 -- EVENTS REGISTER START
@@ -79,6 +80,7 @@ events.on(ON_CONNECT, function(username, host, port, packet)
     end
     Session.client.on_connect = function(_packet)
         _G['$VoxelOnline'] = "client"
+        chunks_distance = _packet.chunks_loading_distance
         app.new_world("", packet.seed, "multiplayer:void", _packet.entity_id)
 
         for _, rule in ipairs(_packet.rules) do
@@ -142,10 +144,10 @@ app.sleep_until(function() return Session.client and Session.client.network:aliv
 -- Client Loop
 while Session.client do
     Session.client:tick()
+    if app.get_setting("chunks.load-distance") > chunks_distance then
+        app.set_setting("chunks.load-distance", chunks_distance)
+    end
     app.tick()
 end
 
--- if not world.is_open() then
-
---     leave_to_menu()
--- end
+leave_to_menu()
