@@ -1,13 +1,15 @@
 local events = start_require "api/events"
+local entities = start_require "api/entities"
+local env = start_require "api/env"
 local rpc = require "api/rpc"
 local bson = require "lib/common/bson"
-local env = require "api/env"
 
 local api = {
     events = events,
     rpc = rpc,
     bson = bson,
-    env = env
+    env = env,
+    entities = entities
 }
 
 return {client = api}

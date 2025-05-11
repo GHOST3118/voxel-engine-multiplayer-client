@@ -3,6 +3,7 @@ require "multiplayer/global"
 local Player = require "multiplayer/client/classes/player"
 local list   = require "lib/common/list"
 local api_events = require "api/events"
+local api_entities = require "api/entities"
 local api_env = require "api/env"
 local WorldDataQueue = require "multiplayer/client/WorldDataQueue"
 local utils = require "lib/utils"
@@ -155,6 +156,14 @@ ClientHandlers[ protocol.ServerMsg.SynchronizePlayerPosition ] = function (packe
     player.set_suspended(Session.player_id, false)
     player.set_loading_chunks(Session.player_id, true)
     Session.client.position_initialized = true
+end
+
+ClientHandlers[ protocol.ServerMsg.EntityUpdate ] = function (packet)
+    api_entities.__emit__(packet.uid, packet.entity_def, packet.dirty)
+end
+
+ClientHandlers[ protocol.ServerMsg.EntityDespawn ] = function (packet)
+    api_entities.__despawn__(packet.uid)
 end
 
 return ClientHandlers
