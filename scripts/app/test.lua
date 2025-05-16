@@ -18,6 +18,10 @@ function _G.start_require(path)
         return require(old_path)
     end
 
+    if not _G["/$p"][path] then
+        return require(old_path)
+    end
+
     return _G["/$p"][path]
 end
 

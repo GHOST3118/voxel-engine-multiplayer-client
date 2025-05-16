@@ -2,6 +2,7 @@ require "multiplayer/global"
 local console = require "multiplayer/console"
 
 local data_buffer = require "lib/common/data_buffer"
+local utils = start_require "multiplayer:lib/utils"
 
 events.on(PACK_ID .. ":connected", function(_session)
 
@@ -17,6 +18,7 @@ events.on(PACK_ID..":disconnect", function ()
 end)
 
 function on_world_tick()
+    utils.__tick()
     if not Session.client then
     end
 

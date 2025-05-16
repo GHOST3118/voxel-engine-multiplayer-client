@@ -230,6 +230,10 @@ function Client:player_tick(playerid, tps)
 end
 
 local function in_region(client, x, y, z)
+    if not x or not y then
+        return false
+    end
+
     local abs_x = x - client.region_pos.x * 32
     local abs_z = z - client.region_pos.z * 32
 
