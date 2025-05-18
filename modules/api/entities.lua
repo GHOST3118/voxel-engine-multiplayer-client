@@ -1,24 +1,28 @@
 local module = {}
-local __entities = {}
+local entities_uids = {}
 local handlers = {}
 
 local spawn = entities.spawn
-local reg_entities = {}
-
-local utils = require "lib/utils"
+local desyns_entities = {}
 
 function entities.spawn(name, ...)
-    if table.has(reg_entities, name) then
+    local prefix, _ = parse_path(debug.getinfo(2).source)
+    if table.has(desyns_entities, name) or prefix == "multiplayer" then
         return spawn(name, ...)
     end
+
+    local entity = spawn(name, ...)
+    entity:despawn()
+
+    return entity
 end
 
-function module.register(name)
-    table.insert(reg_entities, name)
+function module.desync(name)
+    table.insert(desyns_entities, name)
 end
 
-function module.unregister(name)
-    table.remove_value(reg_entities, name)
+function module.sync(name)
+    table.remove_value(desyns_entities, name)
 end
 
 function module.set_handler(triggers, handler)
@@ -28,7 +32,7 @@ function module.set_handler(triggers, handler)
 end
 
 function module.__despawn__(uid)
-    local cuid = __entities[uid]
+    local cuid = entities_uids[uid]
 
     if not cuid then
         return
@@ -37,18 +41,20 @@ function module.__despawn__(uid)
     local entity = entities.get(cuid)
     if entity then
         entity:despawn()
-        __entities[uid] = nil
+        entities_uids[uid] = nil
     end
 end
 
 function module.__emit__(uid, def, dirty)
-    if not __entities[uid] then
+    if not entities_uids[uid] then
+
         local centity = spawn(entities.def_name(def), {0, 0, 0})
-        __entities[uid] = centity:get_uid()
+
+        entities_uids[uid] = centity:get_uid()
         centity.rigidbody:set_gravity_scale({0, 0, 0})
     end
 
-    local cuid = __entities[uid]
+    local cuid = entities_uids[uid]
 
     if handlers[def] then
         handlers[def](cuid, def, dirty.custom_fields)

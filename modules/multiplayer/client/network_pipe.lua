@@ -104,8 +104,8 @@ NetworkPipe:add_middleware(function()
 
         if Session.client.moved_thru_chunk then
             -- TODO: нормальная загрузка чанков
-            -- push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.RequestChunk,
-            --     Session.client.chunk_x, Session.client.chunk_z))
+            push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.RequestChunk,
+                Session.client.chunk_x, Session.client.chunk_z))
             -- раскомментировать для загрузки соседних чанков
             -- push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.RequestChunk, Session.client.chunk_x+1, Session.client.chunk_z))
             -- push_packet(ClientQueue, protocol.build_packet("client", protocol.ClientMsg.RequestChunk, Session.client.chunk_x-1, Session.client.chunk_z))

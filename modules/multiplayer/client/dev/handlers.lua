@@ -151,7 +151,7 @@ ClientHandlers[ protocol.ServerMsg.SynchronizePlayerPosition ] = function (packe
         Session.client.rotation_moved = false
         Session.client.cheats_changed = false
         Session.client.moved_thru_chunk = false
-        Session.client.region_pos = {x = math.floor(packet.x / 32), math.floor(packet.z / 32)}
+        Session.client.region_pos = {x = math.floor(packet.x / 32), z = math.floor(packet.z / 32)}
     end
     player.set_suspended(Session.player_id, false)
     player.set_loading_chunks(Session.player_id, true)

@@ -230,7 +230,7 @@ function Client:player_tick(playerid, tps)
 end
 
 local function in_region(client, x, y, z)
-    if not x or not y then
+    if not x or not y or not z then
         return false
     end
 
