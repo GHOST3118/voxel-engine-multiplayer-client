@@ -117,7 +117,7 @@ local DATA_ENCODE = {
         buffer:put_float64(value)
     end,
     ["string"] = function(buffer, value)
-        buffer:put_bytes(pack_string(value))
+        buffer:put_string(value)
     end,
     ["byteArray"] = function(buffer, value)
         buffer:put_bytes(bincode.encode_varint(#value))
@@ -216,8 +216,7 @@ local DATA_DECODE = {
         return buffer:get_float64()
     end, -- алиас для double
     ["string"] = function(buffer)
-        local string = unpack_string(buffer)
-        return string
+        return buffer:get_string()
     end,
     ["structure"] = function (buffer, struct_name)
         local result = {}
