@@ -30,8 +30,6 @@ end
 
 ClientHandlers[ protocol.ServerMsg.BlockChanged ] = function (packet)
     block.set(packet.x, packet.y, packet.z, packet.block_id, packet.block_state, packet.pid)
-
-    block.set_rotation(packet.x, packet.y, packet.z, bit.band(packet.block_state, 0x7))
 end
 
 ClientHandlers[ protocol.ServerMsg.PackEvent ] = function (packet)
@@ -41,6 +39,20 @@ end
 ClientHandlers[ protocol.ServerMsg.PackEnv ] = function (packet)
     api_env.__env_update__(packet.pack, packet.env, packet.key, packet.value)
 end
+
+ClientHandlers[ protocol.ServerMsg.WeatherChanged ] = function (packet)
+    local name = packet.name
+    if name == '' then
+        name = nil
+    end
+
+    gfx.weather.change(
+        packet.weather,
+        packet.time,
+        name
+    )
+end
+
 
 ClientHandlers[ protocol.ServerMsg.ChatMessage ] = function (packet)
     console.chat("| "..packet.message)
