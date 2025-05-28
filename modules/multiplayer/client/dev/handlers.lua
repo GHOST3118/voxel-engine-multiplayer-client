@@ -5,6 +5,7 @@ local list   = require "lib/common/list"
 local api_events = require "api/events"
 local api_entities = require "api/entities"
 local api_env = require "api/env"
+local api_particles = require "api/particles"
 local WorldDataQueue = require "multiplayer/client/WorldDataQueue"
 local utils = require "lib/utils"
 
@@ -176,6 +177,18 @@ end
 
 ClientHandlers[ protocol.ServerMsg.EntityDespawn ] = function (packet)
     api_entities.__despawn__(packet.uid)
+end
+
+ClientHandlers[ protocol.ServerMsg.ParticleEmit ] = function (packet)
+    api_particles.emit(packet.particle)
+end
+
+ClientHandlers[ protocol.ServerMsg.ParticleStop ] = function (packet)
+    api_particles.stop(packet.pid)
+end
+
+ClientHandlers[ protocol.ServerMsg.ParticleOrigin ] = function (packet)
+    api_particles.set_origin(packet.origin)
 end
 
 return ClientHandlers

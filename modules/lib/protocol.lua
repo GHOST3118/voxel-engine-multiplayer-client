@@ -248,7 +248,7 @@ local DATA_DECODE = {
 
 STATIC_ENCODE = {
     ["$particle"] = function(buffer, value)
-        local config = (type(value.origin) == "number" and 1 or 0) + value.extension and 2 or 0
+        local config = (type(value.origin) == "number" and 1 or 0) + (value.extension and 2 or 0)
 
         -- 0: origin - позиция, ext нету
         -- 1: origin - uid, ext нету

@@ -50,7 +50,6 @@ function module.__despawn__(uid)
 end
 
 function module.__emit__(uid, def, dirty)
-    print(json.tostring(dirty))
 
     if not entities_uids[uid] then
         local centity = spawn(entities.def_name(def), {0, 0, 0})
