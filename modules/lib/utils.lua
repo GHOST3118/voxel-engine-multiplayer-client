@@ -75,6 +75,10 @@ function utils.get_tick(key)
    return tickers[key]
 end
 
+function utils.remove_tick(key)
+   tickers[key] = nil
+end
+
 function utils.to_tick(func, args, key)
    if not key then
       table.insert(tickers, {func, args})

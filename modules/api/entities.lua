@@ -49,6 +49,10 @@ function module.__despawn__(uid)
     end
 end
 
+function module.__get_uids__()
+    return entities_uids
+end
+
 function module.__emit__(uid, def, dirty)
 
     if not entities_uids[uid] then
