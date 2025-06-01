@@ -2,7 +2,7 @@ app.config_packs({ "multiplayer" })
 app.load_content()
 
 _G["$APP"] = app
-_G['$VoxelOnline'] = nil
+_G['$Neutron'] = nil
 
 function _G.start_require(path)
     if not string.find(path, ':') then
