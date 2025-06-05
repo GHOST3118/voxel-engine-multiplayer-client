@@ -1,7 +1,7 @@
 require "multiplayer/global"
 local console = require "multiplayer/console"
 
-local data_buffer = require "lib/common/data_buffer"
+local data_buffer = require "lib/common/bit_buffer"
 local utils = start_require "multiplayer:lib/utils"
 
 events.on(PACK_ID .. ":connected", function(_session)

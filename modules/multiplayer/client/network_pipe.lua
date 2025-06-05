@@ -3,7 +3,7 @@ require "multiplayer/global"
 local protocol = require "lib/protocol"
 local Player = require "multiplayer/client/classes/player"
 
-local data_buffer = require "lib/common/data_buffer"
+local data_buffer = require "lib/common/bit_buffer"
 
 local bincode = require "lib/common/bincode"
 

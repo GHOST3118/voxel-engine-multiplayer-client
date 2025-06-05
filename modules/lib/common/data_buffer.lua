@@ -57,7 +57,11 @@ local data_buffer =
 	end
 }
 
-function data_buffer:new(bytes, order, useBytearray)
+data_buffer.__index = function(buf,key)
+	return rawget(data_buffer, key) or rawget(buf, key)
+end
+
+function data_buffer:new(bytes, order, useBytearray, co)
 	bytes = bytes or { }
 
 	if order then bit_converter.validate_order(order)
@@ -67,10 +71,10 @@ function data_buffer:new(bytes, order, useBytearray)
         pos = 1,
         order = order,
         useBytearray = useBytearray or false,
-        bytes = useBytearray and Bytearray(bytes) or bytes
+        bytes = useBytearray and Bytearray(bytes) or bytes,
+		co = co
     }
 
-    self.__index = self
     setmetatable(obj, self)
 
     return obj
@@ -253,6 +257,10 @@ function data_buffer:get_any()
 end
 
 function data_buffer:get_byte()
+	if self.bytes[self.pos] == nil and self.co then
+		coroutine.yield()
+		return self:get_byte()
+	end
 	local byte = self.bytes[self.pos]
 	self.pos = self.pos + 1
 	return byte
@@ -280,8 +288,18 @@ function data_buffer:get_float64()
 end
 
 function data_buffer:get_string()
-	local str = bit_converter.bytes_to_string(self.bytes, self.pos)
-	self.pos = self.pos + #str + 1
+	local bytes = {}
+
+	while true do
+		local byte = self:get_byte()
+		if byte ~= 255 then
+			table.insert(bytes, byte)
+		else
+			break
+		end
+	end
+
+	local str = utf8.tostring(bytes)
 	return str
 end
 
@@ -329,6 +347,10 @@ end
 
 function data_buffer:set_position(pos)
 	self.pos = pos
+end
+
+function data_buffer:reset()
+	self.pos = 1
 end
 
 function data_buffer:move_position(step)
