@@ -448,6 +448,8 @@ function protocol.build_packet(client_or_server, packet_type, ...)
     local data_struct = protocol.data[client_or_server][packet_type]
     recursive_encode(data_struct, data, buffer)
 
+    buffer:flush()
+
     return buffer.bytes
 end
 
