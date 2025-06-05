@@ -44,7 +44,7 @@ local DATA_ENCODE = {
     ["boolean"] = function(buffer, value)
         value = value and true or false
 
-        buffer:put_bool(value)
+        buffer:put_bit(value)
     end,
     ["var"] = function (buffer, value)
         buffer:put_bytes(bincode.encode_varint(value))
@@ -150,7 +150,7 @@ local DATA_ENCODE = {
 
 local DATA_DECODE = {
     ["boolean"] = function(buffer)
-        return buffer:get_bool()
+        return buffer:get_bit()
     end,
     ["var"] = function (buffer)
         return bincode.decode_varint(buffer)
