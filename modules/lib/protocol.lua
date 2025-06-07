@@ -46,6 +46,7 @@ function protocol.build_packet(client_or_server, packet_type, ...)
     if not state then
         print("Packet encoding crash:", res)
     end
+
     buffer:flush()
     return buffer.bytes
 end
@@ -75,8 +76,6 @@ function protocol.parse_packet(client_or_server, data)
     for indx, name in ipairs(names) do
         result[name] = res[indx]
     end
-
-    print(result.packet_type)
 
     return result
 end
