@@ -14,7 +14,7 @@ local function send_packet(network, packet_data)
 end
 
 local function perform_handshake(network)
-    send_packet(network, protocol.build_packet("client", protocol.ClientMsg.HandShake, "0.26.0", protocol.data.version, protocol.States.Status))
+    send_packet(network, protocol.build_packet("client", protocol.ClientMsg.HandShake, "0.28.0", protocol.data.version, protocol.States.Status))
     send_packet(network, protocol.build_packet("client", protocol.ClientMsg.StatusRequest))
 end
 

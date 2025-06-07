@@ -58,7 +58,7 @@ end
 LoginHandlers.on_enter = function(client)
     return function()
         local packet = protocol.create_databuffer()
-        packet:put_packet(protocol.build_packet("client", protocol.ClientMsg.HandShake, "0.26.0", protocol.data.version,
+        packet:put_packet(protocol.build_packet("client", protocol.ClientMsg.HandShake, "0.28.0", protocol.data.version,
             protocol.States.Login))
         client.network:send(packet.bytes)
 

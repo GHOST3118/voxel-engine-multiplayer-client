@@ -88,7 +88,7 @@ events.on(ON_CONNECT, function(username, host, port, packet)
         app.new_world("", packet.seed, "multiplayer:void", _packet.entity_id)
 
         for _, rule in ipairs(_packet.rules) do
-            rules.set(rule.rule, rule.value)
+            rules.set(rule[1], rule[2])
         end
 
         Session.player_id = _packet.entity_id

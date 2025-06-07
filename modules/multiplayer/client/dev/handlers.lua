@@ -17,7 +17,7 @@ end
 
 ClientHandlers[ protocol.ServerMsg.ChunksData ] = function (packet)
     for _, chunk in ipairs(packet.list) do
-        world.set_chunk_data(chunk.x, chunk.z, chunk.data, true)
+        world.set_chunk_data(chunk[1], chunk[2], chunk[3], true)
     end
 end
 
@@ -90,9 +90,9 @@ end
 
 ClientHandlers[ protocol.ServerMsg.PlayerList ] = function (packet)
     for i, _player in ipairs(packet.list) do
-        local player_index = search_player(Session.client.players, _player.entity_id)
+        local player_index = search_player(Session.client.players, _player[1])
         if not player_index then
-            Session.client.players[_player.entity_id] = Player.new(0, 0, 0, _player.entity_id, _player.username, _player.entity_id ~= Session.player_id)
+            Session.client.players[_player[1]] = Player.new(0, 0, 0, _player[1], _player[2], _player[1] ~= Session.player_id)
         end
     end
 end
@@ -135,13 +135,6 @@ ClientHandlers[ protocol.ServerMsg.Disconnect ] = function (packet)
     console.log(str)
     -- самоуничтожение
     Session.client:disconnect()
-end
-
-ClientHandlers[ protocol.ServerMsg.WorldData ] = function (packet)
-    for index, value in ipairs(packet.data) do
-        list.pushright( WorldDataQueue, value )
-    end
-    -- console.log("WorldData: "..packet.progress.."/"..packet.max_progress)
 end
 
 ClientHandlers[ protocol.ServerMsg.SynchronizePlayerPosition ] = function (packet)
