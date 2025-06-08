@@ -6,6 +6,7 @@ local api_events = require "api/events"
 local api_entities = require "api/entities"
 local api_env = require "api/env"
 local api_particles = require "api/particles"
+local api_audio = require "api/audio"
 local WorldDataQueue = require "multiplayer/client/WorldDataQueue"
 local utils = require "lib/utils"
 
@@ -182,6 +183,18 @@ end
 
 ClientHandlers[ protocol.ServerMsg.ParticleOrigin ] = function (packet)
     api_particles.set_origin(packet.origin)
+end
+
+ClientHandlers[ protocol.ServerMsg.AudioEmit ] = function (packet)
+    api_audio.emit(packet.audio)
+end
+
+ClientHandlers[ protocol.ServerMsg.AudioStop ] = function (packet)
+    api_audio.stop(packet.id)
+end
+
+ClientHandlers[ protocol.ServerMsg.AudioState ] = function (packet)
+    api_audio.apply(packet.state)
 end
 
 return ClientHandlers
