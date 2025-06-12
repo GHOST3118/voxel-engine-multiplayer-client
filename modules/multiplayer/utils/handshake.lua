@@ -21,16 +21,16 @@ end
 local function receive_length(network)
     local attempts = 500
     local length_bytes
-    
+
     while attempts > 0 do
         length_bytes = network:recieve_bytes(2)
 
         if length_bytes then break end
         attempts = attempts - 1
     end
-    
+
     if not length_bytes then return 0 end
-    
+
     local length_buffer = data_buffer:new()
     length_buffer:put_bytes(length_bytes)
     length_buffer:set_position(1)

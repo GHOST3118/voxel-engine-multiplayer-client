@@ -54,6 +54,15 @@ function module.__despawn__(uid)
     end
 end
 
+local function call_component(entity, fields)
+    for _, comp in pairs(entity.components) do
+        if comp.on_field_update then
+            for field_key, field_value in pairs(fields) do
+                comp.on_field_update(field_key, field_value)
+            end
+        end
+    end
+end
 
 function module.__get_uids__()
     return entities_uids
@@ -75,6 +84,8 @@ function module.__emit__(uid, def, dirty)
     local cuid = entities_uids[uid]
     local entity = entities.get(cuid)
     if not entity then return end
+
+    call_component(entity, dirty.custom_fields or {})
 
     if handlers[def] then
         handlers[def](cuid, def, dirty.custom_fields or {})
