@@ -7,6 +7,7 @@ local api_entities = require "api/entities"
 local api_env = require "api/env"
 local api_particles = require "api/particles"
 local api_audio = require "api/audio"
+local api_text3d = require "api/text3d"
 local WorldDataQueue = require "multiplayer/client/WorldDataQueue"
 local utils = require "lib/utils"
 
@@ -195,6 +196,32 @@ end
 
 ClientHandlers[ protocol.ServerMsg.AudioState ] = function (packet)
     api_audio.apply(packet.state)
+end
+
+ClientHandlers[ protocol.ServerMsg.Text3DShow ] = function (packet)
+    api_text3d.show(packet.data)
+end
+
+ClientHandlers[ protocol.ServerMsg.Text3DHide ] = function (packet)
+    api_text3d.hide(packet.id)
+end
+
+ClientHandlers[ protocol.ServerMsg.Text3DState ] = function (packet)
+    api_text3d.apply(packet.state)
+end
+
+ClientHandlers[ protocol.ServerMsg.Text3DAxis ] = function (packet)
+    local state = {
+        id = packet.id
+    }
+
+    if packet.is_x then
+        state.axisX = packet.axis
+    else
+        state.axisY = packet.axis
+    end
+
+    api_text3d.apply(state)
 end
 
 return ClientHandlers
