@@ -10,6 +10,16 @@ function module.show(text)
         text.extension
     )
     TEXTS_IDS[text.id] = id
+
+    if text.axisX then
+        gfx.text3d.set_axis_x(id, text.axisX)
+    end
+    if text.axisY then
+        gfx.text3d.set_axis_y(id, text.axisY)
+    end
+    if text.rotation then
+        gfx.text3d.set_rotation(id, text.rotation)
+    end
 end
 
 function module.apply(text)
