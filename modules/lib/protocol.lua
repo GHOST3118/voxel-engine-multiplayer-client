@@ -44,7 +44,7 @@ function protocol.build_packet(client_or_server, packet_type, ...)
     local state, res = pcall(encoder, buffer, ...)
 
     if not state then
-        print("Packet encoding crash:", res)
+        print("Packet encoding crash:", res, packet_type)
     end
 
     buffer:flush()

@@ -24,7 +24,7 @@ events.on(PACK_ID..":success", function (index, username, ip, port, server)
         assets.load_texture(server.favicon, index .. ".icon")
         document["serverstatus_"..index].text = "[#22ff22]Online"
         document["playersonline_"..index].text = server.online .. " / " .. server.max
-        document["playersonline_"..index].tooltip = table.concat(server.players, "\n")
+        document["playersonline_"..index].tooltip = table.concat(server.friends_states, "\n")
         -- не удалось понять почему не работает tooltip.
         -- возможно потому что это элемент списка?
         document["servermotd_"..index].text = server.name

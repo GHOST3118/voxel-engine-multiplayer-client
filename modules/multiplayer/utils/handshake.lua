@@ -14,7 +14,10 @@ local function send_packet(network, packet_data)
 end
 
 local function perform_handshake(network)
-    send_packet(network, protocol.build_packet("client", protocol.ClientMsg.HandShake, "0.28.0", protocol.data.version, protocol.States.Status))
+    local major, minor = _G["$APP"].get_version()
+    local engine_version = string.format("%s.%s.0", major, minor)
+
+    send_packet(network, protocol.build_packet("client", protocol.ClientMsg.HandShake, engine_version, protocol.data.version, {}, protocol.States.Status))
     send_packet(network, protocol.build_packet("client", protocol.ClientMsg.StatusRequest))
 end
 
