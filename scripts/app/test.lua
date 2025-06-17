@@ -45,7 +45,7 @@ local function leave_to_menu()
     if world.is_open() then
         app.close_world(false)
     end
-    _G['$VoxelOnline'] = nil
+    _G['$Neutron'] = nil
 
     app.reset_content()
     menu:reset()
@@ -83,7 +83,7 @@ events.on(ON_CONNECT, function(username, host, port, packet)
         gui.alert("Server disconnected | reason: " .. _packet.reason, leave_to_menu)
     end
     Session.client.on_connect = function(_packet)
-        _G['$VoxelOnline'] = "client"
+        _G['$Neutron'] = "client"
         chunks_distance = _packet.chunks_loading_distance
         app.new_world("", "11111111111", "multiplayer:void", _packet.entity_id)
 
@@ -137,8 +137,8 @@ while not world.is_open() do
         Session.client:await_join()
     end
 
-    if _G['$VoxelOnline'] then
-        _G['$VoxelOnline'] = nil
+    if _G['$Neutron'] then
+        _G['$Neutron'] = nil
     end
 
     app.tick()

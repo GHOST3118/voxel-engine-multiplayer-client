@@ -27,7 +27,7 @@ events.on(PACK_ID..":success", function (index, username, ip, port, server)
         document["playersonline_"..index].tooltip = table.concat(server.friends_states, "\n")
         -- не удалось понять почему не работает tooltip.
         -- возможно потому что это элемент списка?
-        document["servermotd_"..index].text = server.name
+        document["servermotd_"..index].text = server.short_desc
     else
         document["serverstatus_"..index].text = "[#ff2222]Offline"
         document["playersonline_"..index].text = ""
