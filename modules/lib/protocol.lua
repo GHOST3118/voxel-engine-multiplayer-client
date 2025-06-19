@@ -70,7 +70,8 @@ function protocol.parse_packet(client_or_server, data)
     local state, res = pcall(decoder, buffer)
 
     if not state then
-        print("Packet parsing crash:", res)
+        print("Packet parsing crash:", res, packet_type)
+        print(data)
     end
 
     for indx, name in ipairs(names) do

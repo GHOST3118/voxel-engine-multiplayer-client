@@ -6,6 +6,8 @@ local entities_components = {}
 local handlers = {}
 local desynced_entities = {}
 
+local PLAYER_ENTITY_ID = nil
+
 local function vec_zero()
     return {0, 0, 0}
 end
@@ -64,24 +66,8 @@ local function call_component(entity, fields)
     end
 end
 
-function module.__get_uids__()
-    return entities_uids
-end
-
-function module.__emit__(uid, def, dirty)
+local function update(cuid, def, dirty)
     local std_fields = dirty.standart_fields or {}
-
-    if not entities_uids[uid] then
-        local entity_name = entities.def_name(def)
-        local new_entity = original_spawn(entity_name, std_fields.tsf_pos or vec_zero())
-        entities_uids[uid] = new_entity:get_uid()
-
-        if new_entity.rigidbody then
-            new_entity.rigidbody:set_gravity_scale(vec_zero())
-        end
-    end
-
-    local cuid = entities_uids[uid]
     local entity = entities.get(cuid)
     if not entity then return end
 
@@ -150,6 +136,36 @@ function module.__emit__(uid, def, dirty)
     if std_fields.tsf_rot then transform:set_rot(std_fields.tsf_rot) end
     if std_fields.tsf_scale then transform:set_scale(std_fields.tsf_scale) end
     if std_fields.body_size then rigidbody:set_size(std_fields.body_size) end
+end
+
+function module.__get_uids__()
+    return entities_uids
+end
+
+function module.__update_player__(pid, dirty)
+    if not PLAYER_ENTITY_ID then
+        local player_entity = entities.get(player.get_entity(hud.get_player()))
+
+        PLAYER_ENTITY_ID = player_entity:def_index()
+    end
+    update(player.get_entity(pid), PLAYER_ENTITY_ID, dirty)
+end
+
+function module.__emit__(uid, def, dirty)
+    local std_fields = dirty.standart_fields or {}
+
+    if not entities_uids[uid] then
+        local entity_name = entities.def_name(def)
+        local new_entity = original_spawn(entity_name, std_fields.tsf_pos or vec_zero())
+        entities_uids[uid] = new_entity:get_uid()
+
+        if new_entity.rigidbody then
+            new_entity.rigidbody:set_gravity_scale(vec_zero())
+        end
+    end
+
+    local cuid = entities_uids[uid]
+    update(cuid, def, dirty)
 end
 
 return module

@@ -166,6 +166,10 @@ ClientHandlers[ protocol.ServerMsg.SynchronizePlayerPosition ] = function (packe
     Session.client.position_initialized = true
 end
 
+ClientHandlers[ protocol.ServerMsg.PlayerFieldsUpdate ] = function (packet)
+    api_entities.__update_player__(packet.pid, packet.dirty)
+end
+
 ClientHandlers[ protocol.ServerMsg.EntityUpdate ] = function (packet)
     api_entities.__emit__(packet.uid, packet.entity_def, packet.dirty)
 end
