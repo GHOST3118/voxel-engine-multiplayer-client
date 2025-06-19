@@ -33,18 +33,18 @@
         ["Disconnect"]
     ],
     "server": [
-        ["JoinSuccess", "entity_id:var", "game_time:uint16", "rules:array<Rule>", "chunks_loading_distance:uint8"],
+        ["JoinSuccess", "entity_id:uint32", "game_time:uint16", "rules:array<Rule>", "chunks_loading_distance:uint8"],
         ["SynchronizePlayerPosition", "x:f32", "y:f32", "z:f32", "yaw:degree", "pitch:degree", "noclip:boolean", "flight:boolean"],
         ["SetPlayerAbilities", "flags:uint8"],
         ["TimeUpdate", "game_time:uint16"],
         ["StatusResponse", "short_desc:string", "description:string", "favicon:array<uint8>", "friends_states:array<boolean>", "version:string", "protocol:uint16", "max:uint16", "online:uint16"],
         ["PongResponse", "payload:uint32"],
         ["KeepAlive", "challenge:uint8"],
-        ["PlayerJoined", "entity_id:var", "username:string", "x:f32", "y:f32", "z:f32", "noclip:boolean", "flight:boolean"],
-        ["PlayerMoved", "entity_id:var", "x:f32", "y:f32", "z:f32", "yaw:degree", "pitch:degree", "noclip:boolean", "flight:boolean"],
+        ["PlayerJoined", "entity_id:uint32", "username:string", "x:f32", "y:f32", "z:f32", "noclip:boolean", "flight:boolean"],
+        ["PlayerMoved", "entity_id:uint32", "x:f32", "y:f32", "z:f32", "yaw:degree", "pitch:degree", "noclip:boolean", "flight:boolean"],
         ["PlayerList", "list:array<Player>"],
-        ["PlayerListAdd", "username:string", "entity_id:var"],
-        ["PlayerListRemove", "username:string", "entity_id:var"],
+        ["PlayerListAdd", "username:string", "entity_id:uint32"],
+        ["PlayerListRemove", "username:string", "entity_id:uint32"],
         ["PlayerInventory", "inventory:bson"],
         ["PlayerHandSlot", "slot:uint8"],
         ["ChunkData", "x:int16", "z:int16", "data:array<uint8>"],
@@ -56,23 +56,21 @@
         ["PackEvent", "pack:string", "event:string", "bytes:array<uint8>"],
         ["PackEnv", "pack:string", "env:string", "key:string", "value:any"],
 
-        ["EntityUpdate", "uid:var", "entity_def:uint16", "dirty:bson"],
-        ["EntityDespawn", "uid:var"],
-
-        ["PlayerFieldsUpdate", "pid:var", "dirty:bson"],
+        ["EntityUpdate", "uid:uint32", "entity_def:uint16", "dirty:bson"],
+        ["EntityDespawn", "uid:uint32"],
 
         ["ParticleEmit", "particle:particle"],
         ["ParticleOrigin", "origin:particle_origin"],
-        ["ParticleStop", "pid:var"],
+        ["ParticleStop", "pid:uint32"],
 
         ["AudioEmit", "audio:Audio"],
         ["AudioState", "state:bson"],
-        ["AudioStop", "id:var"],
+        ["AudioStop", "id:uint32"],
 
         ["Text3DShow", "data:bson"],
         ["Text3DState", "state:bson"],
-        ["Text3DAxis", "id:var", "axis:vec3<f32>", "is_x:boolean"],
-        ["Text3DHide", "id:var"],
+        ["Text3DAxis", "id:uint32", "axis:vec3<f32>", "is_x:boolean"],
+        ["Text3DHide", "id:uint32"],
 
         ["WeatherChanged", "weather:bson", "time:uint16", "name:string"],
         ["Disconnect", "reason:string"]
