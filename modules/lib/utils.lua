@@ -26,44 +26,46 @@ function utils.createNthCallFunction(n, func)
 end
 
 function utils.get_inv(invid)
-    local inv_size = inventory.size(invid)
-    local res_inv = {}
+   local inv_size = inventory.size(invid)
+   local res_inv = {}
 
-    for i = 1, 40 do
-        res_inv[i] = {id = 0, count = 0}
-    end
+   for i = 1, 40 do
+      res_inv[i] = {id = 0, count = 0}
+   end
 
-    for slot = 0, inv_size - 1 do
-        local item_id, count = inventory.get(invid, slot)
-        local index = slot + 1
+   for slot = 0, inv_size - 1 do
+      local item_id, count = inventory.get(invid, slot)
+      local index = slot + 1
 
-        if item_id ~= 0 then
-            local item_data = inventory.get_all_data(invid, slot)
-            res_inv[index] = {
-                id = item_id,
-                count = count,
-                meta = item_data
+      if item_id ~= 0 then
+         local item_data = inventory.get_all_data(invid, slot)
+         res_inv[index] = {
+               id = item_id,
+               count = count,
+               meta = item_data
             }
-        end
-    end
+      end
+   end
 
-    return res_inv
+   return res_inv
 end
 
 function utils.set_inv(invid, res_inv)
-    for i, item in ipairs(res_inv) do
-        local slot = i - 1
+   for i, item in ipairs(res_inv) do
+      local slot = i - 1
 
-        if item.id ~= 0 then
-            inventory.set(invid, slot, item.id, item.count)
+      if item.id ~= 0 then
+         inventory.set(invid, slot, item.id, item.count)
 
-            if item.meta then
-                for name, value in pairs(item.meta) do
-                    inventory.set_data(invid, slot, name, value)
-                end
+         if item.meta then
+            for name, value in pairs(item.meta) do
+               inventory.set_data(invid, slot, name, value)
             end
-        end
-    end
+         end
+      else
+         inventory.set(invid, slot, 0, 0)
+      end
+   end
 end
 
 function utils.lerp(cur_pos, target_pos, t)
