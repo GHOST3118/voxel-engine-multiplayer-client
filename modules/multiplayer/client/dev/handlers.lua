@@ -8,6 +8,7 @@ local api_env = require "api/env"
 local api_particles = require "api/particles"
 local api_audio = require "api/audio"
 local api_text3d = require "api/text3d"
+local api_wraps = require "api/wraps"
 local WorldDataQueue = require "multiplayer/client/WorldDataQueue"
 local utils = require "lib/utils"
 
@@ -200,6 +201,22 @@ end
 
 ClientHandlers[ protocol.ServerMsg.AudioState ] = function (packet)
     api_audio.apply(packet.state)
+end
+
+ClientHandlers[ protocol.ServerMsg.WrapShow ] = function (packet)
+    api_wraps.show(packet)
+end
+
+ClientHandlers[ protocol.ServerMsg.WrapHide ] = function (packet)
+    api_wraps.hide(packet.id)
+end
+
+ClientHandlers[ protocol.ServerMsg.WrapSetPos ] = function (packet)
+    api_wraps.set_pos(packet.id, packet.pos)
+end
+
+ClientHandlers[ protocol.ServerMsg.WrapSetTexture ] = function (packet)
+    api_wraps.set_texture(packet.id, packet.texture)
 end
 
 ClientHandlers[ protocol.ServerMsg.Text3DShow ] = function (packet)
