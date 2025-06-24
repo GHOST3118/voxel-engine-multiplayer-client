@@ -25,6 +25,24 @@ function _G.start_require(path)
     return _G["/$p"][path]
 end
 
+function math.bit_length(num)
+    num = math.abs(num)
+
+    if num == 0 then
+        return 1
+    end
+
+    return math.floor(math.log(num, 2)) + 1
+end
+
+function table.rep(tbl, elem, rep_count)
+    for i=1, rep_count do
+        table.insert(tbl, table.deep_copy(elem))
+    end
+
+    return tbl
+end
+
 _G["/$p"] = table.copy(package.loaded)
 
 menu.page = "servers"
@@ -84,6 +102,13 @@ events.on(ON_CONNECT, function(username, host, port, packet)
     end
     Session.client.on_connect = function(_packet)
         _G['$Neutron'] = "client"
+        _G['$Multiplayer'] = {
+            side = "client",
+            api_reference = {
+                name = "Neutron",
+                version = 1
+            }
+        }
         chunks_distance = _packet.chunks_loading_distance
         app.new_world("", "11111111111", "multiplayer:void", _packet.entity_id)
 
@@ -137,8 +162,9 @@ while not world.is_open() do
         Session.client:await_join()
     end
 
-    if _G['$Neutron'] then
+    if _G['$Neutron'] or _G['$Multiplayer'] then
         _G['$Neutron'] = nil
+        _G['$Multiplayer'] = nil
     end
 
     app.tick()
