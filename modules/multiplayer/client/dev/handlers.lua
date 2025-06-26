@@ -87,7 +87,7 @@ end
 ClientHandlers[ protocol.ServerMsg.PlayerJoined ] = function (packet)
     console.log("| [SERVER] "..packet.username.." Joined to Server!")
     if not search_player(Session.client.players, packet.entity_id) then
-        Session.client.players[packet.entity_id] = Player.new(packet.x, packet.y, packet.z, packet.entity_id, packet.username)
+        Session.client.players[packet.entity_id] = Player.new(packet.data.x, packet.data.y, packet.data.z, packet.entity_id, packet.username)
     end
 end
 
@@ -120,10 +120,17 @@ end
 ClientHandlers[ protocol.ServerMsg.PlayerMoved ] = function (packet)
     if packet.entity_id == Session.client.entity_id then return end
     if not Session.client.players[packet.entity_id] then return end
+    local data = packet.data
 
-    Session.client.players[packet.entity_id]:move(packet.x, packet.y, packet.z)
-    Session.client.players[packet.entity_id]:rotate(packet.yaw, packet.pitch)
-    Session.client.players[packet.entity_id]:cheats(packet.noclip, packet.flight)
+    if data.pos then
+        Session.client.players[packet.entity_id]:move(data.pos.x, data.pos.y, data.pos.z)
+    end
+    if data.rot then
+        Session.client.players[packet.entity_id]:rotate(data.rot.yaw, data.rot.pitch)
+    end
+    if data.cheats then
+        Session.client.players[packet.entity_id]:cheats(data.cheats.noclip, data.cheats.flight)
+    end
 end
 
 ClientHandlers[ protocol.ServerMsg.KeepAlive ] = function (packet)
@@ -141,27 +148,48 @@ ClientHandlers[ protocol.ServerMsg.Disconnect ] = function (packet)
 end
 
 ClientHandlers[ protocol.ServerMsg.SynchronizePlayerPosition ] = function (packet)
-    -- небольшой костыль: намеренно игнорируем пакет, если все параметры равны нулю
-    if packet.x ~= 0 or packet.y ~= 0 or packet.z ~= 0 or packet.yaw ~= 0 or packet.pitch ~= 0 then
-        player.set_pos(Session.player_id, packet.x, packet.y, packet.z)
-        player.set_rot(Session.player_id, packet.yaw, packet.pitch, 0)
+    local player_data = packet.data
 
-        player.set_noclip(Session.player_id, packet.noclip)
-        player.set_flight(Session.player_id, packet.flight)
+    if player_data.pos or player_data.rot then
+        local x = player_data.pos and player_data.pos.x or Session.client.x
+        local y = player_data.pos and player_data.pos.y or Session.client.y
+        local z = player_data.pos and player_data.pos.z or Session.client.z
+        local yaw = player_data.rot and player_data.rot.yaw or Session.client.yaw
+        local pitch = player_data.rot and player_data.rot.pitch or Session.client.pitch
 
-        Session.client.x = packet.x
-        Session.client.y = packet.y
-        Session.client.z = packet.z
-        Session.client.yaw = packet.yaw
-        Session.client.pitch = packet.pitch
-        Session.client.noclip = packet.noclip
-        Session.client.flight = packet.flight
-        Session.client.pos_moved = false
-        Session.client.rotation_moved = false
-        Session.client.cheats_changed = false
-        Session.client.moved_thru_chunk = false
-        Session.client.region_pos = {x = math.floor(packet.x / 32), z = math.floor(packet.z / 32)}
+        player.set_pos(Session.player_id, x, y, z)
+        player.set_rot(Session.player_id, yaw, pitch, 0)
+
+        if player_data.pos then
+            Session.client.x = x
+            Session.client.y = y
+            Session.client.z = z
+            Session.client.pos_moved = false
+            Session.client.region_pos = {x = math.floor(x / 32), z = math.floor(z / 32)}
+        end
+
+        if player_data.rot then
+            Session.client.yaw = yaw
+            Session.client.pitch = pitch
+            Session.client.rotation_moved = false
+        end
     end
+
+    if player_data.cheats then
+        if player_data.cheats.noclip ~= nil then
+            player.set_noclip(Session.player_id, player_data.cheats.noclip)
+            Session.client.noclip = player_data.cheats.noclip
+        end
+
+        if player_data.cheats.flight ~= nil then
+            player.set_flight(Session.player_id, player_data.cheats.flight)
+            Session.client.flight = player_data.cheats.flight
+        end
+
+        Session.client.cheats_changed = false
+    end
+
+    Session.client.moved_thru_chunk = false
     player.set_suspended(Session.player_id, false)
     player.set_loading_chunks(Session.player_id, true)
     Session.client.position_initialized = true
