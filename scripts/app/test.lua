@@ -25,6 +25,34 @@ function _G.start_require(path)
     return _G["/$p"][path]
 end
 
+local set_pos = player["set_pos"]
+
+player.set_pos = function (pid, x, y, z)
+
+    local entity = entities.get(player.get_entity(pid))
+
+    if entity then
+        entity.rigidbody:set_enabled(true)
+        local transform, rigidbody = entity.transform, entity.rigidbody
+        rigidbody:set_vel({0, 0, 0})
+        local current_pos = transform:get_pos()
+        local target_pos = {x, y, z}
+        local direction = vec3.sub(target_pos, current_pos)
+        local distance = vec3.length(direction)
+
+        if distance > 10 or distance < 0.01 then
+            transform:set_pos(target_pos)
+            rigidbody:set_vel({0, 0, 0})
+        elseif rigidbody then
+            local time_to_reach = 0.1
+            local velocity = vec3.mul(vec3.normalize(direction), distance / time_to_reach)
+            rigidbody:set_vel(velocity)
+        end
+    else
+        set_pos(pid, x, y, z)
+    end
+end
+
 function math.bit_length(num)
     if num == 0 then
         return 0
