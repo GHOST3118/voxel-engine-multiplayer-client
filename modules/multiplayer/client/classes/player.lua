@@ -33,7 +33,6 @@ function Player:move(x, y, z)
     local entity = entities.get(player.get_entity( self.entity_id ))
     if entity then
         entity.rigidbody:set_enabled(false)
-        entity.skeleton:set_interpolated(true)
     end
 end
 
@@ -43,7 +42,6 @@ function Player:rotate(yaw, pitch)
     local entity = entities.get(player.get_entity( self.entity_id ))
     if entity then
         entity.rigidbody:set_enabled(false)
-        entity.skeleton:set_interpolated(true)
     end
 end
 
