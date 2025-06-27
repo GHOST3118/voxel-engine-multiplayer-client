@@ -33,7 +33,13 @@ ClientHandlers[ protocol.ServerMsg.PlayerHandSlot ] = function (packet)
 end
 
 ClientHandlers[ protocol.ServerMsg.BlockChanged ] = function (packet)
-    block.set(packet.x, packet.y, packet.z, packet.block_id, packet.block_state, packet.pid)
+    local pid = packet.pid
+
+    if pid == 0 then
+        pid = -1
+    end
+
+    block.set(packet.x, packet.y, packet.z, packet.block_id, packet.block_state, pid)
 end
 
 ClientHandlers[ protocol.ServerMsg.PackEvent ] = function (packet)
