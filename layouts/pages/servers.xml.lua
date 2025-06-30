@@ -92,7 +92,12 @@ function refresh_server_list()
         
         local ip = server_parts[1]
         local port = tonumber(server_parts[2]) or 25565
-        
+
+        connectors[index] = function()
+            events.emit(PACK_ID..":connect", username, ip, port)
+            menu.page="connecting"
+        end
+
         -- проверяем
         local hs = handshake.create(ip, port, function (server)
             events.emit(PACK_ID..":success", index, username, ip, port, server)
