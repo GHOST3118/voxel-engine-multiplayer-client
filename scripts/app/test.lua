@@ -140,7 +140,7 @@ events.on(ON_CONNECT, function(username, host, port, packet)
             }
         }
         chunks_distance = _packet.chunks_loading_distance
-        app.new_world("", "11111111111", "multiplayer:void", _packet.entity_id)
+        app.new_world("", "41530140565755", "multiplayer:void", _packet.entity_id)
 
         for _, rule in ipairs(_packet.rules) do
             rules.set(rule[1], rule[2])
