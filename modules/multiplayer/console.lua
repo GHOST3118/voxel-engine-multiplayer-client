@@ -35,6 +35,6 @@ console.submit = function (command)
         -- console.log(  )
         console.execute(command)
     else
-        console.execute("chat '."..command.."'")
+        console.execute("chat '/"..command.."'")
     end
 end
