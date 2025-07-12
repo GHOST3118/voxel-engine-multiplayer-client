@@ -23,6 +23,7 @@ LoginHandlers.on_event = function(client)
                 end
             end
 
+            _G["$APP"].reset_content()
             _G["$APP"].config_packs({ "multiplayer" })
             _G["$APP"].reconfig_packs(packs, {})
             _G["$APP"].load_content()
